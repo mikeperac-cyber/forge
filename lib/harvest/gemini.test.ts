@@ -34,7 +34,10 @@ function writeConversationDb(file: string, blob: Buffer | null) {
   const db = new Database(file);
   db.exec("CREATE TABLE trajectory_metadata_blob (id TEXT, data BLOB)");
   if (blob) {
-    db.prepare("INSERT INTO trajectory_metadata_blob VALUES (?, ?)").run("t", blob);
+    db.prepare("INSERT INTO trajectory_metadata_blob VALUES (?, ?)").run(
+      "t",
+      blob,
+    );
   }
   db.close();
 }
@@ -55,7 +58,11 @@ beforeAll(async () => {
   await writeFile(
     path.join(good, "transcript.jsonl"),
     [
-      step("USER_INPUT", "2026-08-14T09:00:00Z", "  Rebuild   the   descriptors  "),
+      step(
+        "USER_INPUT",
+        "2026-08-14T09:00:00Z",
+        "  Rebuild   the   descriptors  ",
+      ),
       step("PLANNER_RESPONSE", "2026-08-14T09:05:00Z"),
       step("RUN_COMMAND", "2026-08-14T09:06:00Z"),
       step("USER_INPUT", "2026-08-14T09:40:00Z", "thanks"),
@@ -106,7 +113,10 @@ afterAll(async () => {
 async function harvestAll(since: Date | null = null) {
   const stats = summary();
   const out: RawActivity[] = [];
-  for await (const activity of createGeminiHarvester(root).harvest(since, stats)) {
+  for await (const activity of createGeminiHarvester(root).harvest(
+    since,
+    stats,
+  )) {
     out.push(activity);
   }
   return { out, stats };
@@ -120,7 +130,9 @@ describe("workspaceFromBlob", () => {
   });
 
   it("decodes percent-encoding", () => {
-    const got = workspaceFromBlob(blobWith("file:///c%3A/Users/mike/My%20Work"));
+    const got = workspaceFromBlob(
+      blobWith("file:///c%3A/Users/mike/My%20Work"),
+    );
     expect(got).toContain("My Work");
     expect(got).toContain("c:");
   });
@@ -137,7 +149,9 @@ describe("workspaceFromBlob", () => {
 describe("gemini harvester", () => {
   it("detects a present source and an absent one", async () => {
     expect(await createGeminiHarvester(root).detect()).toBe(true);
-    expect(await createGeminiHarvester(path.join(root, "nope")).detect()).toBe(false);
+    expect(await createGeminiHarvester(path.join(root, "nope")).detect()).toBe(
+      false,
+    );
   });
 
   it("takes the workspace from the conversation database", async () => {
@@ -146,7 +160,9 @@ describe("gemini harvester", () => {
 
     // The transcript itself carries no cwd at all — this can only have come
     // from the sqlite blob.
-    expect(session.path).toBe(canonicalPath(WORKSPACE.replace(/\//g, path.sep)));
+    expect(session.path).toBe(
+      canonicalPath(WORKSPACE.replace(/\//g, path.sep)),
+    );
     expect(session.displayPath).toContain("IELTS-4-Weeks");
   });
 
@@ -194,7 +210,9 @@ describe("gemini harvester", () => {
   it("counts only gaps shorter than the idle threshold", async () => {
     const { out } = await harvestAll();
     // 09:00 → 09:05 → 09:06 counts (6m); the 34m gap to 09:40 does not.
-    expect(out.find((a) => a.sessionRef === "sess-good")!.activeMinutes).toBe(6);
+    expect(out.find((a) => a.sessionRef === "sess-good")!.activeMinutes).toBe(
+      6,
+    );
   });
 
   it("tags every activity with its own tool", async () => {
@@ -214,7 +232,9 @@ describe("gemini harvester", () => {
     );
     await utimes(file, past, past);
 
-    const { out, stats } = await harvestAll(new Date("2024-01-01T00:00:00.000Z"));
+    const { out, stats } = await harvestAll(
+      new Date("2024-01-01T00:00:00.000Z"),
+    );
 
     expect(out.some((a) => a.sessionRef === "sess-good")).toBe(false);
     expect(stats.filesSkipped).toBeGreaterThanOrEqual(1);

@@ -64,14 +64,14 @@ export function CommandPalette({
     >
       <Command
         label="Command palette"
-        className="w-[min(600px,92vw)] overflow-hidden rounded-lg border border-line-strong bg-panel shadow-2xl"
+        className="border-line-strong bg-panel w-[min(600px,92vw)] overflow-hidden rounded-lg border shadow-2xl"
         onClick={(event) => event.stopPropagation()}
         loop
       >
-        <div className="flex items-center gap-2 border-b border-line px-3">
+        <div className="border-line flex items-center gap-2 border-b px-3">
           <Icon
             name={workflowsOnly ? "Workflow" : "Search"}
-            className="size-4 text-ink-faint"
+            className="text-ink-faint size-4"
           />
           <Command.Input
             autoFocus
@@ -82,15 +82,15 @@ export function CommandPalette({
                 ? "Go to workflow…"
                 : "Search workflows, runs and commands…"
             }
-            className="h-11 flex-1 bg-transparent text-[13px] outline-none placeholder:text-ink-faint"
+            className="placeholder:text-ink-faint h-11 flex-1 bg-transparent text-[13px] outline-none"
           />
-          <kbd className="rounded border border-line bg-canvas px-1.5 py-0.5 text-[10px] text-ink-faint">
+          <kbd className="border-line bg-canvas text-ink-faint rounded border px-1.5 py-0.5 text-[10px]">
             Esc
           </kbd>
         </div>
 
         <Command.List className="max-h-96 overflow-y-auto p-1.5">
-          <Command.Empty className="px-3 py-6 text-center text-[12.5px] text-ink-faint">
+          <Command.Empty className="text-ink-faint px-3 py-6 text-center text-[12.5px]">
             Nothing matches “{query}”.
           </Command.Empty>
 
@@ -221,7 +221,7 @@ function Group({
   return (
     <Command.Group
       heading={heading}
-      className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-ink-faint"
+      className="[&_[cmdk-group-heading]]:text-ink-faint [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:uppercase"
     >
       {children}
     </Command.Group>
@@ -247,12 +247,12 @@ function Item({
     <Command.Item
       value={value ?? label}
       onSelect={onSelect}
-      className="flex cursor-pointer items-center gap-2.5 rounded px-2 py-1.5 text-[12.5px] text-ink-soft data-[selected=true]:bg-accent-soft data-[selected=true]:text-accent"
+      className="text-ink-soft data-[selected=true]:bg-accent-soft data-[selected=true]:text-accent flex cursor-pointer items-center gap-2.5 rounded px-2 py-1.5 text-[12.5px]"
     >
       <Icon name={icon} className="size-3.5 shrink-0" />
       <span className="flex-1 truncate">{label}</span>
       {hint && (
-        <span className={cn("shrink-0 text-[11px] text-ink-faint", hintClass)}>
+        <span className={cn("text-ink-faint shrink-0 text-[11px]", hintClass)}>
           {hint}
         </span>
       )}

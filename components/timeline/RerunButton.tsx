@@ -34,13 +34,13 @@ export function RerunButton({
             }
           })
         }
-        className="flex items-center gap-1.5 rounded bg-accent px-2.5 py-1 text-[12.5px] font-medium text-white disabled:opacity-50"
+        className="bg-accent flex items-center gap-1.5 rounded px-2.5 py-1 text-[12.5px] font-medium text-white disabled:opacity-50"
       >
         <Icon name="Play" className="size-3.5" />
         {pending ? "Starting…" : `Re-run v${version}`}
       </button>
       {error && (
-        <p className="absolute right-0 top-full mt-1 whitespace-nowrap text-[11px] text-bad">
+        <p className="text-bad absolute top-full right-0 mt-1 text-[11px] whitespace-nowrap">
           {error}
         </p>
       )}

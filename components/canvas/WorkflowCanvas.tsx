@@ -22,7 +22,11 @@ import {
   type Edge,
   type Node,
 } from "@xyflow/react";
-import { Group, Panel as ResizablePanel, Separator } from "react-resizable-panels";
+import {
+  Group,
+  Panel as ResizablePanel,
+  Separator,
+} from "react-resizable-panels";
 import { nanoid } from "nanoid";
 import { EXECUTORS, defaultConfigFor } from "@/lib/engine/registry";
 import { validateGraph } from "@/lib/engine/validate";
@@ -88,8 +92,12 @@ export function WorkflowCanvas(props: Props) {
 }
 
 function Canvas({ workflow, initialGraph }: Props) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(toFlowNodes(initialGraph));
-  const [edges, setEdges, onEdgesChange] = useEdgesState(toFlowEdges(initialGraph));
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    toFlowNodes(initialGraph),
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    toFlowEdges(initialGraph),
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
@@ -187,7 +195,10 @@ function Canvas({ workflow, initialGraph }: Props) {
           id,
           type: kind,
           // Cascade slightly so repeated adds don't stack invisibly.
-          position: { x: 120 + current.length * 28, y: 120 + current.length * 22 },
+          position: {
+            x: 120 + current.length * 28,
+            y: 120 + current.length * 22,
+          },
           data: {
             kind,
             label: undefined,
@@ -347,7 +358,7 @@ function Canvas({ workflow, initialGraph }: Props) {
               type="button"
               onClick={save}
               disabled={!dirty || saving}
-              className="flex items-center gap-1.5 rounded border border-line px-2 py-1 text-[12.5px] text-ink-soft hover:bg-line/50 disabled:opacity-40"
+              className="border-line text-ink-soft hover:bg-line/50 flex items-center gap-1.5 rounded border px-2 py-1 text-[12.5px] disabled:opacity-40"
             >
               <Icon name="Save" className="size-3.5" />
               Save
@@ -375,14 +386,14 @@ function Canvas({ workflow, initialGraph }: Props) {
             <ResizablePanel defaultSize={76} minSize={40}>
               <div className="relative h-full">
                 {/* palette */}
-                <div className="absolute left-3 top-3 z-10 flex items-center gap-0.5 rounded-md border border-line bg-panel/95 p-1 shadow-sm backdrop-blur">
+                <div className="border-line bg-panel/95 absolute top-3 left-3 z-10 flex items-center gap-0.5 rounded-md border p-1 shadow-sm backdrop-blur">
                   {EXECUTORS.map((executor) => (
                     <button
                       key={executor.kind}
                       type="button"
                       onClick={() => addNode(executor.kind)}
                       title={`Add ${executor.label} — ${executor.description}`}
-                      className="flex items-center gap-1 rounded px-1.5 py-1 text-[11.5px] text-ink-soft hover:bg-line/60 hover:text-ink"
+                      className="text-ink-soft hover:bg-line/60 hover:text-ink flex items-center gap-1 rounded px-1.5 py-1 text-[11.5px]"
                     >
                       <Icon name={executor.icon} className="size-3.5" />
                       {executor.label}
@@ -396,7 +407,11 @@ function Canvas({ workflow, initialGraph }: Props) {
                   nodeTypes={NODE_TYPES}
                   onNodesChange={(changes) => {
                     onNodesChange(changes);
-                    if (changes.some((c) => c.type !== "select" && c.type !== "dimensions")) {
+                    if (
+                      changes.some(
+                        (c) => c.type !== "select" && c.type !== "dimensions",
+                      )
+                    ) {
                       markDirty();
                     }
                   }}
@@ -412,7 +427,11 @@ function Canvas({ workflow, initialGraph }: Props) {
                   proOptions={{ hideAttribution: true }}
                   defaultEdgeOptions={{ animated: false }}
                 >
-                  <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+                  <Background
+                    variant={BackgroundVariant.Dots}
+                    gap={16}
+                    size={1}
+                  />
                   <Controls showInteractive={false} />
                   <MiniMap
                     pannable
@@ -424,10 +443,10 @@ function Canvas({ workflow, initialGraph }: Props) {
               </div>
             </ResizablePanel>
 
-            <Separator className="w-px cursor-col-resize bg-line hover:bg-accent" />
+            <Separator className="bg-line hover:bg-accent w-px cursor-col-resize" />
 
             <ResizablePanel defaultSize={24} minSize={16} maxSize={40}>
-              <div className="h-full border-l border-line bg-panel">
+              <div className="border-line bg-panel h-full border-l">
                 <NodeInspector
                   node={selected}
                   onChangeConfig={changeConfig}
@@ -439,10 +458,10 @@ function Canvas({ workflow, initialGraph }: Props) {
           </Group>
         </ResizablePanel>
 
-        <Separator className="h-px cursor-row-resize bg-line hover:bg-accent" />
+        <Separator className="bg-line hover:bg-accent h-px cursor-row-resize" />
 
         <ResizablePanel defaultSize={32} minSize={10}>
-          <div className="h-full border-t border-line">
+          <div className="border-line h-full border-t">
             <RunConsole
               stream={stream}
               problems={problems}

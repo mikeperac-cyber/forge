@@ -83,7 +83,7 @@ system-wide — starting the server at logon and harvesting every 30 minutes.
 ### Before putting it anywhere public
 
 Two things in here are fine for a single trusted user on a private network and
-are not fine on the internet, both called out under *Known limitations*: the
+are not fine on the internet, both called out under _Known limitations_: the
 `new Function` expression evaluator, and the hand-rolled session cookie.
 Tailscale sidesteps both by never exposing the app in the first place.
 
@@ -93,7 +93,7 @@ Tailscale sidesteps both by never exposing the app in the first place.
 
 Every save archives the graph it replaced, so **Versions** shows what each
 version introduced — nodes added, removed or edited down to the config key, and
-connections gained or lost. Moving a node is reported as *layout only*: it bumps
+connections gained or lost. Moving a node is reported as _layout only_: it bumps
 the version but changes nothing the workflow does. Restoring is itself a save,
 so it's undoable rather than destructive.
 
@@ -110,11 +110,11 @@ produced, and narrows the log stream to that step.
 
 Three records, kept apart on purpose:
 
-| | |
-|---|---|
-| **Block** | time you *planned* — the intention, before the day starts |
-| **Session** | time you *claimed* — you started a timer |
-| **Activity** | time a tool *witnessed* — harvested from its own history |
+|              |                                                           |
+| ------------ | --------------------------------------------------------- |
+| **Block**    | time you _planned_ — the intention, before the day starts |
+| **Session**  | time you _claimed_ — you started a timer                  |
+| **Activity** | time a tool _witnessed_ — harvested from its own history  |
 
 Collapsing any two of these loses the only genuinely useful signal. The gap
 between Block and Session tells you whether the plan was real. The gap between
@@ -125,7 +125,7 @@ must not be able to silently inflate a day you already stood behind by hand.
 
 ### Harvesting
 
-**Projects** is where this lands. Press *Harvest* and it reads your AI tools'
+**Projects** is where this lands. Press _Harvest_ and it reads your AI tools'
 histories, then lists every folder you've worked in with the time observed
 there. The one decision left to you is which goal each project's time counts
 toward — until you make it, the time is recorded but counts toward nothing.
@@ -159,12 +159,12 @@ brain/<id>/.system_generated/logs/transcript.jsonl   when the work happened
 conversations/<id>.db                                where it happened
 ```
 
-The transcript has no working directory anywhere in it. The paths that *do*
+The transcript has no working directory anywhere in it. The paths that _do_
 appear are incidental — files a tool call happened to touch — and inferring a
 project from those is exactly the guess this module refuses to make. The real
 workspace lives in the conversation database, protobuf-encoded, and is read by
 scanning the blob's printable runs for the first `file:///` URI. That is a
-scrape, and it will break when the layout upstream changes. It breaks *safely*:
+scrape, and it will break when the layout upstream changes. It breaks _safely_:
 a failed scrape yields no path, and a session with no path is dropped as
 unattributed rather than filed under the wrong project. Six of eight sessions
 resolve on this machine; the other two are dropped.
@@ -184,13 +184,13 @@ npm run harvest:calibrate   # re-derive it from the transcripts
 
 The threshold is the one number here that can quietly rot, so it gets its own
 script rather than a comment asserting it was reasonable once. Total active
-time at threshold *t* is the cumulative sum of every gap up to *t*, so sweeping
-*t* and differencing the totals shows how much time sits in each band of gap
+time at threshold _t_ is the cumulative sum of every gap up to _t_, so sweeping
+_t_ and differencing the totals shows how much time sits in each band of gap
 length — no change to the `ToolHarvester` contract, no re-implemented parsers.
 
 Read it looking for a **valley**: a run of bands contributing nothing is where
 the boundary between "thinking" and "gone" actually falls, and a threshold
-inside one is stable under a few minutes' drift. Note the ledger *cannot*
+inside one is stable under a few minutes' drift. Note the ledger _cannot_
 answer this — `Activity.activeMinutes` is already gap-adjusted on the way in,
 so the gap structure is gone by the time it reaches the database.
 
@@ -203,13 +203,13 @@ argued with.
 
 **Harvests are idempotent.** `(tool, sessionRef)` is the key, so re-reading the
 session you are currently sitting in updates its row rather than adding a
-second one. The watermark saved after a run is the time it *started* — a file
+second one. The watermark saved after a run is the time it _started_ — a file
 written mid-harvest then has a later mtime and gets re-read next time, instead
 of being skipped forever.
 
 **Sub-agent sessions are not counted.** Both tools record a spawned agent as
 its own transcript — Codex as a sibling file, Claude Code nested under
-`subagents/` — and a sub-agent runs *while its parent waits*, inside the
+`subagents/` — and a sub-agent runs _while its parent waits_, inside the
 parent's own span. Counting both double-counts the same wall clock, and not by
 a little: across the nine Codex rollouts on this machine it is 327 active
 minutes naively against 163 with sub-agents removed. Codex marks them with
@@ -232,17 +232,17 @@ on first run while the others stay incremental.
 ## Execution is simulated — deliberately
 
 No shell command actually runs, no model is called, no HTTP request is sent.
-What *is* real: the scheduler, the event bus, persistence, streaming,
+What _is_ real: the scheduler, the event bus, persistence, streaming,
 cancellation, concurrency limits and failure propagation.
 
 The seam is `NodeExecutor` in `lib/engine/types.ts`:
 
 ```ts
 export interface NodeExecutor<TConfig> {
-  kind: string
-  configSchema: z.ZodType<TConfig>
-  ports: { inputs: PortDef[]; outputs: PortDef[] }
-  run(ctx: ExecContext<TConfig>): AsyncIterable<RunEvent>
+  kind: string;
+  configSchema: z.ZodType<TConfig>;
+  ports: { inputs: PortDef[]; outputs: PortDef[] };
+  run(ctx: ExecContext<TConfig>): AsyncIterable<RunEvent>;
 }
 ```
 
@@ -259,15 +259,15 @@ the graph and branch conditions genuinely evaluate.
 
 ## Getting around
 
-| Key | |
-|---|---|
-| `Ctrl K` | Command palette — workflows, recent runs, navigation, actions |
-| `Ctrl P` | Go to workflow (scoped quick-open) |
-| `Ctrl B` | Toggle the explorer |
-| `Ctrl S` | Save the open workflow |
-| `Alt 1`–`9` | Switch to the nth tab |
-| `Alt W` | Close the active tab |
-| `Alt [` / `Alt ]` | Previous / next tab, wrapping |
+| Key               |                                                               |
+| ----------------- | ------------------------------------------------------------- |
+| `Ctrl K`          | Command palette — workflows, recent runs, navigation, actions |
+| `Ctrl P`          | Go to workflow (scoped quick-open)                            |
+| `Ctrl B`          | Toggle the explorer                                           |
+| `Ctrl S`          | Save the open workflow                                        |
+| `Alt 1`–`9`       | Switch to the nth tab                                         |
+| `Alt W`           | Close the active tab                                          |
+| `Alt [` / `Alt ]` | Previous / next tab, wrapping                                 |
 
 Alt rather than Ctrl for tab manipulation: Chrome reserves `Ctrl 1‑9` and
 `Ctrl W` at the browser level and won't let a page intercept them. The map lives
@@ -314,10 +314,10 @@ one is live; if all resolved dead, it is skipped. Naive "wait for every parent
 to succeed" deadlocks the moment a branch exists, since one arm never succeeds.
 
 **Streaming.** `/api/runs/[id]/stream` replays persisted log lines in `seq`
-order *before* attaching to the live bus, so reloading mid-run loses nothing.
+order _before_ attaching to the live bus, so reloading mid-run loses nothing.
 
 **The graph is JSON** on the `Workflow` row rather than normalised node/edge
-tables — React Flow's model *is* `{nodes, edges}`, saves are atomic, and
+tables — React Flow's model _is_ `{nodes, edges}`, saves are atomic, and
 versioning is a snapshot. `Run.version` pins which graph a run belongs to.
 
 ---
@@ -363,6 +363,7 @@ versioning is a snapshot. `Run.version` pins which graph a run belongs to.
   `conversation_summaries` table (`conversationId`, `title`) that would make a
   good label — also empty today. `%APPDATA%/Cursor/User` is empty; there is no
   `workspaceStorage`/`state.vscdb` on this machine.
+
 - **Gemini's workspace is scraped from a protobuf blob.** See above. It fails
   safe, but it is the first thing to check if Gemini sessions start turning up
   unattributed after an Antigravity update.

@@ -71,29 +71,29 @@ export default async function ProjectsPage() {
         <div className="mx-auto max-w-3xl p-5">
           {projects.length === 0 ? (
             <div className="mt-8 text-center">
-              <h2 className="font-serif text-[19px] italic text-ink">
+              <h2 className="text-ink font-serif text-[19px] italic">
                 Nothing harvested yet.
               </h2>
-              <p className="mx-auto mt-2 max-w-sm text-[13px] text-ink-soft">
-                Press <strong className="font-bold text-ink">Harvest</strong> and
-                Forge will read your AI tools&rsquo; own histories to work out
-                which folders you&rsquo;ve been working in, and for how long.
-                Transcripts are only ever read.
+              <p className="text-ink-soft mx-auto mt-2 max-w-sm text-[13px]">
+                Press <strong className="text-ink font-bold">Harvest</strong>{" "}
+                and Forge will read your AI tools&rsquo; own histories to work
+                out which folders you&rsquo;ve been working in, and for how
+                long. Transcripts are only ever read.
               </p>
             </div>
           ) : (
             <>
               {/* The headline the page exists to answer: of the time that was
                   observed, how much is actually counting toward something? */}
-              <section className="rounded-lg border border-line bg-panel p-3">
-                <p className="font-serif text-[17px] italic leading-snug text-ink">
+              <section className="border-line bg-panel rounded-lg border p-3">
+                <p className="text-ink font-serif text-[17px] leading-snug italic">
                   {counted === 0
                     ? "None of this time counts toward a goal yet."
                     : counted === observed
                       ? `All ${hm(observed)} counts toward a goal.`
                       : `${hm(counted)} of ${hm(observed)} counts toward a goal.`}
                 </p>
-                <p className="mt-1 text-[12.5px] text-ink-soft">
+                <p className="text-ink-soft mt-1 text-[12.5px]">
                   Point a project at a goal and its observed time starts showing
                   up there. Nothing is counted twice — observed time is kept
                   separate from time you track by hand.
@@ -104,17 +104,17 @@ export default async function ProjectsPage() {
                 {active.map((project) => (
                   <li
                     key={project.id}
-                    className="rounded-lg border border-line px-3 py-2"
+                    className="border-line rounded-lg border px-3 py-2"
                   >
                     <div className="flex items-center gap-2.5">
                       <div className="min-w-0 flex-1">
                         <ProjectName
                           projectId={project.id}
                           name={project.name}
-                          className="text-[13.5px] font-bold text-ink"
+                          className="text-ink text-[13.5px] font-bold"
                         />
                         <p
-                          className="truncate font-mono text-[11px] text-ink-faint"
+                          className="text-ink-faint truncate font-mono text-[11px]"
                           title={project.displayPath}
                         >
                           {project.displayPath}
@@ -132,8 +132,8 @@ export default async function ProjectsPage() {
                       />
                     </div>
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-ink-faint">
-                      <span className="font-mono tabular-nums text-ink-soft">
+                    <div className="text-ink-faint mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px]">
+                      <span className="text-ink-soft font-mono tabular-nums">
                         {hm(project.activeMinutes)}
                       </span>
                       <span>observed</span>
@@ -154,27 +154,27 @@ export default async function ProjectsPage() {
 
               {archived.length > 0 && (
                 <section className="pt-5">
-                  <h2 className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-faint">
+                  <h2 className="text-ink-faint text-[10.5px] font-bold tracking-[0.08em] uppercase">
                     Archived
                   </h2>
                   <ul className="mt-1.5 space-y-1">
                     {archived.map((project) => (
                       <li
                         key={project.id}
-                        className="flex items-center gap-2.5 rounded border border-line px-3 py-1.5"
+                        className="border-line flex items-center gap-2.5 rounded border px-3 py-1.5"
                       >
                         <Icon
                           name="FolderOpen"
-                          className="size-3.5 text-ink-faint"
+                          className="text-ink-faint size-3.5"
                         />
                         <span className="min-w-0 flex-1">
                           <ProjectName
                             projectId={project.id}
                             name={project.name}
-                            className="text-[13px] text-ink-soft"
+                            className="text-ink-soft text-[13px]"
                           />
                         </span>
-                        <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-faint">
+                        <span className="text-ink-faint shrink-0 font-mono text-[11px] tabular-nums">
                           {hm(project.activeMinutes)}
                         </span>
                         <ArchiveButton

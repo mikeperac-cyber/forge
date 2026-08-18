@@ -6,17 +6,17 @@ import Link from "next/link";
  */
 export default function NotFound() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 bg-sunken px-4 text-center">
-      <span className="flex size-10 items-center justify-center rounded-md bg-accent text-white">
+    <div className="bg-sunken flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
+      <span className="bg-accent flex size-10 items-center justify-center rounded-md text-white">
         ⚡
       </span>
       <h1 className="text-[15px] font-semibold">Nothing here</h1>
-      <p className="max-w-xs text-[12.5px] text-ink-faint">
+      <p className="text-ink-faint max-w-xs text-[12.5px]">
         That address doesn&apos;t match anything in Forge.
       </p>
       <Link
         href="/workflows"
-        className="rounded bg-accent px-3 py-1.5 text-[12.5px] font-medium text-white"
+        className="bg-accent rounded px-3 py-1.5 text-[12.5px] font-medium text-white"
       >
         Back to workflows
       </Link>

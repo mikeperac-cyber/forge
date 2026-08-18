@@ -41,7 +41,13 @@ function hm(mins: number): string {
 }
 
 function blank(tool: string): HarvestSummary {
-  return { tool, filesSeen: 0, filesSkipped: 0, activities: 0, unattributed: 0 };
+  return {
+    tool,
+    filesSeen: 0,
+    filesSkipped: 0,
+    activities: 0,
+    unattributed: 0,
+  };
 }
 
 /** Total active minutes across every detected tool at one threshold. */
@@ -133,7 +139,8 @@ async function main() {
   // most decision-relevant number here, because a threshold that is stable
   // under a few minutes of nudging will not swing with next week's data.
   const currentIndex = bands.findIndex(
-    (b) => b.lower <= DEFAULT_IDLE_GAP_MINUTES && DEFAULT_IDLE_GAP_MINUTES < b.upper,
+    (b) =>
+      b.lower <= DEFAULT_IDLE_GAP_MINUTES && DEFAULT_IDLE_GAP_MINUTES < b.upper,
   );
   let stableFrom = DEFAULT_IDLE_GAP_MINUTES;
   let stableTo = DEFAULT_IDLE_GAP_MINUTES;
@@ -145,7 +152,11 @@ async function main() {
     stableFrom = bands[currentIndex].lower;
     stableTo = bands[currentIndex].upper;
 
-    for (let i = currentIndex + 1; i < bands.length && bands[i].added <= noise; i++) {
+    for (
+      let i = currentIndex + 1;
+      i < bands.length && bands[i].added <= noise;
+      i++
+    ) {
       stableTo = bands[i].upper;
     }
     for (let i = currentIndex - 1; i >= 0 && bands[i].added <= noise; i--) {

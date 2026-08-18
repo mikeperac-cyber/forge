@@ -32,7 +32,10 @@ export function findHarvester(id: string): ToolHarvester | undefined {
  * reaches for the constructors instead. Kept beside the registry so a new tool
  * is added in one place rather than two.
  */
-export const HARVESTER_FACTORIES: Record<string, (gap: number) => ToolHarvester> = {
+export const HARVESTER_FACTORIES: Record<
+  string,
+  (gap: number) => ToolHarvester
+> = {
   "claude-code": (gap) => createClaudeCodeHarvester(undefined, gap),
   codex: (gap) => createCodexHarvester(undefined, gap),
   gemini: (gap) => createGeminiHarvester(undefined, gap),

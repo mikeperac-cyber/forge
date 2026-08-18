@@ -38,9 +38,11 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
-
 /** Derive the tab for whatever the router is currently showing. */
-function currentTab(pathname: string, workflows: ExplorerWorkflow[]): Tab | null {
+function currentTab(
+  pathname: string,
+  workflows: ExplorerWorkflow[],
+): Tab | null {
   const match = FIXED_ROUTES[pathname];
   if (match) return { href: pathname, ...match };
 
@@ -175,7 +177,7 @@ export function AppShell({
   }, [tabs, pathname, router, close, openPalette, paletteOpen]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-canvas text-ink">
+    <div className="bg-canvas text-ink flex h-screen w-screen overflow-hidden">
       <Sidebar
         workspaceName={userName}
         userEmail={userEmail}
@@ -189,7 +191,7 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* ------------------------------------------------------- tabs */}
-        <div className="flex h-9 shrink-0 items-stretch border-b border-line bg-panel">
+        <div className="border-line bg-panel flex h-9 shrink-0 items-stretch border-b">
           <div className="flex flex-1 items-stretch overflow-x-auto">
             {tabs.map((item, index) => {
               const isActive = item.href === active;
@@ -202,19 +204,19 @@ export function AppShell({
                   className={cn(
                     // A top border rather than an absolutely-positioned bar:
                     // it can't drift out of alignment with the tab.
-                    "group flex min-w-0 max-w-52 items-center gap-1.5 border-r border-t-2 border-line px-3 text-[12.5px]",
+                    "group border-line flex max-w-52 min-w-0 items-center gap-1.5 border-t-2 border-r px-3 text-[12.5px]",
                     isActive
                       ? "border-t-accent bg-canvas text-ink"
-                      : "border-t-transparent text-ink-soft hover:bg-line/30",
+                      : "text-ink-soft hover:bg-line/30 border-t-transparent",
                   )}
                 >
                   <Link
                     href={item.href}
-                    className="flex min-w-0 items-center gap-1.5 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    className="focus-visible:outline-accent flex min-w-0 items-center gap-1.5 py-2 focus-visible:outline-2 focus-visible:outline-offset-2"
                   >
                     <Icon
                       name={item.icon}
-                      className="size-3.5 shrink-0 text-ink-faint"
+                      className="text-ink-faint size-3.5 shrink-0"
                     />
                     <span className="truncate">{item.label}</span>
                   </Link>
@@ -223,7 +225,7 @@ export function AppShell({
                     onClick={() => close(item.href)}
                     aria-label={`Close ${item.label}`}
                     className={cn(
-                      "rounded p-0.5 text-ink-faint hover:bg-line hover:text-ink",
+                      "text-ink-faint hover:bg-line hover:text-ink rounded p-0.5",
                       !isActive && "opacity-0 group-hover:opacity-100",
                     )}
                   >
@@ -238,9 +240,9 @@ export function AppShell({
         <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
 
         {/* -------------------------------------------------- status bar */}
-        <footer className="flex h-6 shrink-0 items-center gap-4 border-t border-line bg-panel px-3 text-[11px] text-ink-faint">
+        <footer className="border-line bg-panel text-ink-faint flex h-6 shrink-0 items-center gap-4 border-t px-3 text-[11px]">
           <span className="flex items-center gap-1.5">
-            <span className="size-1.5 rounded-full bg-accent" />
+            <span className="bg-accent size-1.5 rounded-full" />
             Practice mode
           </span>
           <span>
@@ -249,7 +251,7 @@ export function AppShell({
           <button
             type="button"
             onClick={() => openPalette("all")}
-            className="ml-auto hover:text-ink"
+            className="hover:text-ink ml-auto"
           >
             ⌘K for anything
           </button>

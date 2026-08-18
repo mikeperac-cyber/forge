@@ -36,10 +36,14 @@ export async function GET(
     async start(controller) {
       let closed = false;
 
-      const send = (event: EngineEvent | { type: string; [k: string]: unknown }) => {
+      const send = (
+        event: EngineEvent | { type: string; [k: string]: unknown },
+      ) => {
         if (closed) return;
         try {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(event)}\n\n`),
+          );
         } catch {
           closed = true;
         }
@@ -66,7 +70,11 @@ export async function GET(
             nodeId: nodeRun.nodeId,
             status: nodeRun.status,
             replay: true,
-            at: (nodeRun.finishedAt ?? nodeRun.startedAt ?? new Date()).getTime(),
+            at: (
+              nodeRun.finishedAt ??
+              nodeRun.startedAt ??
+              new Date()
+            ).getTime(),
           });
         }
       }
@@ -90,7 +98,12 @@ export async function GET(
 
       // --- 2. if it already finished, say so and stop ---------------------
       if (run && !isRunning(runId) && run.status !== "running") {
-        send({ type: "run:finished", runId, status: run.status, at: Date.now() });
+        send({
+          type: "run:finished",
+          runId,
+          status: run.status,
+          at: Date.now(),
+        });
         closed = true;
         controller.close();
         return;

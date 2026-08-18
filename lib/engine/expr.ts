@@ -23,16 +23,18 @@ export class ExpressionError extends Error {
   }
 }
 
-export function evaluateExpression(expression: string, input: unknown): unknown {
+export function evaluateExpression(
+  expression: string,
+  input: unknown,
+): unknown {
   const source = expression.trim();
   if (!source) throw new ExpressionError("Expression is empty", expression);
 
   let compiled: (input: unknown) => unknown;
   try {
-    compiled = new Function(
-      "input",
-      `"use strict"; return (${source});`,
-    ) as (input: unknown) => unknown;
+    compiled = new Function("input", `"use strict"; return (${source});`) as (
+      input: unknown,
+    ) => unknown;
   } catch (err) {
     throw new ExpressionError(
       `Syntax error: ${(err as Error).message}`,

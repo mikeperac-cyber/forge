@@ -13,7 +13,7 @@ function Swatch({ className, label }: { className: string; label: string }) {
   return (
     <span className="flex flex-col gap-1">
       <span className={cn("block h-1.5 w-10 rounded-full", className)} />
-      <span className="text-[10px] text-ink-faint">{label}</span>
+      <span className="text-ink-faint text-[10px]">{label}</span>
     </span>
   );
 }
@@ -33,9 +33,9 @@ export default async function SettingsPage() {
       <PageHeader icon="Settings" title="Settings" />
 
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
-        <div className="grid max-w-4xl gap-3 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+        <div className="grid max-w-4xl [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))] gap-3">
           <Card title="Appearance">
-            <p className="pb-2 text-[12px] text-ink-soft">
+            <p className="text-ink-soft pb-2 text-[12px]">
               Auto follows your system.
             </p>
             <ThemeToggle />
@@ -50,14 +50,11 @@ export default async function SettingsPage() {
           <Card title="Account">
             <Row label="Email" value={user.email} />
             <Row label="Name" value={user.name} />
-            <Row
-              label="Created"
-              value={user.createdAt.toLocaleDateString()}
-            />
+            <Row label="Created" value={user.createdAt.toLocaleDateString()} />
             <form action={logoutAction} className="pt-2">
               <button
                 type="submit"
-                className="rounded border border-line px-2.5 py-1 text-[12.5px] text-bad hover:bg-bad-soft"
+                className="border-line text-bad hover:bg-bad-soft rounded border px-2.5 py-1 text-[12.5px]"
               >
                 Sign out
               </button>
@@ -68,7 +65,10 @@ export default async function SettingsPage() {
             <Row label="Runs" value={String(stats.total)} />
             <Row label="Succeeded" value={String(stats.succeeded)} />
             <Row label="Failed" value={String(stats.failed)} />
-            <Row label="Median duration" value={formatDuration(stats.medianMs)} />
+            <Row
+              label="Median duration"
+              value={formatDuration(stats.medianMs)}
+            />
           </Card>
 
           <Card title="Keyboard">
@@ -77,10 +77,10 @@ export default async function SettingsPage() {
                 key={shortcut.keys}
                 className="flex items-center justify-between gap-3 py-0.5"
               >
-                <span className="text-[12px] text-ink-soft">
+                <span className="text-ink-soft text-[12px]">
                   {shortcut.label}
                 </span>
-                <kbd className="shrink-0 rounded border border-line bg-canvas px-1.5 py-0.5 font-mono text-[10.5px] text-ink-faint">
+                <kbd className="border-line bg-canvas text-ink-faint shrink-0 rounded border px-1.5 py-0.5 font-mono text-[10.5px]">
                   {shortcut.keys}
                 </kbd>
               </div>
@@ -88,7 +88,7 @@ export default async function SettingsPage() {
           </Card>
 
           <Card title="Runner">
-            <p className="text-[12px] text-ink-soft">
+            <p className="text-ink-soft text-[12px]">
               Steps execute against the simulated runner. Only{" "}
               <code className="font-mono">transform</code> and{" "}
               <code className="font-mono">branch</code> evaluate for real.
@@ -108,8 +108,8 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-line bg-panel p-3">
-      <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
+    <section className="border-line bg-panel rounded-lg border p-3">
+      <h2 className="text-ink-faint mb-2 text-[11px] font-semibold tracking-wider uppercase">
         {title}
       </h2>
       <div className="space-y-0.5">{children}</div>
@@ -121,7 +121,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 py-0.5 text-[12.5px]">
       <span className="text-ink-faint">{label}</span>
-      <span className="truncate text-ink-soft">{value}</span>
+      <span className="text-ink-soft truncate">{value}</span>
     </div>
   );
 }

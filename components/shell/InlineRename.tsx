@@ -95,7 +95,7 @@ export function InlineRename({
         }}
         className={inputClassName}
       />
-      {error && <span className="mt-0.5 text-[11px] text-bad">{error}</span>}
+      {error && <span className="text-bad mt-0.5 text-[11px]">{error}</span>}
     </div>
   );
 }

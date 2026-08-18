@@ -50,7 +50,7 @@ export function RunTimeline({
 
   if (nodes.every((n) => !n.startedAt)) {
     return (
-      <p className="px-4 py-3 text-[12px] text-ink-faint">
+      <p className="text-ink-faint px-4 py-3 text-[12px]">
         No steps executed — every node was skipped.
       </p>
     );
@@ -58,7 +58,7 @@ export function RunTimeline({
 
   return (
     <div className="p-3">
-      <div className="mb-2 flex items-center justify-between text-[11px] text-ink-faint">
+      <div className="text-ink-faint mb-2 flex items-center justify-between text-[11px]">
         <span>0ms</span>
         <span>{formatDuration(total)}</span>
       </div>
@@ -96,7 +96,7 @@ export function RunTimeline({
                 {node.label}
               </span>
 
-              <span className="relative h-4 flex-1 rounded bg-sunken">
+              <span className="bg-sunken relative h-4 flex-1 rounded">
                 <span
                   className={cn(
                     "absolute top-0.5 h-3 rounded-sm",
@@ -108,7 +108,7 @@ export function RunTimeline({
                 />
               </span>
 
-              <span className="w-16 shrink-0 text-right font-mono text-[11px] text-ink-faint">
+              <span className="text-ink-faint w-16 shrink-0 text-right font-mono text-[11px]">
                 {node.startedAt && node.finishedAt
                   ? formatDuration(nodeEnd - nodeStart)
                   : style.label.toLowerCase()}

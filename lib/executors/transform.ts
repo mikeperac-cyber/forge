@@ -3,16 +3,12 @@ import type { NodeExecutor } from "../engine/types";
 import { evaluateExpression, ExpressionError } from "../engine/expr";
 
 const configSchema = z.object({
-  expression: z
-    .string()
-    .min(1)
-    .default("input")
-    .meta({
-      control: "code",
-      description:
-        "JavaScript expression over `input`. Runs for real — it's pure.",
-      placeholder: "({ ...input, ok: true })",
-    }),
+  expression: z.string().min(1).default("input").meta({
+    control: "code",
+    description:
+      "JavaScript expression over `input`. Runs for real — it's pure.",
+    placeholder: "({ ...input, ok: true })",
+  }),
 });
 
 export type TransformConfig = z.infer<typeof configSchema>;

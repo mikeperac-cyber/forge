@@ -44,7 +44,10 @@ export const httpExecutor: NodeExecutor<HttpConfig> = {
     try {
       parsedHeaders = JSON.parse(headers || "{}");
     } catch (err) {
-      yield { type: "failed", error: `Headers are not valid JSON: ${(err as Error).message}` };
+      yield {
+        type: "failed",
+        error: `Headers are not valid JSON: ${(err as Error).message}`,
+      };
       return;
     }
 

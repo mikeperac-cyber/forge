@@ -25,8 +25,8 @@ function secret(): string {
   }
   // Dev-only fallback so `npm run dev` works before .env is filled in. It is
   // stable per process, so restarting the dev server logs you out.
-  return (globalThis as { __forgeDevSecret?: string }).__forgeDevSecret ??=
-    randomBytes(32).toString("hex");
+  return ((globalThis as { __forgeDevSecret?: string }).__forgeDevSecret ??=
+    randomBytes(32).toString("hex"));
 }
 
 /**

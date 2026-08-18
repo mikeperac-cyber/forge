@@ -41,7 +41,7 @@ export function LogList({
         pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
       }}
       className={cn(
-        "overflow-y-auto bg-sunken px-4 py-2 font-mono text-[11.5px] leading-[1.6]",
+        "bg-sunken overflow-y-auto px-4 py-2 font-mono text-[11.5px] leading-[1.6]",
         className,
       )}
     >
@@ -56,12 +56,14 @@ export function LogList({
       ) : (
         lines.map((line) => (
           <div key={line.seq} className="flex gap-2">
-            <span className="shrink-0 select-none text-ink-faint">
-              {new Date(line.at).toLocaleTimeString(undefined, { hour12: false })}
+            <span className="text-ink-faint shrink-0 select-none">
+              {new Date(line.at).toLocaleTimeString(undefined, {
+                hour12: false,
+              })}
             </span>
             <span
               className={cn(
-                "whitespace-pre-wrap break-all",
+                "break-all whitespace-pre-wrap",
                 line.stream === "stderr" && "text-bad",
                 line.stream === "system" && "text-ink-faint",
               )}

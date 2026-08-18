@@ -63,7 +63,7 @@ export default async function TodayPage() {
         <div className="mx-auto max-w-3xl p-5">
           {/* --- the one line that matters ------------------------------ */}
           <section>
-            <h2 className="font-serif text-[22px] italic leading-snug text-ink">
+            <h2 className="text-ink font-serif text-[22px] leading-snug italic">
               {running
                 ? `Working on ${running.goal?.title ?? running.block?.title ?? "something untracked"}.`
                 : next
@@ -73,7 +73,7 @@ export default async function TodayPage() {
                     : "Nothing planned yet."}
             </h2>
 
-            <p className="mt-1 text-[13px] text-ink-soft">
+            <p className="text-ink-soft mt-1 text-[13px]">
               {hm(report.actualMinutes)} tracked
               {report.plannedMinutes > 0 &&
                 ` of ${hm(report.plannedMinutes)} planned`}
@@ -83,13 +83,16 @@ export default async function TodayPage() {
 
             {!running && next && (
               <div className="mt-3">
-                <StartButton blockId={next.id} label={`Start "${next.title}"`} />
+                <StartButton
+                  blockId={next.id}
+                  label={`Start "${next.title}"`}
+                />
               </div>
             )}
             {!running && !next && report.blocks.length === 0 && (
               <Link
                 href="/time"
-                className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-[13px] font-bold text-canvas"
+                className="bg-accent text-canvas mt-3 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-bold"
               >
                 Plan the day
                 <Icon name="ChevronRight" className="size-3.5" />
@@ -100,7 +103,7 @@ export default async function TodayPage() {
           {/* --- the plan ----------------------------------------------- */}
           {report.blocks.length > 0 && (
             <section className="mt-6">
-              <h2 className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-faint">
+              <h2 className="text-ink-faint text-[10.5px] font-bold tracking-[0.08em] uppercase">
                 The plan
               </h2>
               <ul className="mt-2 space-y-1">
@@ -110,16 +113,16 @@ export default async function TodayPage() {
                   return (
                     <li
                       key={block.id}
-                      className="flex items-center gap-2.5 rounded-md border border-line px-2.5 py-1.5"
+                      className="border-line flex items-center gap-2.5 rounded-md border px-2.5 py-1.5"
                     >
-                      <span className="shrink-0 font-mono text-[11.5px] tabular-nums text-ink-faint">
+                      <span className="text-ink-faint shrink-0 font-mono text-[11.5px] tabular-nums">
                         {clock(block.startsAt)}
                       </span>
                       <span
                         className={cn(
                           "min-w-0 flex-1 truncate text-[13px]",
                           done && block.actualMinutes === 0
-                            ? "text-ink-faint line-through decoration-line"
+                            ? "text-ink-faint decoration-line line-through"
                             : "text-ink",
                         )}
                       >
@@ -145,10 +148,13 @@ export default async function TodayPage() {
           {goals.length > 0 && (
             <section className="mt-6">
               <div className="flex items-baseline justify-between">
-                <h2 className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-faint">
+                <h2 className="text-ink-faint text-[10.5px] font-bold tracking-[0.08em] uppercase">
                   Goals
                 </h2>
-                <Link href="/goals" className="text-[11.5px] text-accent hover:underline">
+                <Link
+                  href="/goals"
+                  className="text-accent text-[11.5px] hover:underline"
+                >
                   All goals
                 </Link>
               </div>
@@ -156,13 +162,13 @@ export default async function TodayPage() {
                 {goals.slice(0, 4).map((goal) => (
                   <li
                     key={goal.id}
-                    className="flex items-center gap-2.5 rounded-md border border-line px-2.5 py-1.5"
+                    className="border-line flex items-center gap-2.5 rounded-md border px-2.5 py-1.5"
                   >
                     <span className="min-w-0 flex-1 truncate text-[13px]">
                       {goal.title}
                     </span>
                     {goal.progress !== null && (
-                      <span className="h-1 w-20 shrink-0 overflow-hidden rounded-full bg-line">
+                      <span className="bg-line h-1 w-20 shrink-0 overflow-hidden rounded-full">
                         <span
                           className={cn(
                             "block h-full rounded-full",
@@ -176,7 +182,7 @@ export default async function TodayPage() {
                         `effortMinutes`. Too tight a row for both numbers, so
                         the breakdown lives in the title. */}
                     <span
-                      className="shrink-0 font-mono text-[11px] tabular-nums text-ink-faint"
+                      className="text-ink-faint shrink-0 font-mono text-[11px] tabular-nums"
                       title={`${hm(goal.spentMinutes)} tracked · ${hm(goal.observedMinutes)} observed`}
                     >
                       {hm(effortMinutes(goal))}
@@ -191,7 +197,7 @@ export default async function TodayPage() {
           {/* --- only shown when something actually broke ---------------- */}
           {needsYou.length > 0 && (
             <section className="mt-6">
-              <h2 className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-faint">
+              <h2 className="text-ink-faint text-[10.5px] font-bold tracking-[0.08em] uppercase">
                 Needs you
               </h2>
               <ul className="mt-2 space-y-1">
@@ -199,13 +205,13 @@ export default async function TodayPage() {
                   <li key={workflow.id}>
                     <Link
                       href={`/runs/${workflow.lastRun!.id}`}
-                      className="flex items-center gap-2.5 rounded-md border border-line px-2.5 py-1.5 hover:border-line-strong"
+                      className="border-line hover:border-line-strong flex items-center gap-2.5 rounded-md border px-2.5 py-1.5"
                     >
-                      <span className="size-1.5 shrink-0 rounded-full bg-now" />
+                      <span className="bg-now size-1.5 shrink-0 rounded-full" />
                       <span className="min-w-0 flex-1 truncate text-[13px]">
                         {workflow.name}
                       </span>
-                      <span className="shrink-0 text-[11.5px] text-ink-faint">
+                      <span className="text-ink-faint shrink-0 text-[11.5px]">
                         automation failed
                       </span>
                     </Link>

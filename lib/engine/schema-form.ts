@@ -9,12 +9,7 @@ import { z } from "zod";
  */
 
 export type FieldControl =
-  | "text"
-  | "textarea"
-  | "code"
-  | "number"
-  | "select"
-  | "checkbox";
+  "text" | "textarea" | "code" | "number" | "select" | "checkbox";
 
 export interface FieldOption {
   value: string;

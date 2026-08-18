@@ -16,7 +16,9 @@ describe("effortMinutes", () => {
     expect(effortMinutes({ spentMinutes: 60, observedMinutes: 45 })).toBe(60);
     expect(effortMinutes({ spentMinutes: 45, observedMinutes: 60 })).toBe(60);
     // The sum would be 105. That is the bug this test exists to catch.
-    expect(effortMinutes({ spentMinutes: 60, observedMinutes: 45 })).not.toBe(105);
+    expect(effortMinutes({ spentMinutes: 60, observedMinutes: 45 })).not.toBe(
+      105,
+    );
   });
 
   it("falls back to whichever measurement exists", () => {
@@ -31,7 +33,9 @@ describe("effortMinutes", () => {
 
 describe("goal effort (integration)", () => {
   const FIXTURE_PATH =
-    process.platform === "win32" ? "c:\\__forge_goals__\\app" : "/__forge_goals__/app";
+    process.platform === "win32"
+      ? "c:\\__forge_goals__\\app"
+      : "/__forge_goals__/app";
 
   let userId: string;
   let goalId: string;
@@ -39,7 +43,10 @@ describe("goal effort (integration)", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.findFirst({ orderBy: { createdAt: "asc" } });
-    expect(user, "seed the database first: npx tsx prisma/seed.ts").toBeTruthy();
+    expect(
+      user,
+      "seed the database first: npx tsx prisma/seed.ts",
+    ).toBeTruthy();
     userId = user!.id;
 
     const goal = await prisma.goal.create({
@@ -89,7 +96,9 @@ describe("goal effort (integration)", () => {
   });
 
   afterAll(async () => {
-    await prisma.activity.deleteMany({ where: { userId, tool: "goal-test-tool" } });
+    await prisma.activity.deleteMany({
+      where: { userId, tool: "goal-test-tool" },
+    });
     await prisma.project.deleteMany({ where: { userId, path: FIXTURE_PATH } });
     // Before the goal: `Session.goalId` is `onDelete: SetNull`, so removing the
     // goal first orphans this row instead of taking it along, and every run

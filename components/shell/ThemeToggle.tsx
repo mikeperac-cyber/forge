@@ -32,7 +32,7 @@ export function ThemeToggle() {
     <div
       role="radiogroup"
       aria-label="Theme"
-      className="inline-flex gap-0.5 rounded-lg border border-line bg-canvas p-0.5"
+      className="border-line bg-canvas inline-flex gap-0.5 rounded-lg border p-0.5"
     >
       {OPTIONS.map((option) => {
         const active = current === option.value;
@@ -45,9 +45,9 @@ export function ThemeToggle() {
             onClick={() => setTheme(option.value)}
             className={cn(
               "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12.5px] transition-colors",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+              "focus-visible:outline-accent focus-visible:outline-2 focus-visible:outline-offset-2",
               active
-                ? "bg-accent-soft font-bold text-accent"
+                ? "bg-accent-soft text-accent font-bold"
                 : "text-ink-soft hover:text-ink",
             )}
           >

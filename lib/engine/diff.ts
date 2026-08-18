@@ -101,12 +101,12 @@ export function diffGraphs(
   const beforeEdges = new Map(before.edges.map((e) => [edgeKey(e), e]));
   const afterEdges = new Map(after.edges.map((e) => [edgeKey(e), e]));
 
-  const edgesAdded = [...afterEdges].
-    filter(([key]) => !beforeEdges.has(key)).
-    map(([, edge]) => edge);
-  const edgesRemoved = [...beforeEdges].
-    filter(([key]) => !afterEdges.has(key)).
-    map(([, edge]) => edge);
+  const edgesAdded = [...afterEdges]
+    .filter(([key]) => !beforeEdges.has(key))
+    .map(([, edge]) => edge);
+  const edgesRemoved = [...beforeEdges]
+    .filter(([key]) => !afterEdges.has(key))
+    .map(([, edge]) => edge);
 
   return {
     nodesAdded,

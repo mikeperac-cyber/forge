@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUserId } from "@/lib/session";
-import { renameProject, setProjectGoal, setProjectStatus } from "@/data/projects";
+import {
+  renameProject,
+  setProjectGoal,
+  setProjectStatus,
+} from "@/data/projects";
 import { runAllHarvests, summariseReports } from "@/lib/harvest/run";
 
 /** Authenticate → parse → delegate to `data/` → revalidate. No exceptions. */
@@ -35,7 +39,10 @@ export async function setProjectGoalAction(
     : { ok: false as const, error: "That goal doesn't exist" };
 }
 
-export async function setProjectStatusAction(projectId: string, status: string) {
+export async function setProjectStatusAction(
+  projectId: string,
+  status: string,
+) {
   const userId = await requireUserId();
   if (status !== "active" && status !== "archived") {
     return { ok: false as const, error: "Unknown status" };

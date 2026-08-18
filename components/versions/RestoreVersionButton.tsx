@@ -35,12 +35,12 @@ export function RestoreVersionButton({
         // Restoring archives the graph it replaces, so this is reversible —
         // no confirmation dialog for something you can immediately undo.
         title={`Restore v${version} as a new version`}
-        className="flex items-center gap-1.5 rounded border border-line px-2 py-1 text-[12px] text-ink-soft hover:bg-line/50 disabled:opacity-50"
+        className="border-line text-ink-soft hover:bg-line/50 flex items-center gap-1.5 rounded border px-2 py-1 text-[12px] disabled:opacity-50"
       >
         <Icon name="History" className="size-3.5" />
         {pending ? "Restoring…" : "Restore"}
       </button>
-      {error && <p className="mt-1 text-[11px] text-bad">{error}</p>}
+      {error && <p className="text-bad mt-1 text-[11px]">{error}</p>}
     </div>
   );
 }

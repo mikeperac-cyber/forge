@@ -56,7 +56,9 @@ export function GoalPicker({
 
   if (goals.length === 0) {
     return (
-      <span className="shrink-0 text-[11.5px] text-ink-faint">no goals yet</span>
+      <span className="text-ink-faint shrink-0 text-[11.5px]">
+        no goals yet
+      </span>
     );
   }
 
@@ -72,7 +74,7 @@ export function GoalPicker({
           router.refresh();
         });
       }}
-      className="shrink-0 rounded border border-line bg-canvas px-1.5 py-0.5 text-[11.5px] text-ink-soft outline-none hover:border-line-strong focus:border-accent disabled:opacity-50"
+      className="border-line bg-canvas text-ink-soft hover:border-line-strong focus:border-accent shrink-0 rounded border px-1.5 py-0.5 text-[11.5px] outline-none disabled:opacity-50"
     >
       <option value="">Not counted</option>
       {goals.map((goal) => (
@@ -110,7 +112,7 @@ export function ArchiveButton({
           router.refresh();
         })
       }
-      className="shrink-0 rounded border border-line px-1.5 py-0.5 text-[11.5px] text-ink-soft hover:border-accent-line hover:text-accent disabled:opacity-50"
+      className="border-line text-ink-soft hover:border-accent-line hover:text-accent shrink-0 rounded border px-1.5 py-0.5 text-[11.5px] disabled:opacity-50"
     >
       {next === "archived" ? "Archive" : "Restore"}
     </button>
@@ -130,7 +132,7 @@ export function HarvestButton() {
   return (
     <div className="flex items-center gap-2">
       {message && (
-        <span className="text-[11.5px] text-ink-faint">{message}</span>
+        <span className="text-ink-faint text-[11.5px]">{message}</span>
       )}
       <button
         type="button"
@@ -148,7 +150,8 @@ export function HarvestButton() {
             const parts: string[] = [];
             if (result.created) parts.push(`${result.created} new`);
             if (result.updated) parts.push(`${result.updated} updated`);
-            if (result.projects) parts.push(`${result.projects} new project(s)`);
+            if (result.projects)
+              parts.push(`${result.projects} new project(s)`);
             // "Nothing new" is a real, common and reassuring answer — every
             // transcript was unchanged since the last run.
             setMessage(parts.length ? parts.join(" · ") : "Nothing new");
@@ -156,7 +159,7 @@ export function HarvestButton() {
             router.refresh();
           })
         }
-        className="flex items-center gap-1.5 rounded-md bg-accent px-2.5 py-1 text-[12.5px] font-bold text-canvas disabled:opacity-50"
+        className="bg-accent text-canvas flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12.5px] font-bold disabled:opacity-50"
       >
         <Icon
           name={pending ? "Loader2" : "RefreshCw"}

@@ -3,14 +3,11 @@ import type { NodeExecutor } from "../engine/types";
 import { sleep } from "../engine/rng";
 
 const configSchema = z.object({
-  prompt: z
-    .string()
-    .min(1)
-    .meta({
-      control: "textarea",
-      placeholder: "Summarise the test output in one sentence.",
-      description: "Supports {{input}} as a placeholder for the upstream value.",
-    }),
+  prompt: z.string().min(1).meta({
+    control: "textarea",
+    placeholder: "Summarise the test output in one sentence.",
+    description: "Supports {{input}} as a placeholder for the upstream value.",
+  }),
   model: z
     .enum(["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"])
     .default("claude-sonnet-5"),
@@ -53,7 +50,11 @@ export const aiExecutor: NodeExecutor<AiConfig> = {
       stream: "system",
       text: `${model} · temperature ${temperature}`,
     };
-    yield { type: "log", stream: "system", text: `Prompt: ${resolved.slice(0, 200)}` };
+    yield {
+      type: "log",
+      stream: "system",
+      text: `Prompt: ${resolved.slice(0, 200)}`,
+    };
 
     // Stream token by token so the console shows text arriving, not a blob.
     const reply = SAMPLE[Math.floor(ctx.random() * SAMPLE.length)];

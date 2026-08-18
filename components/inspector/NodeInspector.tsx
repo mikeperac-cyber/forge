@@ -43,8 +43,8 @@ export function NodeInspector({
   if (!node || !executor) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
-        <Icon name="Settings" className="size-5 text-ink-faint" />
-        <p className="text-[12.5px] text-ink-faint">
+        <Icon name="Settings" className="text-ink-faint size-5" />
+        <p className="text-ink-faint text-[12.5px]">
           Select a node to edit its configuration.
         </p>
       </div>
@@ -53,30 +53,30 @@ export function NodeInspector({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center gap-2 border-b border-line px-3 py-2">
-        <Icon name={executor.icon} className="size-3.5 text-ink-soft" />
-        <span className="text-[12px] font-semibold uppercase tracking-wider text-ink-faint">
+      <header className="border-line flex items-center gap-2 border-b px-3 py-2">
+        <Icon name={executor.icon} className="text-ink-soft size-3.5" />
+        <span className="text-ink-faint text-[12px] font-semibold tracking-wider uppercase">
           {executor.label}
         </span>
         <button
           type="button"
           onClick={() => onDelete(node.id)}
           title="Delete node"
-          className="ml-auto rounded p-1 text-ink-faint hover:bg-bad-soft hover:text-bad"
+          className="text-ink-faint hover:bg-bad-soft hover:text-bad ml-auto rounded p-1"
         >
           <Icon name="Trash2" className="size-3.5" />
         </button>
       </header>
 
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
-        <p className="text-[12px] text-ink-faint">{executor.description}</p>
+        <p className="text-ink-faint text-[12px]">{executor.description}</p>
 
         <Field label="Label">
           <input
             value={node.data.label ?? ""}
             placeholder={executor.label}
             onChange={(e) => onChangeLabel(node.id, e.target.value)}
-            className="w-full rounded border border-line bg-canvas px-2 py-1 text-[12.5px] outline-none focus:border-accent"
+            className="border-line bg-canvas focus:border-accent w-full rounded border px-2 py-1 text-[12.5px] outline-none"
           />
         </Field>
 
@@ -90,8 +90,8 @@ export function NodeInspector({
           />
         ))}
 
-        <div className="border-t border-line pt-2">
-          <p className="text-[11px] text-ink-faint">
+        <div className="border-line border-t pt-2">
+          <p className="text-ink-faint text-[11px]">
             Ports:{" "}
             {[
               ...executor.ports.inputs.map((p) => `↳ ${p.label}`),
@@ -117,14 +117,16 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[12px] font-medium text-ink-soft">
+      <span className="text-ink-soft mb-1 block text-[12px] font-medium">
         {label}
       </span>
       {children}
       {hint && !error && (
-        <span className="mt-1 block text-[11px] text-ink-faint">{hint}</span>
+        <span className="text-ink-faint mt-1 block text-[11px]">{hint}</span>
       )}
-      {error && <span className="mt-1 block text-[11px] text-bad">{error}</span>}
+      {error && (
+        <span className="text-bad mt-1 block text-[11px]">{error}</span>
+      )}
     </label>
   );
 }

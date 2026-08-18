@@ -7,13 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
     "db:studio": "prisma studio",
     "harvest": "tsx --conditions=react-server scripts/harvest.ts",
     "harvest:preview": "tsx scripts/harvest-preview.ts",
     "harvest:calibrate": "tsx scripts/harvest-calibrate.ts",
-    "check": "tsc --noEmit && eslint . && vitest run"
+    "check": "tsc --noEmit && eslint . && prettier --check . && vitest run",
+    "prepare": "husky"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.1",
@@ -48,7 +51,12 @@
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^30.0.1",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "prisma": "^7.9.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.11",
@@ -57,5 +65,9 @@
   },
   "allowScripts": {
     "better-sqlite3@12.11.1": true
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,css,json,md}": "prettier --write",
+    "*.{ts,tsx}": "eslint --fix"
   }
 }

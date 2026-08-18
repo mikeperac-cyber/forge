@@ -65,7 +65,10 @@ export async function getDayReport(
   const actualFor = (blockId: string | null) =>
     sessions
       .filter((s) => s.blockId === blockId)
-      .reduce((total, s) => total + minutesBetween(s.startedAt, s.endedAt ?? now), 0);
+      .reduce(
+        (total, s) => total + minutesBetween(s.startedAt, s.endedAt ?? now),
+        0,
+      );
 
   const dayBlocks: DayBlock[] = blocks.map((block) => ({
     id: block.id,
@@ -122,7 +125,9 @@ export async function createBlock(
 }
 
 export async function deleteBlock(userId: string, blockId: string) {
-  const result = await prisma.block.deleteMany({ where: { id: blockId, userId } });
+  const result = await prisma.block.deleteMany({
+    where: { id: blockId, userId },
+  });
   return result.count > 0;
 }
 
@@ -206,7 +211,8 @@ export async function getRecentTotals(userId: string, days: number, now: Date) {
     if (!totals.has(key)) continue;
     totals.set(
       key,
-      totals.get(key)! + minutesBetween(session.startedAt, session.endedAt ?? now),
+      totals.get(key)! +
+        minutesBetween(session.startedAt, session.endedAt ?? now),
     );
   }
 

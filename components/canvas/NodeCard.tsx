@@ -16,11 +16,14 @@ export interface NodeCardData extends Record<string, unknown> {
 }
 
 const ACCENTS: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  emerald:
+    "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
   amber: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-  fuchsia: "bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950 dark:text-fuchsia-300",
+  fuchsia:
+    "bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950 dark:text-fuchsia-300",
   blue: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
-  violet: "bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  violet:
+    "bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
   sky: "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
   slate: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
 };
@@ -39,7 +42,7 @@ export function NodeCard({ data, selected }: NodeProps) {
 
   if (!executor) {
     return (
-      <div className="rounded-md border border-bad bg-bad-soft px-3 py-2 text-[12px] text-bad">
+      <div className="border-bad bg-bad-soft text-bad rounded-md border px-3 py-2 text-[12px]">
         Unknown node kind: {node.kind}
       </div>
     );
@@ -50,8 +53,8 @@ export function NodeCard({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        "w-56 rounded-md border bg-panel shadow-sm transition-colors",
-        selected ? "border-accent ring-1 ring-accent" : "border-line",
+        "bg-panel w-56 rounded-md border shadow-sm transition-colors",
+        selected ? "border-accent ring-accent ring-1" : "border-line",
         status !== "pending" && style.border,
         isRunning && "forge-pulse",
       )}
@@ -67,7 +70,7 @@ export function NodeCard({ data, selected }: NodeProps) {
         />
       ))}
 
-      <header className="flex items-center gap-2 border-b border-line px-2.5 py-1.5">
+      <header className="border-line flex items-center gap-2 border-b px-2.5 py-1.5">
         <span
           className={cn(
             "flex size-5 shrink-0 items-center justify-center rounded",
@@ -80,19 +83,25 @@ export function NodeCard({ data, selected }: NodeProps) {
           {node.label || executor.label}
         </span>
         {status !== "pending" && (
-          <span className={cn("size-1.5 shrink-0 rounded-full", style.dot)} title={style.label} />
+          <span
+            className={cn("size-1.5 shrink-0 rounded-full", style.dot)}
+            title={style.label}
+          />
         )}
       </header>
 
       <div className="px-2.5 py-1.5">
-        <p className="truncate font-mono text-[11px] text-ink-faint" title={summary}>
+        <p
+          className="text-ink-faint truncate font-mono text-[11px]"
+          title={summary}
+        >
           {summary}
         </p>
 
         {isRunning && node.progress !== undefined && (
-          <div className="mt-1.5 h-0.5 overflow-hidden rounded-full bg-line">
+          <div className="bg-line mt-1.5 h-0.5 overflow-hidden rounded-full">
             <div
-              className="h-full bg-busy transition-all duration-200"
+              className="bg-busy h-full transition-all duration-200"
               style={{ width: `${node.progress}%` }}
             />
           </div>
@@ -100,11 +109,11 @@ export function NodeCard({ data, selected }: NodeProps) {
       </div>
 
       {executor.ports.outputs.length > 0 && (
-        <footer className="flex flex-col gap-0.5 border-t border-line px-2.5 py-1">
+        <footer className="border-line flex flex-col gap-0.5 border-t px-2.5 py-1">
           {executor.ports.outputs.map((port) => (
             <span
               key={port.id}
-              className="text-right text-[10px] leading-tight text-ink-faint"
+              className="text-ink-faint text-right text-[10px] leading-tight"
             >
               {port.label}
             </span>

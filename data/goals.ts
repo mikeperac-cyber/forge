@@ -172,6 +172,8 @@ export async function setGoalStatus(
 }
 
 export async function deleteGoal(userId: string, goalId: string) {
-  const result = await prisma.goal.deleteMany({ where: { id: goalId, userId } });
+  const result = await prisma.goal.deleteMany({
+    where: { id: goalId, userId },
+  });
   return result.count > 0;
 }

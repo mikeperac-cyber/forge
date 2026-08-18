@@ -53,7 +53,9 @@ export async function executeWorkflow({
     outgoing.get(edge.source)!.push(edge);
   }
 
-  const status = new Map<string, RunStatus>(nodes.map((n) => [n.id, "pending"]));
+  const status = new Map<string, RunStatus>(
+    nodes.map((n) => [n.id, "pending"]),
+  );
   const outputs = new Map<string, Record<string, unknown>>();
   /** null means "every output port is live"; only branches narrow it. */
   const takenHandles = new Map<string, string[] | null>();
@@ -275,7 +277,12 @@ export async function executeWorkflow({
               });
               break;
             case "progress":
-              emit({ type: "node:progress", runId, nodeId: node.id, pct: event.pct });
+              emit({
+                type: "node:progress",
+                runId,
+                nodeId: node.id,
+                pct: event.pct,
+              });
               break;
             case "succeeded":
               takenHandles.set(node.id, event.taken ?? null);

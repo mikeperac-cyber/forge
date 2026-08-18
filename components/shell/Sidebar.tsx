@@ -4,7 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
-import { RunningTimer, type RunningSession } from "@/components/time/RunningTimer";
+import {
+  RunningTimer,
+  type RunningSession,
+} from "@/components/time/RunningTimer";
 import type { ExplorerWorkflow } from "./AppShell";
 
 /**
@@ -98,7 +101,7 @@ export function Sidebar({
     <nav
       aria-label="Main"
       className={cn(
-        "flex h-full shrink-0 flex-col border-r border-line bg-rail",
+        "border-line bg-rail flex h-full shrink-0 flex-col border-r",
         "transition-[width] duration-200 motion-reduce:transition-none",
         collapsed ? "w-[60px]" : "w-[248px]",
       )}
@@ -107,7 +110,7 @@ export function Sidebar({
       <header className="flex h-12 items-center gap-2 px-3">
         {!collapsed && (
           <span
-            className="min-w-0 flex-1 truncate font-serif text-[15px] italic text-ink"
+            className="text-ink min-w-0 flex-1 truncate font-serif text-[15px] italic"
             title={workspaceName}
           >
             {workspaceName}
@@ -116,11 +119,13 @@ export function Sidebar({
         <button
           type="button"
           onClick={onToggle}
-          title={collapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
+          title={
+            collapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"
+          }
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={cn(
-            "rounded p-1 text-ink-faint hover:bg-line/70 hover:text-ink",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+            "text-ink-faint hover:bg-line/70 hover:text-ink rounded p-1",
+            "focus-visible:outline-accent focus-visible:outline-2 focus-visible:outline-offset-2",
             collapsed && "mx-auto",
           )}
         >
@@ -138,9 +143,9 @@ export function Sidebar({
           onClick={onOpenPalette}
           title="Search (Ctrl+K)"
           className={cn(
-            "flex h-8 w-full items-center gap-2 rounded-md border border-line bg-canvas text-ink-faint",
+            "border-line bg-canvas text-ink-faint flex h-8 w-full items-center gap-2 rounded-md border",
             "hover:border-line-strong hover:text-ink-soft",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+            "focus-visible:outline-accent focus-visible:outline-2 focus-visible:outline-offset-2",
             collapsed ? "justify-center px-0" : "px-2.5",
           )}
         >
@@ -148,7 +153,7 @@ export function Sidebar({
           {!collapsed && (
             <>
               <span className="flex-1 text-left text-[13px]">Search</span>
-              <kbd className="rounded border border-line px-1 text-[10px] tabular-nums">
+              <kbd className="border-line rounded border px-1 text-[10px] tabular-nums">
                 ⌘K
               </kbd>
             </>
@@ -164,12 +169,12 @@ export function Sidebar({
         {groups.map((group, index) => (
           <div key={group.label ?? index} className="mb-1">
             {group.label && !collapsed && (
-              <h2 className="px-2 pb-1 pt-2 text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-faint">
+              <h2 className="text-ink-faint px-2 pt-2 pb-1 text-[10.5px] font-bold tracking-[0.08em] uppercase">
                 {group.label}
               </h2>
             )}
             {group.label && collapsed && (
-              <hr className="mx-2 my-2 border-line" />
+              <hr className="border-line mx-2 my-2" />
             )}
 
             <ul>
@@ -183,31 +188,31 @@ export function Sidebar({
                       title={collapsed ? item.label : undefined}
                       className={cn(
                         "group relative flex h-8 items-center gap-2.5 rounded-md text-[13px]",
-                        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                        "focus-visible:outline-accent focus-visible:outline-2 focus-visible:outline-offset-2",
                         collapsed ? "justify-center px-0" : "px-2.5",
                         active
-                          ? "bg-accent-soft font-bold text-accent"
+                          ? "bg-accent-soft text-accent font-bold"
                           : "text-ink-soft hover:bg-line/60 hover:text-ink",
                       )}
                     >
                       {/* A flush marker rather than a floating bar — it can't
                           drift out of alignment with the row. */}
                       {active && (
-                        <span className="absolute left-0 top-1.5 h-5 w-0.5 rounded-r bg-accent" />
+                        <span className="bg-accent absolute top-1.5 left-0 h-5 w-0.5 rounded-r" />
                       )}
                       <Icon name={item.icon} className="size-4 shrink-0" />
                       {!collapsed && (
                         <>
                           <span className="flex-1 truncate">{item.label}</span>
                           {item.count ? (
-                            <span className="shrink-0 text-[11px] tabular-nums text-ink-faint">
+                            <span className="text-ink-faint shrink-0 text-[11px] tabular-nums">
                               {item.count}
                             </span>
                           ) : null}
                         </>
                       )}
                       {collapsed && item.count ? (
-                        <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-now" />
+                        <span className="bg-now absolute top-1.5 right-1.5 size-1.5 rounded-full" />
                       ) : null}
                     </Link>
                   </li>
@@ -222,20 +227,20 @@ export function Sidebar({
       <RunningTimer session={runningSession} collapsed={collapsed} />
 
       {/* -------------------------------------------------------- account */}
-      <footer className="border-t border-line p-2">
+      <footer className="border-line border-t p-2">
         <Link
           href="/settings"
           title={collapsed ? userEmail : undefined}
           className={cn(
             "flex h-9 items-center gap-2.5 rounded-md text-[13px]",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+            "focus-visible:outline-accent focus-visible:outline-2 focus-visible:outline-offset-2",
             pathname === "/settings"
               ? "bg-accent-soft text-accent"
               : "text-ink-soft hover:bg-line/60 hover:text-ink",
             collapsed ? "justify-center px-0" : "px-2",
           )}
         >
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-line text-[10px] font-bold uppercase text-ink-soft">
+          <span className="bg-line text-ink-soft flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold uppercase">
             {userEmail.slice(0, 2)}
           </span>
           {!collapsed && <span className="flex-1 truncate">{userEmail}</span>}
@@ -267,7 +272,7 @@ function Attention({
   const waiting = workflows.length - needsYou.length - clear.length;
 
   return (
-    <section className="px-4 pb-3 pt-1" aria-label="Attention">
+    <section className="px-4 pt-1 pb-3" aria-label="Attention">
       <div className="flex gap-0.5" role="presentation">
         {workflows.map((workflow) => {
           const state =
@@ -293,10 +298,10 @@ function Attention({
         })}
       </div>
 
-      <p className="mt-1.5 text-[11.5px] text-ink-faint">
+      <p className="text-ink-faint mt-1.5 text-[11.5px]">
         {needsYou.length > 0 ? (
           <>
-            <strong className="font-bold text-ink">
+            <strong className="text-ink font-bold">
               {needsYou.length} need{needsYou.length === 1 ? "s" : ""} you
             </strong>
             {clear.length > 0 && ` · ${clear.length} clear`}

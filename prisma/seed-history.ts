@@ -46,12 +46,16 @@ async function main() {
     where: { slug: "build-and-notify" },
   });
   if (!workflow) {
-    console.log("Demo workflow not found — run `npx tsx prisma/seed.ts` first.");
+    console.log(
+      "Demo workflow not found — run `npx tsx prisma/seed.ts` first.",
+    );
     return;
   }
 
   // Idempotent: reset to a pristine v1 so re-running doesn't pile up versions.
-  await prisma.workflowVersion.deleteMany({ where: { workflowId: workflow.id } });
+  await prisma.workflowVersion.deleteMany({
+    where: { workflowId: workflow.id },
+  });
   await prisma.workflow.update({
     where: { id: workflow.id },
     data: { graph: demoGraph() as never, version: 1, note: "Initial version" },

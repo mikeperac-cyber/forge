@@ -6,7 +6,11 @@ const root = import.meta.dirname;
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["lib/**/*.test.ts", "data/**/*.test.ts", "components/**/*.test.tsx"],
+    include: [
+      "lib/**/*.test.ts",
+      "data/**/*.test.ts",
+      "components/**/*.test.tsx",
+    ],
     testTimeout: 30000,
     // The integration test writes to the real dev.db; running files in
     // parallel would interleave runs and make row counts non-deterministic.

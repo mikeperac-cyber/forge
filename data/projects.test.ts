@@ -36,7 +36,9 @@ function joinFixture(name: string): string {
     : `${FIXTURE_ROOT}/${name}`;
 }
 
-function activity(over: Partial<RawActivity> & { sessionRef: string; raw: string }): RawActivity {
+function activity(
+  over: Partial<RawActivity> & { sessionRef: string; raw: string },
+): RawActivity {
   const { raw, ...rest } = over;
   return {
     tool: "test-tool",
@@ -57,7 +59,10 @@ describe("activity ledger (integration)", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.findFirst({ orderBy: { createdAt: "asc" } });
-    expect(user, "seed the database first: npx tsx prisma/seed.ts").toBeTruthy();
+    expect(
+      user,
+      "seed the database first: npx tsx prisma/seed.ts",
+    ).toBeTruthy();
     userId = user!.id;
 
     // A second account, purely to prove nothing crosses between them.
@@ -83,7 +88,9 @@ describe("activity ledger (integration)", () => {
       where: { userId, path: { startsWith: canonicalPath(FIXTURE_ROOT) } },
     });
     await prisma.activity.deleteMany({ where: { userId, tool: "test-tool" } });
-    await prisma.harvestState.deleteMany({ where: { userId, tool: "test-tool" } });
+    await prisma.harvestState.deleteMany({
+      where: { userId, tool: "test-tool" },
+    });
   });
 
   it("creates a project the first time its path is seen", async () => {
@@ -164,13 +171,17 @@ describe("activity ledger (integration)", () => {
 
   it("refuses to link a project to another account's goal", async () => {
     const project = await prisma.project.findUnique({
-      where: { userId_path: { userId, path: canonicalPath(joinFixture("forge")) } },
+      where: {
+        userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+      },
     });
 
     const linked = await setProjectGoal(userId, project!.id, otherGoalId);
 
     expect(linked).toBe(false);
-    const after = await prisma.project.findUnique({ where: { id: project!.id } });
+    const after = await prisma.project.findUnique({
+      where: { id: project!.id },
+    });
     expect(after?.goalId).toBeNull();
   });
 
@@ -180,7 +191,9 @@ describe("activity ledger (integration)", () => {
     });
 
     const project = await prisma.project.findUnique({
-      where: { userId_path: { userId, path: canonicalPath(joinFixture("forge")) } },
+      where: {
+        userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+      },
     });
 
     expect(await setProjectGoal(userId, project!.id, goal.id)).toBe(true);
@@ -193,19 +206,28 @@ describe("activity ledger (integration)", () => {
 
   it("will not rename a project to blank", async () => {
     const project = await prisma.project.findUnique({
-      where: { userId_path: { userId, path: canonicalPath(joinFixture("forge")) } },
+      where: {
+        userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+      },
     });
 
     expect(await renameProject(userId, project!.id, "   ")).toBe(false);
     expect(await renameProject(userId, project!.id, "  Forge  ")).toBe(true);
 
-    const after = await prisma.project.findUnique({ where: { id: project!.id } });
+    const after = await prisma.project.findUnique({
+      where: { id: project!.id },
+    });
     expect(after?.name).toBe("Forge");
   });
 
   it("hides archived projects when filtering by status", async () => {
     const project = await prisma.project.findUnique({
-      where: { userId_path: { userId, path: canonicalPath(joinFixture("IELTS-4-Weeks")) } },
+      where: {
+        userId_path: {
+          userId,
+          path: canonicalPath(joinFixture("IELTS-4-Weeks")),
+        },
+      },
     });
 
     expect(await setProjectStatus(userId, project!.id, "archived")).toBe(true);
@@ -232,7 +254,12 @@ describe("activity ledger (integration)", () => {
     // Upsert, not insert — a second harvest moves the watermark rather than
     // leaving two rows to disagree about where we got to.
     const later = new Date("2026-08-16T13:00:00.000Z");
-    await saveHarvestState(userId, "test-tool", { ...summary, filesSeen: 9 }, later);
+    await saveHarvestState(
+      userId,
+      "test-tool",
+      { ...summary, filesSeen: 9 },
+      later,
+    );
 
     const rows = await prisma.harvestState.findMany({
       where: { userId, tool: "test-tool" },

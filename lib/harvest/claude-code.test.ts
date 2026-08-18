@@ -92,7 +92,10 @@ afterAll(async () => {
 async function harvestAll(since: Date | null = null) {
   const stats = summary();
   const out: RawActivity[] = [];
-  for await (const activity of createClaudeCodeHarvester(root).harvest(since, stats)) {
+  for await (const activity of createClaudeCodeHarvester(root).harvest(
+    since,
+    stats,
+  )) {
     out.push(activity);
   }
   return { out, stats };
@@ -157,7 +160,10 @@ describe("claude-code harvester", () => {
     const stats = summary();
     const out: RawActivity[] = [];
     // 60m threshold: the 35m gap now counts, so 5 + 35 = 40.
-    for await (const a of createClaudeCodeHarvester(root, 60).harvest(null, stats)) {
+    for await (const a of createClaudeCodeHarvester(root, 60).harvest(
+      null,
+      stats,
+    )) {
       out.push(a);
     }
 
@@ -182,17 +188,25 @@ describe("claude-code harvester", () => {
     const { out } = await harvestAll();
     const odd = out.find((a) => a.sessionRef === "sess-3")!;
 
-    expect(odd.endedAt.getTime()).toBeGreaterThanOrEqual(odd.startedAt.getTime());
+    expect(odd.endedAt.getTime()).toBeGreaterThanOrEqual(
+      odd.startedAt.getTime(),
+    );
     // Trailing separator must not create a second, distinct project.
     expect(odd.path).toBe(canonicalPath("C:\\Users\\mike\\Desktop\\Odd"));
   });
 
   it("skips files untouched since the last harvest", async () => {
     const past = new Date("2020-01-01T00:00:00.000Z");
-    const old = path.join(root, "C--Users-mike-Desktop-IELTS-4-Weeks", "sess-1.jsonl");
+    const old = path.join(
+      root,
+      "C--Users-mike-Desktop-IELTS-4-Weeks",
+      "sess-1.jsonl",
+    );
     await utimes(old, past, past);
 
-    const { out, stats } = await harvestAll(new Date("2024-01-01T00:00:00.000Z"));
+    const { out, stats } = await harvestAll(
+      new Date("2024-01-01T00:00:00.000Z"),
+    );
 
     expect(out.some((a) => a.sessionRef === "sess-1")).toBe(false);
     expect(stats.filesSkipped).toBeGreaterThanOrEqual(1);

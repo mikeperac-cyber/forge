@@ -3,28 +3,17 @@ import type { NodeExecutor } from "../engine/types";
 import { sleep } from "../engine/rng";
 
 const configSchema = z.object({
-  command: z
-    .string()
-    .min(1)
-    .meta({
-      control: "textarea",
-      placeholder: "npm test",
-      description: "Command to execute. Simulated for now.",
-    }),
-  cwd: z
-    .string()
-    .default(".")
-    .meta({ label: "Working directory" }),
-  failureRate: z
-    .number()
-    .min(0)
-    .max(1)
-    .default(0)
-    .meta({
-      label: "Simulated failure rate",
-      description:
-        "Chance this step fails, for exercising error paths. Ignored once real execution lands.",
-    }),
+  command: z.string().min(1).meta({
+    control: "textarea",
+    placeholder: "npm test",
+    description: "Command to execute. Simulated for now.",
+  }),
+  cwd: z.string().default(".").meta({ label: "Working directory" }),
+  failureRate: z.number().min(0).max(1).default(0).meta({
+    label: "Simulated failure rate",
+    description:
+      "Chance this step fails, for exercising error paths. Ignored once real execution lands.",
+  }),
 });
 
 export type ShellConfig = z.infer<typeof configSchema>;
@@ -81,13 +70,23 @@ export const shellExecutor: NodeExecutor<ShellConfig> = {
     for (let i = 0; i < lines.length; i++) {
       await sleep(90 + ctx.random() * 220, ctx.signal);
       yield { type: "log", stream: "stdout", text: lines[i] };
-      yield { type: "progress", pct: Math.round(((i + 1) / lines.length) * 100) };
+      yield {
+        type: "progress",
+        pct: Math.round(((i + 1) / lines.length) * 100),
+      };
     }
 
     if (ctx.random() < failureRate) {
       const code = 1 + Math.floor(ctx.random() * 2);
-      yield { type: "log", stream: "stderr", text: `Command failed with exit code ${code}` };
-      yield { type: "failed", error: `\`${command}\` exited with code ${code}` };
+      yield {
+        type: "log",
+        stream: "stderr",
+        text: `Command failed with exit code ${code}`,
+      };
+      yield {
+        type: "failed",
+        error: `\`${command}\` exited with code ${code}`,
+      };
       return;
     }
 

@@ -30,25 +30,27 @@ export function EmptySection({
 
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="max-w-sm text-center">
-          <span className="mx-auto flex size-11 items-center justify-center rounded-lg bg-accent-soft text-accent">
+          <span className="bg-accent-soft text-accent mx-auto flex size-11 items-center justify-center rounded-lg">
             <Icon name={icon} className="size-5" />
           </span>
 
-          <h2 className="mt-4 font-serif text-[19px] italic text-ink">{what}</h2>
+          <h2 className="text-ink mt-4 font-serif text-[19px] italic">
+            {what}
+          </h2>
 
-          <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
+          <p className="text-ink-soft mt-2 text-[13px] leading-relaxed">
             {meanwhile}
           </p>
 
           <Link
             href={action.href}
-            className="mt-5 inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-[13px] font-bold text-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="bg-accent text-canvas focus-visible:outline-accent mt-5 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-bold focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             {action.label}
             <Icon name="ChevronRight" className="size-3.5" />
           </Link>
 
-          <p className="mt-4 text-[11.5px] text-ink-faint">
+          <p className="text-ink-faint mt-4 text-[11.5px]">
             Not built yet — this page is a placeholder, not a preview.
           </p>
         </div>

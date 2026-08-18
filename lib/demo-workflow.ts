@@ -66,13 +66,49 @@ export function demoGraph(): WorkflowGraph {
       },
     ],
     edges: [
-      { id: "e1", source: "start", target: "test", sourceHandle: "out", targetHandle: "in" },
+      {
+        id: "e1",
+        source: "start",
+        target: "test",
+        sourceHandle: "out",
+        targetHandle: "in",
+      },
       // Reads the exit code port specifically, not the default first output.
-      { id: "e2", source: "test", target: "gate", sourceHandle: "exitCode", targetHandle: "in" },
-      { id: "e3", source: "gate", target: "summarise", sourceHandle: "true", targetHandle: "in" },
-      { id: "e4", source: "gate", target: "notify", sourceHandle: "false", targetHandle: "in" },
-      { id: "e5", source: "summarise", target: "done", sourceHandle: "text", targetHandle: "in" },
-      { id: "e6", source: "notify", target: "done", sourceHandle: "status", targetHandle: "in" },
+      {
+        id: "e2",
+        source: "test",
+        target: "gate",
+        sourceHandle: "exitCode",
+        targetHandle: "in",
+      },
+      {
+        id: "e3",
+        source: "gate",
+        target: "summarise",
+        sourceHandle: "true",
+        targetHandle: "in",
+      },
+      {
+        id: "e4",
+        source: "gate",
+        target: "notify",
+        sourceHandle: "false",
+        targetHandle: "in",
+      },
+      {
+        id: "e5",
+        source: "summarise",
+        target: "done",
+        sourceHandle: "text",
+        targetHandle: "in",
+      },
+      {
+        id: "e6",
+        source: "notify",
+        target: "done",
+        sourceHandle: "status",
+        targetHandle: "in",
+      },
     ],
   };
 }

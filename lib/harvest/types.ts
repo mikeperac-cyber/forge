@@ -66,5 +66,8 @@ export interface ToolHarvester {
    * should skip files whose mtime predates it, which is what keeps repeated
    * harvests cheap as transcripts accumulate.
    */
-  harvest(since: Date | null, summary: HarvestSummary): AsyncIterable<RawActivity>;
+  harvest(
+    since: Date | null,
+    summary: HarvestSummary,
+  ): AsyncIterable<RawActivity>;
 }

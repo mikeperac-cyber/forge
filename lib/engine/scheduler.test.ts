@@ -35,7 +35,11 @@ const boom = (id: string) =>
     expression: "(() => { throw new Error('boom') })()",
   });
 
-async function run(graph: WorkflowGraph, opts?: Parameters<typeof executeWorkflow>[0]["options"], signal?: AbortSignal) {
+async function run(
+  graph: WorkflowGraph,
+  opts?: Parameters<typeof executeWorkflow>[0]["options"],
+  signal?: AbortSignal,
+) {
   const events: EngineEvent[] = [];
   const result = await executeWorkflow({
     runId: "test-run",
@@ -52,7 +56,11 @@ async function run(graph: WorkflowGraph, opts?: Parameters<typeof executeWorkflo
 describe("scheduler", () => {
   it("runs a linear chain to completion", async () => {
     const graph: WorkflowGraph = {
-      nodes: [node("start", "start", { payload: '{"n":1}' }), pass("a"), pass("b")],
+      nodes: [
+        node("start", "start", { payload: '{"n":1}' }),
+        pass("a"),
+        pass("b"),
+      ],
       edges: [edge("start", "a"), edge("a", "b")],
     };
 
@@ -75,7 +83,9 @@ describe("scheduler", () => {
     const graph: WorkflowGraph = {
       nodes: [
         node("start", "start", { payload: '{"count":2}' }),
-        node("double", "transform", { expression: "({ count: input.count * 2 })" }),
+        node("double", "transform", {
+          expression: "({ count: input.count * 2 })",
+        }),
       ],
       edges: [edge("start", "double")],
     };
@@ -124,7 +134,8 @@ describe("scheduler", () => {
     let inFlight = 0;
     let peak = 0;
     for (const e of events) {
-      if (e.type === "node:started" && e.nodeId !== "start") peak = Math.max(peak, ++inFlight);
+      if (e.type === "node:started" && e.nodeId !== "start")
+        peak = Math.max(peak, ++inFlight);
       if (e.type === "node:finished" && e.nodeId !== "start") inFlight--;
     }
     expect(peak).toBeLessThanOrEqual(2);
@@ -132,7 +143,13 @@ describe("scheduler", () => {
 
   it("skips descendants of a failure but lets independent branches finish", async () => {
     const graph: WorkflowGraph = {
-      nodes: [node("start", "start"), boom("bad"), pass("afterBad"), pass("ok"), pass("afterOk")],
+      nodes: [
+        node("start", "start"),
+        boom("bad"),
+        pass("afterBad"),
+        pass("ok"),
+        pass("afterOk"),
+      ],
       edges: [
         edge("start", "bad"),
         edge("bad", "afterBad"),
@@ -162,7 +179,10 @@ describe("scheduler", () => {
     };
 
     // Single attempt — this test is about stop-run, not retries.
-    const { result } = await run(graph, { onFailure: "stop-run", maxAttempts: 1 });
+    const { result } = await run(graph, {
+      onFailure: "stop-run",
+      maxAttempts: 1,
+    });
 
     expect(result.nodeStatuses.bad).toBe("failed");
     expect(result.nodeStatuses.slow).toBe("cancelled");
@@ -219,7 +239,10 @@ describe("scheduler", () => {
 
   it("cancels mid-run when the caller aborts", async () => {
     const graph: WorkflowGraph = {
-      nodes: [node("start", "start"), node("slow", "http", { url: "https://example.com" })],
+      nodes: [
+        node("start", "start"),
+        node("slow", "http", { url: "https://example.com" }),
+      ],
       edges: [edge("start", "slow")],
     };
 

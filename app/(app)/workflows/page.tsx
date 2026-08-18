@@ -23,14 +23,24 @@ export default async function WorkflowsPage() {
           { href: "/workflows", label: "All", icon: "LayoutGrid" },
           { href: "/runs", label: "Runs", icon: "History" },
           { href: "/nodes", label: "Nodes", icon: "Boxes" },
-          { href: "#schedules", label: "Schedules", icon: "Clock", disabled: true },
-          { href: "#secrets", label: "Secrets", icon: "Settings", disabled: true },
+          {
+            href: "#schedules",
+            label: "Schedules",
+            icon: "Clock",
+            disabled: true,
+          },
+          {
+            href: "#secrets",
+            label: "Secrets",
+            icon: "Settings",
+            disabled: true,
+          },
         ]}
         active="/workflows"
         actions={
           <Link
             href="/workflows/new"
-            className="flex items-center gap-1.5 rounded bg-accent px-2.5 py-1 text-[12.5px] font-medium text-white"
+            className="bg-accent flex items-center gap-1.5 rounded px-2.5 py-1 text-[12.5px] font-medium text-white"
           >
             <Icon name="Plus" className="size-3.5" />
             New workflow
@@ -38,22 +48,22 @@ export default async function WorkflowsPage() {
         }
       />
 
-      <div className="flex items-center gap-4 border-b border-line px-4 py-2 text-[12px] text-ink-soft">
+      <div className="border-line text-ink-soft flex items-center gap-4 border-b px-4 py-2 text-[12px]">
         <span>
-          <strong className="font-semibold text-ink">{workflows.length}</strong>{" "}
+          <strong className="text-ink font-semibold">{workflows.length}</strong>{" "}
           workflows
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-ok" />
+          <span className="bg-ok size-1.5 rounded-full" />
           {stats.succeeded} succeeded
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-bad" />
+          <span className="bg-bad size-1.5 rounded-full" />
           {stats.failed} failed
         </span>
         {stats.running > 0 && (
-          <span className="flex items-center gap-1.5 text-busy">
-            <span className="size-1.5 rounded-full bg-busy forge-pulse" />
+          <span className="text-busy flex items-center gap-1.5">
+            <span className="bg-busy forge-pulse size-1.5 rounded-full" />
             {stats.running} running
           </span>
         )}
@@ -66,7 +76,7 @@ export default async function WorkflowsPage() {
         {workflows.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(288px,1fr))]">
+          <div className="grid [grid-template-columns:repeat(auto-fill,minmax(288px,1fr))] gap-3">
             {workflows.map((workflow) => {
               const style = workflow.lastRun
                 ? statusStyle(workflow.lastRun.status)
@@ -76,24 +86,24 @@ export default async function WorkflowsPage() {
                 <Link
                   key={workflow.id}
                   href={`/w/${workflow.slug}`}
-                  className="group flex flex-col rounded-lg border border-line bg-panel p-3 transition-colors hover:border-accent-line"
+                  className="group border-line bg-panel hover:border-accent-line flex flex-col rounded-lg border p-3 transition-colors"
                 >
                   <div className="flex items-start gap-2.5">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded bg-accent-soft text-accent">
+                    <span className="bg-accent-soft text-accent flex size-8 shrink-0 items-center justify-center rounded">
                       <Icon name="Workflow" className="size-4" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h2 className="truncate text-[13px] font-semibold group-hover:text-accent">
+                      <h2 className="group-hover:text-accent truncate text-[13px] font-semibold">
                         {workflow.name}
                       </h2>
-                      <p className="mt-0.5 line-clamp-2 text-[12px] text-ink-faint">
+                      <p className="text-ink-faint mt-0.5 line-clamp-2 text-[12px]">
                         {workflow.description ?? "No description"}
                       </p>
                     </div>
                     {style && (
                       <span
                         className={cn(
-                          "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                          "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
                           style.badge,
                         )}
                       >
@@ -103,15 +113,15 @@ export default async function WorkflowsPage() {
                   </div>
 
                   <div className="mt-3">
-                    <div className="flex items-center justify-between text-[11px] text-ink-faint">
+                    <div className="text-ink-faint flex items-center justify-between text-[11px]">
                       <span>Success rate</span>
-                      <span className="font-medium text-ink-soft">
+                      <span className="text-ink-soft font-medium">
                         {workflow.successRate === null
                           ? "—"
                           : `${workflow.successRate}%`}
                       </span>
                     </div>
-                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-line">
+                    <div className="bg-line mt-1 h-1 overflow-hidden rounded-full">
                       <div
                         className={cn(
                           "h-full rounded-full",
@@ -126,7 +136,7 @@ export default async function WorkflowsPage() {
                     </div>
                   </div>
 
-                  <div className="mt-3 flex items-center gap-3 border-t border-line pt-2 text-[11px] text-ink-faint">
+                  <div className="border-line text-ink-faint mt-3 flex items-center gap-3 border-t pt-2 text-[11px]">
                     <span>{workflow.nodeCount} nodes</span>
                     <span>{workflow.runCount} runs</span>
                     <span>v{workflow.version}</span>
@@ -147,17 +157,17 @@ export default async function WorkflowsPage() {
 function EmptyState() {
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
-      <span className="flex size-12 items-center justify-center rounded-lg bg-accent-soft text-accent">
+      <span className="bg-accent-soft text-accent flex size-12 items-center justify-center rounded-lg">
         <Icon name="Workflow" className="size-6" />
       </span>
       <h2 className="mt-3 text-[14px] font-semibold">No workflows yet</h2>
-      <p className="mt-1 max-w-xs text-[12.5px] text-ink-faint">
+      <p className="text-ink-faint mt-1 max-w-xs text-[12.5px]">
         A workflow is a graph of steps — shell commands, model calls, HTTP
         requests — wired together and run on demand.
       </p>
       <Link
         href="/workflows/new"
-        className="mt-4 rounded bg-accent px-3 py-1.5 text-[12.5px] font-medium text-white"
+        className="bg-accent mt-4 rounded px-3 py-1.5 text-[12.5px] font-medium text-white"
       >
         Create your first workflow
       </Link>

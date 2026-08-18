@@ -58,12 +58,15 @@ export default async function TimePage() {
                 const date = new Date(day.date);
                 const isToday = date.toDateString() === now.toDateString();
                 return (
-                  <div key={day.date} className="flex flex-1 flex-col items-center gap-1">
-                    <span className="font-mono text-[10px] text-ink-faint">
+                  <div
+                    key={day.date}
+                    className="flex flex-1 flex-col items-center gap-1"
+                  >
+                    <span className="text-ink-faint font-mono text-[10px]">
                       {day.minutes > 0 ? hm(day.minutes) : ""}
                     </span>
                     <div
-                      className="flex h-16 w-full items-end rounded bg-sunken"
+                      className="bg-sunken flex h-16 w-full items-end rounded"
                       title={`${date.toDateString()} — ${hm(day.minutes)}`}
                     >
                       <div
@@ -79,10 +82,12 @@ export default async function TimePage() {
                     <span
                       className={cn(
                         "text-[10.5px]",
-                        isToday ? "font-bold text-ink" : "text-ink-faint",
+                        isToday ? "text-ink font-bold" : "text-ink-faint",
                       )}
                     >
-                      {date.toLocaleDateString(undefined, { weekday: "narrow" })}
+                      {date.toLocaleDateString(undefined, {
+                        weekday: "narrow",
+                      })}
                     </span>
                   </div>
                 );
@@ -93,18 +98,18 @@ export default async function TimePage() {
           {/* --- plan vs actual ----------------------------------------- */}
           <section className="mt-6">
             <div className="flex items-baseline justify-between">
-              <h2 className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-faint">
+              <h2 className="text-ink-faint text-[10.5px] font-bold tracking-[0.08em] uppercase">
                 Today&apos;s plan
               </h2>
               {report.unplannedMinutes > 0 && (
-                <span className="text-[11.5px] text-ink-faint">
+                <span className="text-ink-faint text-[11.5px]">
                   {hm(report.unplannedMinutes)} outside the plan
                 </span>
               )}
             </div>
 
             {report.blocks.length === 0 ? (
-              <p className="mt-2 text-[13px] text-ink-soft">
+              <p className="text-ink-soft mt-2 text-[13px]">
                 Nothing planned. Blocking out the day before it starts is what
                 makes the gap visible afterwards.
               </p>
@@ -114,22 +119,23 @@ export default async function TimePage() {
                   const over = block.actualMinutes > block.plannedMinutes;
                   const ratio = Math.min(
                     100,
-                    (block.actualMinutes / Math.max(1, block.plannedMinutes)) * 100,
+                    (block.actualMinutes / Math.max(1, block.plannedMinutes)) *
+                      100,
                   );
                   return (
                     <li
                       key={block.id}
-                      className="rounded-lg border border-line bg-panel p-2.5"
+                      className="border-line bg-panel rounded-lg border p-2.5"
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="shrink-0 font-mono text-[11.5px] tabular-nums text-ink-faint">
+                        <span className="text-ink-faint shrink-0 font-mono text-[11.5px] tabular-nums">
                           {clock(block.startsAt)}
                         </span>
                         <span className="min-w-0 flex-1 truncate text-[13px] font-bold">
                           {block.title}
                         </span>
                         {block.goal && (
-                          <span className="hidden shrink-0 rounded bg-accent-soft px-1.5 py-0.5 text-[10.5px] text-accent sm:inline">
+                          <span className="bg-accent-soft text-accent hidden shrink-0 rounded px-1.5 py-0.5 text-[10.5px] sm:inline">
                             {block.goal.title}
                           </span>
                         )}
@@ -138,7 +144,7 @@ export default async function TimePage() {
                       </div>
 
                       <div className="mt-1.5 flex items-center gap-2">
-                        <div className="h-1 flex-1 overflow-hidden rounded-full bg-line">
+                        <div className="bg-line h-1 flex-1 overflow-hidden rounded-full">
                           <div
                             className={cn(
                               "h-full rounded-full",
@@ -147,7 +153,7 @@ export default async function TimePage() {
                             style={{ width: `${ratio}%` }}
                           />
                         </div>
-                        <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-faint">
+                        <span className="text-ink-faint shrink-0 font-mono text-[11px] tabular-nums">
                           {hm(block.actualMinutes)} / {hm(block.plannedMinutes)}
                         </span>
                       </div>

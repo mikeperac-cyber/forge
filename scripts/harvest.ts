@@ -32,7 +32,9 @@ async function main() {
     : await prisma.user.findFirst({ orderBy: { createdAt: "asc" } });
 
   if (!user) {
-    console.error("No account yet — visit /setup, or run `npx tsx prisma/seed.ts`.");
+    console.error(
+      "No account yet — visit /setup, or run `npx tsx prisma/seed.ts`.",
+    );
     process.exitCode = 1;
     return;
   }
@@ -52,7 +54,8 @@ async function main() {
     }
 
     const elapsed = (
-      (report.finishedAt.getTime() - report.startedAt.getTime()) / 1000
+      (report.finishedAt.getTime() - report.startedAt.getTime()) /
+      1000
     ).toFixed(1);
 
     console.log(
@@ -74,7 +77,9 @@ async function main() {
   const projects = await prisma.project.findMany({
     where: { userId: user.id },
     include: {
-      activities: { select: { activeMinutes: true, endedAt: true, tool: true } },
+      activities: {
+        select: { activeMinutes: true, endedAt: true, tool: true },
+      },
     },
   });
 

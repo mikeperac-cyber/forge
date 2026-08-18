@@ -71,7 +71,9 @@ describe("readJsonl", () => {
   });
 
   it("stops reading when the caller breaks early", async () => {
-    const lines = Array.from({ length: 5000 }, (_, i) => `{"n":${i}}`).join("\n");
+    const lines = Array.from({ length: 5000 }, (_, i) => `{"n":${i}}`).join(
+      "\n",
+    );
     const file = await fixture("big.jsonl", lines);
     const stats = emptyStats();
 
@@ -107,7 +109,10 @@ describe("readLastJsonLine", () => {
       `{"n":1}\n${JSON.stringify({ n: 2, blob: huge })}\n`,
     );
 
-    const last = await readLastJsonLine<{ n: number; blob: string }>(file, 1024);
+    const last = await readLastJsonLine<{ n: number; blob: string }>(
+      file,
+      1024,
+    );
     expect(last?.n).toBe(2);
     expect(last?.blob).toHaveLength(200_000);
   });

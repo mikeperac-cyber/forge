@@ -67,21 +67,26 @@ export function RunConsole({
   const isLive = runId !== null && stream.status === null;
 
   return (
-    <div className="flex h-full flex-col bg-panel">
-      <header className="flex h-8 shrink-0 items-center gap-1 border-b border-line px-2">
+    <div className="bg-panel flex h-full flex-col">
+      <header className="border-line flex h-8 shrink-0 items-center gap-1 border-b px-2">
         <TabButton active={tab === "console"} onClick={() => setTab("console")}>
           Console
           {stream.logs.length > 0 && (
-            <span className="ml-1 text-ink-faint">{stream.logs.length}</span>
+            <span className="text-ink-faint ml-1">{stream.logs.length}</span>
           )}
         </TabButton>
-        <TabButton active={tab === "problems"} onClick={() => setTab("problems")}>
+        <TabButton
+          active={tab === "problems"}
+          onClick={() => setTab("problems")}
+        >
           Problems
           {problems.length > 0 && (
             <span
               className={cn(
                 "ml-1 rounded px-1 text-[10px] font-semibold",
-                errorCount > 0 ? "bg-bad-soft text-bad" : "bg-warn-soft text-warn",
+                errorCount > 0
+                  ? "bg-bad-soft text-bad"
+                  : "bg-warn-soft text-warn",
               )}
             >
               {problems.length}
@@ -94,7 +99,7 @@ export function RunConsole({
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="rounded border border-line bg-canvas px-1.5 py-0.5 text-[11.5px] outline-none"
+              className="border-line bg-canvas rounded border px-1.5 py-0.5 text-[11.5px] outline-none"
             >
               <option value="all">All nodes</option>
               {nodes.map((node) => (
@@ -109,7 +114,7 @@ export function RunConsole({
             <button
               type="button"
               onClick={onCancel}
-              className="flex items-center gap-1 rounded border border-line px-1.5 py-0.5 text-[11.5px] text-bad hover:bg-bad-soft"
+              className="border-line text-bad hover:bg-bad-soft flex items-center gap-1 rounded border px-1.5 py-0.5 text-[11.5px]"
             >
               <Icon name="Square" className="size-3" />
               Cancel
@@ -118,7 +123,7 @@ export function RunConsole({
             stream.status && (
               <span
                 className={cn(
-                  "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                  "rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
                   statusStyle(stream.status).badge,
                 )}
               >
@@ -137,11 +142,14 @@ export function RunConsole({
             pinned.current =
               el.scrollHeight - el.scrollTop - el.clientHeight < 40;
           }}
-          className="min-h-0 flex-1 overflow-y-auto bg-sunken px-3 py-2 font-mono text-[11.5px] leading-[1.6]"
+          className="bg-sunken min-h-0 flex-1 overflow-y-auto px-3 py-2 font-mono text-[11.5px] leading-[1.6]"
         >
           {(dropped > 0 || stream.truncated) && (
-            <p className="mb-1 text-ink-faint">
-              … {dropped > 0 ? `${dropped} earlier lines hidden` : "older output dropped"}
+            <p className="text-ink-faint mb-1">
+              …{" "}
+              {dropped > 0
+                ? `${dropped} earlier lines hidden`
+                : "older output dropped"}
             </p>
           )}
           {visible.length === 0 ? (
@@ -153,7 +161,7 @@ export function RunConsole({
           ) : (
             visible.map((line) => (
               <div key={line.seq} className="flex gap-2">
-                <span className="shrink-0 select-none text-ink-faint">
+                <span className="text-ink-faint shrink-0 select-none">
                   {new Date(line.at).toLocaleTimeString(undefined, {
                     hour12: false,
                   })}
@@ -162,14 +170,14 @@ export function RunConsole({
                   <button
                     type="button"
                     onClick={() => onSelectNode(line.nodeId)}
-                    className="w-28 shrink-0 truncate text-left text-ink-faint hover:text-accent"
+                    className="text-ink-faint hover:text-accent w-28 shrink-0 truncate text-left"
                   >
                     {labels.get(line.nodeId) ?? line.nodeId}
                   </button>
                 )}
                 <span
                   className={cn(
-                    "whitespace-pre-wrap break-all",
+                    "break-all whitespace-pre-wrap",
                     line.stream === "stderr" && "text-bad",
                     line.stream === "system" && "text-ink-faint",
                   )}
@@ -179,14 +187,12 @@ export function RunConsole({
               </div>
             ))
           )}
-          {stream.error && (
-            <p className="mt-2 text-bad">✗ {stream.error}</p>
-          )}
+          {stream.error && <p className="text-bad mt-2">✗ {stream.error}</p>}
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto">
           {problems.length === 0 ? (
-            <p className="px-3 py-3 text-[12px] text-ink-faint">
+            <p className="text-ink-faint px-3 py-3 text-[12px]">
               No problems detected.
             </p>
           ) : (
@@ -195,10 +201,12 @@ export function RunConsole({
                 key={index}
                 type="button"
                 onClick={() => problem.nodeId && onSelectNode(problem.nodeId)}
-                className="flex w-full items-start gap-2 border-b border-line px-3 py-1.5 text-left text-[12px] hover:bg-line/40"
+                className="border-line hover:bg-line/40 flex w-full items-start gap-2 border-b px-3 py-1.5 text-left text-[12px]"
               >
                 <Icon
-                  name={problem.severity === "error" ? "TriangleAlert" : "CircleDot"}
+                  name={
+                    problem.severity === "error" ? "TriangleAlert" : "CircleDot"
+                  }
                   className={cn(
                     "mt-0.5 size-3.5 shrink-0",
                     problem.severity === "error" ? "text-bad" : "text-warn",

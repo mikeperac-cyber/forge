@@ -3,14 +3,11 @@ import type { NodeExecutor } from "../engine/types";
 import { sleep } from "../engine/rng";
 
 const configSchema = z.object({
-  payload: z
-    .string()
-    .default("{}")
-    .meta({
-      control: "code",
-      label: "Trigger payload",
-      description: "JSON handed to the first nodes as the run's initial input.",
-    }),
+  payload: z.string().default("{}").meta({
+    control: "code",
+    label: "Trigger payload",
+    description: "JSON handed to the first nodes as the run's initial input.",
+  }),
 });
 
 export type StartConfig = z.infer<typeof configSchema>;

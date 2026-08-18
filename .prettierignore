@@ -1,0 +1,10 @@
+# Generated — reformatting would just be discarded on the next `prisma generate`.
+/lib/generated
+
+# Machine-generated, huge, and not meant to be human-edited.
+/package-lock.json
+
+/.next
+/coverage
+/.remember
+*.tsbuildinfo

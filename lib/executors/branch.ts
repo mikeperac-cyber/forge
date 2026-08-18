@@ -3,16 +3,12 @@ import type { NodeExecutor } from "../engine/types";
 import { evaluateExpression, ExpressionError, isTruthy } from "../engine/expr";
 
 const configSchema = z.object({
-  condition: z
-    .string()
-    .min(1)
-    .default("input.ok")
-    .meta({
-      control: "code",
-      description:
-        "Expression over `input`. Truthy takes the True path; the other path's dependents are skipped.",
-      placeholder: "input.exitCode === 0",
-    }),
+  condition: z.string().min(1).default("input.ok").meta({
+    control: "code",
+    description:
+      "Expression over `input`. Truthy takes the True path; the other path's dependents are skipped.",
+    placeholder: "input.exitCode === 0",
+  }),
 });
 
 export type BranchConfig = z.infer<typeof configSchema>;

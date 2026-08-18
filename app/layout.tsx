@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible, Newsreader, Geist_Mono } from "next/font/google";
+import {
+  Atkinson_Hyperlegible,
+  Newsreader,
+  Geist_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { NO_FLASH_SCRIPT } from "@/lib/theme";
 
@@ -23,7 +27,10 @@ const newsreader = Newsreader({
   weight: ["400", "500"],
 });
 
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Forge",

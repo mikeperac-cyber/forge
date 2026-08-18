@@ -36,7 +36,9 @@ export async function createGoalAction(formData: FormData) {
   await createGoal(userId, {
     title: parsed.data.title,
     why: parsed.data.why,
-    targetDate: parsed.data.targetDate ? new Date(parsed.data.targetDate) : null,
+    targetDate: parsed.data.targetDate
+      ? new Date(parsed.data.targetDate)
+      : null,
     // Stored in minutes; entered in hours, which is how people think about it.
     targetMinutes: parsed.data.targetHours
       ? Math.round(parsed.data.targetHours * 60)
@@ -100,7 +102,10 @@ export async function createBlockAction(formData: FormData) {
     return { ok: false as const, error: "That date or time isn't valid" };
   }
   if (endsAt <= startsAt) {
-    return { ok: false as const, error: "The block has to end after it starts" };
+    return {
+      ok: false as const,
+      error: "The block has to end after it starts",
+    };
   }
 
   const block = await createBlock(userId, {

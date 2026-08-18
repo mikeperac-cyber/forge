@@ -35,7 +35,9 @@ function graphOf(value: unknown): WorkflowGraph {
   };
 }
 
-export async function listWorkflows(userId: string): Promise<WorkflowSummary[]> {
+export async function listWorkflows(
+  userId: string,
+): Promise<WorkflowSummary[]> {
   // Two bounded queries instead of dragging every run row into memory to
   // compute a percentage. `take: 1` fetches only the latest run per workflow,
   // and the tallies come back pre-aggregated as one row per (workflow, status).
@@ -63,7 +65,10 @@ export async function listWorkflows(userId: string): Promise<WorkflowSummary[]> 
   for (const tally of tallies) {
     // A run still in flight, skipped or cancelled says nothing about success.
     if (tally.status !== "succeeded" && tally.status !== "failed") continue;
-    const entry = outcomes.get(tally.workflowId) ?? { finished: 0, succeeded: 0 };
+    const entry = outcomes.get(tally.workflowId) ?? {
+      finished: 0,
+      succeeded: 0,
+    };
     entry.finished += tally._count._all;
     if (tally.status === "succeeded") entry.succeeded += tally._count._all;
     outcomes.set(tally.workflowId, entry);
@@ -116,7 +121,10 @@ export async function createWorkflow(
     data: {
       userId,
       name: input.name,
-      slug: uniqueSlug(input.name, existing.map((w) => w.slug)),
+      slug: uniqueSlug(
+        input.name,
+        existing.map((w) => w.slug),
+      ),
       description: input.description ?? null,
       graph: (input.graph ?? EMPTY_GRAPH) as never,
     },

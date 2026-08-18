@@ -81,14 +81,14 @@ export function RunDetail({
 
   return (
     <>
-      <section className="border-b border-line">
+      <section className="border-line border-b">
         <div className="flex items-center gap-2 px-4 pt-3">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
+          <h2 className="text-ink-faint text-[11px] font-semibold tracking-wider uppercase">
             Timeline
           </h2>
           {running && (
-            <span className="flex items-center gap-1.5 text-[11px] text-busy">
-              <span className="size-1.5 rounded-full bg-busy forge-pulse" />
+            <span className="text-busy flex items-center gap-1.5 text-[11px]">
+              <span className="bg-busy forge-pulse size-1.5 rounded-full" />
               running
             </span>
           )}
@@ -105,21 +105,21 @@ export function RunDetail({
       </section>
 
       {selected && (
-        <section className="border-b border-line bg-panel">
+        <section className="border-line bg-panel border-b">
           <header className="flex items-center gap-2 px-4 py-2">
             <h2 className="text-[12.5px] font-semibold">{selected.label}</h2>
-            <code className="rounded bg-line px-1.5 py-0.5 font-mono text-[10.5px] text-ink-faint">
+            <code className="bg-line text-ink-faint rounded px-1.5 py-0.5 font-mono text-[10.5px]">
               {selected.kind}
             </code>
             <span
               className={cn(
-                "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                "rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
                 statusStyle(selected.status).badge,
               )}
             >
               {statusStyle(selected.status).label}
             </span>
-            <span className="font-mono text-[11px] text-ink-faint">
+            <span className="text-ink-faint font-mono text-[11px]">
               {selected.startedAt && selected.finishedAt
                 ? formatDuration(
                     new Date(selected.finishedAt).getTime() -
@@ -131,39 +131,39 @@ export function RunDetail({
               type="button"
               onClick={() => setSelectedId(null)}
               aria-label="Close node detail"
-              className="ml-auto rounded p-1 text-ink-faint hover:bg-line hover:text-ink"
+              className="text-ink-faint hover:bg-line hover:text-ink ml-auto rounded p-1"
             >
               <Icon name="X" className="size-3.5" />
             </button>
           </header>
 
           {selected.error && (
-            <p className="mx-4 mb-2 rounded border border-bad/30 bg-bad-soft px-2.5 py-1.5 text-[12px] text-bad">
+            <p className="border-bad/30 bg-bad-soft text-bad mx-4 mb-2 rounded border px-2.5 py-1.5 text-[12px]">
               {selected.error}
             </p>
           )}
 
           {selected.attempts.length > 1 && (
             <div className="mx-4 mb-2 space-y-1">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
+              <h3 className="text-ink-faint text-[11px] font-semibold tracking-wider uppercase">
                 Attempts
               </h3>
               <ul className="space-y-1">
                 {selected.attempts.map((attempt) => (
                   <li
                     key={attempt.attempt}
-                    className="flex items-center gap-2 rounded border border-line bg-sunken px-2 py-1 text-[11.5px]"
+                    className="border-line bg-sunken flex items-center gap-2 rounded border px-2 py-1 text-[11.5px]"
                   >
                     <span className="text-ink-faint">#{attempt.attempt}</span>
                     <span
                       className={cn(
-                        "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                        "rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
                         statusStyle(attempt.status).badge,
                       )}
                     >
                       {statusStyle(attempt.status).label}
                     </span>
-                    <span className="font-mono text-ink-faint">
+                    <span className="text-ink-faint font-mono">
                       {attempt.startedAt && attempt.finishedAt
                         ? formatDuration(
                             new Date(attempt.finishedAt).getTime() -
@@ -173,7 +173,7 @@ export function RunDetail({
                     </span>
                     {attempt.error && (
                       <span
-                        className="min-w-0 flex-1 truncate text-bad"
+                        className="text-bad min-w-0 flex-1 truncate"
                         title={attempt.error}
                       >
                         {attempt.error}
@@ -185,7 +185,7 @@ export function RunDetail({
             </div>
           )}
 
-          <div className="grid gap-3 px-4 pb-3 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+          <div className="grid [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))] gap-3 px-4 pb-3">
             <Payload label="Input" value={selected.input} />
             <Payload label="Output" value={selected.output} />
           </div>
@@ -193,21 +193,21 @@ export function RunDetail({
       )}
 
       <section>
-        <div className="flex items-center gap-2 px-4 pb-1 pt-3">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
+        <div className="flex items-center gap-2 px-4 pt-3 pb-1">
+          <h2 className="text-ink-faint text-[11px] font-semibold tracking-wider uppercase">
             Output
           </h2>
           {selected && (
             <button
               type="button"
               onClick={() => setSelectedId(null)}
-              className="flex items-center gap-1 rounded bg-accent-soft px-1.5 py-0.5 text-[11px] text-accent"
+              className="bg-accent-soft text-accent flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px]"
             >
               {selected.label}
               <Icon name="X" className="size-3" />
             </button>
           )}
-          <span className="ml-auto text-[11px] text-ink-faint">
+          <span className="text-ink-faint ml-auto text-[11px]">
             {stream.logs.length} lines
           </span>
         </div>
@@ -230,10 +230,10 @@ function Payload({ label, value }: { label: string; value: unknown }) {
 
   return (
     <div className="min-w-0">
-      <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-faint">
+      <h3 className="text-ink-faint mb-1 text-[11px] font-semibold tracking-wider uppercase">
         {label}
       </h3>
-      <pre className="max-h-48 overflow-auto rounded border border-line bg-sunken p-2 font-mono text-[11px] leading-[1.5] text-ink-soft">
+      <pre className="border-line bg-sunken text-ink-soft max-h-48 overflow-auto rounded border p-2 font-mono text-[11px] leading-[1.5]">
         {empty ? "—" : JSON.stringify(value, null, 2)}
       </pre>
     </div>

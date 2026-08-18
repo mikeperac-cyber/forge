@@ -39,30 +39,32 @@ export default async function RunPage({
 
   // Dates and JSON columns cross the server/client boundary, so serialise
   // explicitly rather than relying on whatever the framework infers.
-  const nodes: NodeRunDetail[] = [...byNode.entries()].map(([nodeId, attemptRows]) => {
-    const sorted = [...attemptRows].sort((a, b) => a.attempt - b.attempt);
-    const first = sorted[0];
-    const latest = sorted[sorted.length - 1];
+  const nodes: NodeRunDetail[] = [...byNode.entries()].map(
+    ([nodeId, attemptRows]) => {
+      const sorted = [...attemptRows].sort((a, b) => a.attempt - b.attempt);
+      const first = sorted[0];
+      const latest = sorted[sorted.length - 1];
 
-    return {
-      nodeId,
-      label: labels.get(nodeId) ?? nodeId,
-      kind: latest.kind,
-      status: latest.status,
-      startedAt: first.startedAt?.toISOString() ?? null,
-      finishedAt: latest.finishedAt?.toISOString() ?? null,
-      input: latest.input ?? null,
-      output: latest.output ?? null,
-      error: latest.error,
-      attempts: sorted.map((row) => ({
-        attempt: row.attempt,
-        status: row.status,
-        startedAt: row.startedAt?.toISOString() ?? null,
-        finishedAt: row.finishedAt?.toISOString() ?? null,
-        error: row.error,
-      })),
-    };
-  });
+      return {
+        nodeId,
+        label: labels.get(nodeId) ?? nodeId,
+        kind: latest.kind,
+        status: latest.status,
+        startedAt: first.startedAt?.toISOString() ?? null,
+        finishedAt: latest.finishedAt?.toISOString() ?? null,
+        input: latest.input ?? null,
+        output: latest.output ?? null,
+        error: latest.error,
+        attempts: sorted.map((row) => ({
+          attempt: row.attempt,
+          status: row.status,
+          startedAt: row.startedAt?.toISOString() ?? null,
+          finishedAt: row.finishedAt?.toISOString() ?? null,
+          error: row.error,
+        })),
+      };
+    },
+  );
 
   const style = statusStyle(run.status);
   const duration = run.finishedAt
@@ -78,7 +80,7 @@ export default async function RunPage({
           <>
             <span
               className={cn(
-                "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                "rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
                 style.badge,
               )}
             >
@@ -90,7 +92,11 @@ export default async function RunPage({
           </>
         }
         tabs={[
-          { href: `/w/${run.workflow.slug}`, label: "Canvas", icon: "Workflow" },
+          {
+            href: `/w/${run.workflow.slug}`,
+            label: "Canvas",
+            icon: "Workflow",
+          },
           {
             href: `/runs?w=${run.workflow.slug}`,
             label: "All runs",
@@ -107,7 +113,7 @@ export default async function RunPage({
             <RerunButton runId={run.id} version={run.version} />
             <Link
               href={`/w/${run.workflow.slug}`}
-              className="rounded border border-line px-2 py-1 text-[12.5px] text-ink-soft hover:bg-line/50"
+              className="border-line text-ink-soft hover:bg-line/50 rounded border px-2 py-1 text-[12.5px]"
             >
               Open canvas
             </Link>
@@ -117,7 +123,7 @@ export default async function RunPage({
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {run.error && (
-          <p className="border-b border-line bg-bad-soft px-4 py-2 text-[12.5px] text-bad">
+          <p className="border-line bg-bad-soft text-bad border-b px-4 py-2 text-[12.5px]">
             {run.error}
           </p>
         )}

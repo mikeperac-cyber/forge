@@ -20,7 +20,13 @@ function hm(mins: number): string {
 }
 
 function blank(tool: string): HarvestSummary {
-  return { tool, filesSeen: 0, filesSkipped: 0, activities: 0, unattributed: 0 };
+  return {
+    tool,
+    filesSeen: 0,
+    filesSkipped: 0,
+    activities: 0,
+    unattributed: 0,
+  };
 }
 
 async function main() {

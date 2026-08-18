@@ -22,7 +22,8 @@ export function validateGraph(graph: WorkflowGraph): Problem[] {
   if (!graph.nodes.some((n) => n.kind === "start")) {
     problems.push({
       severity: "warning",
-      message: "No Start node — the run will begin at every node with no inputs.",
+      message:
+        "No Start node — the run will begin at every node with no inputs.",
     });
   }
 
@@ -53,7 +54,11 @@ export function validateGraph(graph: WorkflowGraph): Problem[] {
     const hasIncoming = graph.edges.some((e) => e.target === node.id);
     const hasOutgoing = graph.edges.some((e) => e.source === node.id);
 
-    if (executor.ports.inputs.length > 0 && !hasIncoming && node.kind !== "start") {
+    if (
+      executor.ports.inputs.length > 0 &&
+      !hasIncoming &&
+      node.kind !== "start"
+    ) {
       problems.push({
         severity: "warning",
         nodeId: node.id,

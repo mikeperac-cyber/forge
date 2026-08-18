@@ -12,21 +12,21 @@ export default function AppNotFound() {
     <div className="flex h-full flex-col">
       <PageHeader icon="TriangleAlert" title="Not found" />
       <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-        <Icon name="TriangleAlert" className="size-6 text-ink-faint" />
-        <p className="max-w-sm text-[12.5px] text-ink-faint">
+        <Icon name="TriangleAlert" className="text-ink-faint size-6" />
+        <p className="text-ink-faint max-w-sm text-[12.5px]">
           This workflow or run doesn&apos;t exist, or it belongs to another
           account.
         </p>
         <div className="flex gap-2">
           <Link
             href="/workflows"
-            className="rounded bg-accent px-2.5 py-1 text-[12.5px] font-medium text-white"
+            className="bg-accent rounded px-2.5 py-1 text-[12.5px] font-medium text-white"
           >
             All workflows
           </Link>
           <Link
             href="/runs"
-            className="rounded border border-line px-2.5 py-1 text-[12.5px] text-ink-soft hover:bg-line/50"
+            className="border-line text-ink-soft hover:bg-line/50 rounded border px-2.5 py-1 text-[12.5px]"
           >
             Run history
           </Link>

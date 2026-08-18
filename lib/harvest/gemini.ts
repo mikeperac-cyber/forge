@@ -184,7 +184,9 @@ export function createGeminiHarvester(
         }
         if (info.size === 0) continue;
 
-        const workspace = readWorkspace(path.join(conversationsDir, `${id}.db`));
+        const workspace = readWorkspace(
+          path.join(conversationsDir, `${id}.db`),
+        );
         if (!workspace) {
           summary.unattributed++;
           continue;
@@ -243,7 +245,8 @@ async function readSession(
 
       if (line.type && MESSAGE_TYPES.has(line.type)) {
         messageCount++;
-        if (!label && line.type === "USER_INPUT") label = cleanLabel(line.content);
+        if (!label && line.type === "USER_INPUT")
+          label = cleanLabel(line.content);
       }
     }
   } catch {

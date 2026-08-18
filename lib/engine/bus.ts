@@ -18,8 +18,8 @@ export const bus: EventEmitter = (globalForBus.forgeBus ??= new EventEmitter());
 bus.setMaxListeners(0);
 
 /** Controllers for runs currently in flight, so they can be cancelled. */
-export const activeRuns: Map<string, AbortController> = (globalForBus.forgeRuns ??=
-  new Map());
+export const activeRuns: Map<string, AbortController> =
+  (globalForBus.forgeRuns ??= new Map());
 
 export function publish(event: EngineEvent): void {
   bus.emit(event.runId, event);

@@ -12,7 +12,10 @@ function node(
   return { id, kind, position, data: { label, config } };
 }
 
-function graph(nodes: GraphNode[], edges: WorkflowGraph["edges"] = []): WorkflowGraph {
+function graph(
+  nodes: GraphNode[],
+  edges: WorkflowGraph["edges"] = [],
+): WorkflowGraph {
   return { nodes, edges };
 }
 
@@ -34,7 +37,9 @@ describe("diffGraphs", () => {
 
   it("treats a moved node as layout only", () => {
     const before = graph([node("x")]);
-    const after = graph([node("x", "transform", { expression: "input" }, { x: 400, y: 90 })]);
+    const after = graph([
+      node("x", "transform", { expression: "input" }, { x: 400, y: 90 }),
+    ]);
     const diff = diffGraphs(before, after);
 
     // Dragging changes the version but not the behaviour.
@@ -45,7 +50,10 @@ describe("diffGraphs", () => {
   });
 
   it("detects added and removed nodes", () => {
-    const diff = diffGraphs(graph([node("a"), node("b")]), graph([node("b"), node("c")]));
+    const diff = diffGraphs(
+      graph([node("a"), node("b")]),
+      graph([node("b"), node("c")]),
+    );
 
     expect(diff.nodesAdded.map((n) => n.id)).toEqual(["c"]);
     expect(diff.nodesRemoved.map((n) => n.id)).toEqual(["a"]);
@@ -53,8 +61,12 @@ describe("diffGraphs", () => {
   });
 
   it("names the config keys that changed", () => {
-    const before = graph([node("s", "shell", { command: "npm test", cwd: "." })]);
-    const after = graph([node("s", "shell", { command: "npm run build", cwd: "." })]);
+    const before = graph([
+      node("s", "shell", { command: "npm test", cwd: "." }),
+    ]);
+    const after = graph([
+      node("s", "shell", { command: "npm run build", cwd: "." }),
+    ]);
     const diff = diffGraphs(before, after);
 
     expect(diff.nodesChanged).toHaveLength(1);
@@ -66,7 +78,9 @@ describe("diffGraphs", () => {
     const after = graph([node("n", "http", {}, { x: 0, y: 0 }, "New")]);
     const diff = diffGraphs(before, after);
 
-    expect(diff.nodesChanged[0].fields).toEqual(expect.arrayContaining(["kind", "label"]));
+    expect(diff.nodesChanged[0].fields).toEqual(
+      expect.arrayContaining(["kind", "label"]),
+    );
   });
 
   it("compares edges by endpoints, not by generated id", () => {
@@ -79,8 +93,14 @@ describe("diffGraphs", () => {
   });
 
   it("treats a different source port as a different connection", () => {
-    const before = graph([node("a"), node("b")], [edge("e1", "a", "b", "true")]);
-    const after = graph([node("a"), node("b")], [edge("e1", "a", "b", "false")]);
+    const before = graph(
+      [node("a"), node("b")],
+      [edge("e1", "a", "b", "true")],
+    );
+    const after = graph(
+      [node("a"), node("b")],
+      [edge("e1", "a", "b", "false")],
+    );
     const diff = diffGraphs(before, after);
 
     expect(diff.edgesAdded).toHaveLength(1);

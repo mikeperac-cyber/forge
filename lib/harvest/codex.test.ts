@@ -114,7 +114,10 @@ afterAll(async () => {
 async function harvestAll(since: Date | null = null) {
   const stats = summary();
   const out: RawActivity[] = [];
-  for await (const activity of createCodexHarvester(root).harvest(since, stats)) {
+  for await (const activity of createCodexHarvester(root).harvest(
+    since,
+    stats,
+  )) {
     out.push(activity);
   }
   return { out, stats };
@@ -123,7 +126,9 @@ async function harvestAll(since: Date | null = null) {
 describe("codex harvester", () => {
   it("detects a present source and an absent one", async () => {
     expect(await createCodexHarvester(root).detect()).toBe(true);
-    expect(await createCodexHarvester(path.join(root, "nope")).detect()).toBe(false);
+    expect(await createCodexHarvester(path.join(root, "nope")).detect()).toBe(
+      false,
+    );
   });
 
   it("recurses into the date-nested directories", async () => {
@@ -190,7 +195,9 @@ describe("codex harvester", () => {
       out.push(a);
     }
 
-    expect(out.find((a) => a.sessionRef === "parent-1")!.activeMinutes).toBe(40);
+    expect(out.find((a) => a.sessionRef === "parent-1")!.activeMinutes).toBe(
+      40,
+    );
   });
 
   it("refuses to attribute a session with no cwd", async () => {
@@ -216,7 +223,9 @@ describe("codex harvester", () => {
     );
     await utimes(old, past, past);
 
-    const { out, stats } = await harvestAll(new Date("2024-01-01T00:00:00.000Z"));
+    const { out, stats } = await harvestAll(
+      new Date("2024-01-01T00:00:00.000Z"),
+    );
 
     expect(out.some((a) => a.sessionRef === "parent-1")).toBe(false);
     expect(stats.filesSkipped).toBeGreaterThanOrEqual(1);

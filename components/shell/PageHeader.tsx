@@ -30,14 +30,14 @@ export function PageHeader({
   active?: string;
 }) {
   return (
-    <div className="shrink-0 border-b border-line bg-panel">
+    <div className="border-line bg-panel shrink-0 border-b">
       <div className="flex h-12 items-center gap-3 px-4">
-        <span className="flex size-6 items-center justify-center rounded bg-accent-soft text-accent">
+        <span className="bg-accent-soft text-accent flex size-6 items-center justify-center rounded">
           <Icon name={icon} className="size-3.5" />
         </span>
         <h1 className="text-[14px] font-semibold">{title}</h1>
         {meta && (
-          <div className="flex items-center gap-3 text-[12px] text-ink-faint">
+          <div className="text-ink-faint flex items-center gap-3 text-[12px]">
             {meta}
           </div>
         )}
@@ -53,7 +53,7 @@ export function PageHeader({
                 {tab.icon && <Icon name={tab.icon} className="size-3.5" />}
                 {tab.label}
                 {tab.badge && (
-                  <span className="rounded bg-line px-1 text-[9px] font-semibold uppercase tracking-wide text-ink-faint">
+                  <span className="bg-line text-ink-faint rounded px-1 text-[9px] font-semibold tracking-wide uppercase">
                     {tab.badge}
                   </span>
                 )}
@@ -65,11 +65,16 @@ export function PageHeader({
               isActive
                 ? "border-accent text-ink"
                 : "border-transparent text-ink-soft hover:text-ink",
-              tab.disabled && "cursor-not-allowed opacity-50 hover:text-ink-soft",
+              tab.disabled &&
+                "cursor-not-allowed opacity-50 hover:text-ink-soft",
             );
 
             return tab.disabled ? (
-              <span key={tab.href} className={className} title="Not in this build">
+              <span
+                key={tab.href}
+                className={className}
+                title="Not in this build"
+              >
                 {content}
               </span>
             ) : (

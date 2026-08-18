@@ -9,7 +9,7 @@ export default function NewWorkflowPage() {
       <div className="flex-1 overflow-y-auto p-6">
         <form action={createWorkflowAction} className="max-w-md space-y-3">
           <label className="block">
-            <span className="mb-1 block text-[12px] font-medium text-ink-soft">
+            <span className="text-ink-soft mb-1 block text-[12px] font-medium">
               Name
             </span>
             <input
@@ -17,25 +17,25 @@ export default function NewWorkflowPage() {
               required
               autoFocus
               placeholder="Nightly build"
-              className="w-full rounded border border-line bg-canvas px-2.5 py-1.5 text-[13px] outline-none focus:border-accent"
+              className="border-line bg-canvas focus:border-accent w-full rounded border px-2.5 py-1.5 text-[13px] outline-none"
             />
           </label>
 
           <label className="block">
-            <span className="mb-1 block text-[12px] font-medium text-ink-soft">
+            <span className="text-ink-soft mb-1 block text-[12px] font-medium">
               Description
             </span>
             <textarea
               name="description"
               rows={3}
               placeholder="What this workflow does."
-              className="w-full resize-y rounded border border-line bg-canvas px-2.5 py-1.5 text-[13px] outline-none focus:border-accent"
+              className="border-line bg-canvas focus:border-accent w-full resize-y rounded border px-2.5 py-1.5 text-[13px] outline-none"
             />
           </label>
 
           <button
             type="submit"
-            className="rounded bg-accent px-3 py-1.5 text-[12.5px] font-medium text-white"
+            className="bg-accent rounded px-3 py-1.5 text-[12.5px] font-medium text-white"
           >
             Create workflow
           </button>

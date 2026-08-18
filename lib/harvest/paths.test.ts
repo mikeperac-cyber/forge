@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import path from "node:path";
-import { canonicalPath, displayPath, isWithin, projectNameFromPath } from "./paths";
+import {
+  canonicalPath,
+  displayPath,
+  isWithin,
+  projectNameFromPath,
+} from "./paths";
 
 /**
  * `canonicalPath` is the project identity key: it decides whether two spellings
@@ -27,15 +32,21 @@ describe("canonicalPath", () => {
 
   it("strips a trailing separator", () => {
     const withSlash = p("home", "mike", "project") + sep;
-    expect(canonicalPath(withSlash)).toBe(canonicalPath(p("home", "mike", "project")));
+    expect(canonicalPath(withSlash)).toBe(
+      canonicalPath(p("home", "mike", "project")),
+    );
   });
 
   it("trims surrounding whitespace", () => {
-    expect(canonicalPath(`  ${p("home", "mike")}  `)).toBe(canonicalPath(p("home", "mike")));
+    expect(canonicalPath(`  ${p("home", "mike")}  `)).toBe(
+      canonicalPath(p("home", "mike")),
+    );
   });
 
   it("normalises forward slashes to the platform separator", () => {
-    expect(canonicalPath("home/mike/project")).toBe(canonicalPath(p("home", "mike", "project")));
+    expect(canonicalPath("home/mike/project")).toBe(
+      canonicalPath(p("home", "mike", "project")),
+    );
   });
 
   it("collapses two spellings of one folder to a single key", () => {
@@ -51,11 +62,14 @@ describe("canonicalPath", () => {
     );
   });
 
-  it.runIf(isWindows)("folds case on Windows, where paths are case-insensitive", () => {
-    expect(canonicalPath("C:\\Users\\Mike\\Project")).toBe(
-      canonicalPath("c:\\users\\mike\\project"),
-    );
-  });
+  it.runIf(isWindows)(
+    "folds case on Windows, where paths are case-insensitive",
+    () => {
+      expect(canonicalPath("C:\\Users\\Mike\\Project")).toBe(
+        canonicalPath("c:\\users\\mike\\project"),
+      );
+    },
+  );
 
   it.runIf(isWindows)("keeps the separator on a drive root", () => {
     // "C:\" is three characters and the trailing slash is part of the path —
@@ -63,9 +77,12 @@ describe("canonicalPath", () => {
     expect(canonicalPath("C:\\")).toBe("c:\\");
   });
 
-  it.runIf(!isWindows)("preserves case on POSIX, where paths are case-sensitive", () => {
-    expect(canonicalPath("/home/Mike")).not.toBe(canonicalPath("/home/mike"));
-  });
+  it.runIf(!isWindows)(
+    "preserves case on POSIX, where paths are case-sensitive",
+    () => {
+      expect(canonicalPath("/home/Mike")).not.toBe(canonicalPath("/home/mike"));
+    },
+  );
 });
 
 describe("displayPath", () => {
@@ -77,7 +94,9 @@ describe("displayPath", () => {
   });
 
   it("still normalises shape", () => {
-    expect(displayPath("Users/Mike/Project/")).toBe(p("Users", "Mike", "Project"));
+    expect(displayPath("Users/Mike/Project/")).toBe(
+      p("Users", "Mike", "Project"),
+    );
   });
 
   it.runIf(isWindows)("differs from the canonical form only by case", () => {
@@ -89,15 +108,21 @@ describe("displayPath", () => {
 
 describe("projectNameFromPath", () => {
   it("takes the last segment", () => {
-    expect(projectNameFromPath(p("Users", "Mike", "IELTS-4-Weeks"))).toBe("IELTS-4-Weeks");
+    expect(projectNameFromPath(p("Users", "Mike", "IELTS-4-Weeks"))).toBe(
+      "IELTS-4-Weeks",
+    );
   });
 
   it("ignores a trailing separator", () => {
-    expect(projectNameFromPath(p("Users", "Mike", "Project") + sep)).toBe("Project");
+    expect(projectNameFromPath(p("Users", "Mike", "Project") + sep)).toBe(
+      "Project",
+    );
   });
 
   it("keeps the original casing", () => {
-    expect(projectNameFromPath(p("users", "mike", "MyProject"))).toBe("MyProject");
+    expect(projectNameFromPath(p("users", "mike", "MyProject"))).toBe(
+      "MyProject",
+    );
   });
 
   it("falls back to the whole path when there is no segment to take", () => {
@@ -118,7 +143,9 @@ describe("isWithin", () => {
   });
 
   it("matches a deeper descendant", () => {
-    expect(isWithin(parent, p("home", "mike", "building", "forge", "lib"))).toBe(true);
+    expect(
+      isWithin(parent, p("home", "mike", "building", "forge", "lib")),
+    ).toBe(true);
   });
 
   it("rejects a sibling", () => {
@@ -136,8 +163,8 @@ describe("isWithin", () => {
   });
 
   it("ignores separator and casing differences between the two", () => {
-    expect(isWithin("home/mike/building/", p("home", "mike", "building", "forge"))).toBe(
-      true,
-    );
+    expect(
+      isWithin("home/mike/building/", p("home", "mike", "building", "forge")),
+    ).toBe(true);
   });
 });

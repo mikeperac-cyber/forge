@@ -80,7 +80,11 @@ export async function saveGraphAction(workflowId: string, graph: unknown) {
   return { ok: true as const, version: saved.version };
 }
 
-const nameSchema = z.string().trim().min(1, "Give the workflow a name").max(120);
+const nameSchema = z
+  .string()
+  .trim()
+  .min(1, "Give the workflow a name")
+  .max(120);
 
 export async function renameWorkflowAction(workflowId: string, name: string) {
   const userId = await requireUserId();
@@ -108,7 +112,10 @@ export async function runWorkflowAction(workflowId: string) {
   const workflow = await getWorkflowById(userId, workflowId);
   if (!workflow) return { ok: false as const, error: "Workflow not found" };
   if (workflow.graph.nodes.length === 0) {
-    return { ok: false as const, error: "Nothing to run — the canvas is empty" };
+    return {
+      ok: false as const,
+      error: "Nothing to run — the canvas is empty",
+    };
   }
 
   const runId = await startRun({
@@ -173,7 +180,12 @@ export async function restoreVersionAction(
 
   // Restoring is itself a save: the graph being replaced gets archived first,
   // so restoring is undoable rather than destructive.
-  const saved = await saveGraph(userId, workflowId, graph, `Restored from v${version}`);
+  const saved = await saveGraph(
+    userId,
+    workflowId,
+    graph,
+    `Restored from v${version}`,
+  );
   if (!saved) return { ok: false as const, error: "Workflow not found" };
 
   revalidatePath(`/w/${saved.slug}`);

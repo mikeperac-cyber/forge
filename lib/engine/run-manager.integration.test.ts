@@ -29,7 +29,10 @@ describe("run manager (integration)", () => {
     const workflow = await prisma.workflow.findFirst({
       where: { slug: "build-and-notify" },
     });
-    expect(workflow, "seed the database first: npx tsx prisma/seed.ts").toBeTruthy();
+    expect(
+      workflow,
+      "seed the database first: npx tsx prisma/seed.ts",
+    ).toBeTruthy();
 
     const graph = demoGraph();
 
@@ -119,7 +122,10 @@ describe("run manager (integration)", () => {
     const workflow = await prisma.workflow.findFirst({
       where: { slug: "build-and-notify" },
     });
-    expect(workflow, "seed the database first: npx tsx prisma/seed.ts").toBeTruthy();
+    expect(
+      workflow,
+      "seed the database first: npx tsx prisma/seed.ts",
+    ).toBeTruthy();
 
     // A minimal graph of its own — `transform`'s expression is a pure
     // function, so this fails identically and deterministically on every
@@ -216,7 +222,9 @@ describe("run manager (integration)", () => {
     const badLogs = stored!.logs.filter(
       (l) => l.nodeRunId !== null && nodeRunIdsForBad.has(l.nodeRunId),
     );
-    const evaluatingLogs = badLogs.filter((l) => l.text.startsWith("Evaluating:"));
+    const evaluatingLogs = badLogs.filter((l) =>
+      l.text.startsWith("Evaluating:"),
+    );
     expect(evaluatingLogs).toHaveLength(2);
   }, 15000);
 });

@@ -23,7 +23,10 @@ describe("version history (integration)", () => {
         id: "s",
         kind: "shell",
         position: { x: 0, y: 0 },
-        data: { label: "Build", config: { command: "npm run build", cwd: "." } },
+        data: {
+          label: "Build",
+          config: { command: "npm run build", cwd: "." },
+        },
       },
     ],
     edges: [],
@@ -45,13 +48,22 @@ describe("version history (integration)", () => {
       },
     ],
     edges: [
-      { id: "e1", source: "s", target: "t", sourceHandle: "stdout", targetHandle: "in" },
+      {
+        id: "e1",
+        source: "s",
+        target: "t",
+        sourceHandle: "stdout",
+        targetHandle: "in",
+      },
     ],
   };
 
   beforeAll(async () => {
     const user = await prisma.user.findFirst();
-    expect(user, "seed the database first: npx tsx prisma/seed.ts").toBeTruthy();
+    expect(
+      user,
+      "seed the database first: npx tsx prisma/seed.ts",
+    ).toBeTruthy();
     userId = user!.id;
 
     const workflow = await createWorkflow(userId, { name: "Version fixture" });
@@ -60,7 +72,9 @@ describe("version history (integration)", () => {
 
   afterAll(async () => {
     if (workflowId) {
-      await prisma.workflow.delete({ where: { id: workflowId } }).catch(() => {});
+      await prisma.workflow
+        .delete({ where: { id: workflowId } })
+        .catch(() => {});
     }
     await prisma.$disconnect();
   });
@@ -94,7 +108,9 @@ describe("version history (integration)", () => {
     const versions = await listVersions(userId, workflowId);
     const diff = diffGraphs(versions[1].graph, versions[0].graph);
 
-    expect(summariseDiff(diff)).toBe("1 node added, 1 node edited, 1 connection added");
+    expect(summariseDiff(diff)).toBe(
+      "1 node added, 1 node edited, 1 connection added",
+    );
     expect(diff.nodesChanged[0].fields).toEqual(["config.command"]);
   });
 
@@ -112,7 +128,11 @@ describe("version history (integration)", () => {
 
   it("refuses to read another account's history", async () => {
     const stranger = await prisma.user.create({
-      data: { email: `stranger-${workflowId}@local`, name: "Stranger", passwordHash: "x" },
+      data: {
+        email: `stranger-${workflowId}@local`,
+        name: "Stranger",
+        passwordHash: "x",
+      },
     });
 
     expect(await listVersions(stranger.id, workflowId)).toEqual([]);

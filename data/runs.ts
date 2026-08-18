@@ -87,11 +87,7 @@ export async function getRunForReplay(userId: string, runId: string) {
  */
 export const REPLAY_LIMIT = 5000;
 
-export async function getRunLogs(
-  userId: string,
-  runId: string,
-  afterSeq = 0,
-) {
+export async function getRunLogs(userId: string, runId: string, afterSeq = 0) {
   return prisma.logLine.findMany({
     where: { runId, seq: { gt: afterSeq }, run: { workflow: { userId } } },
     orderBy: { seq: "asc" },

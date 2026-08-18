@@ -41,15 +41,15 @@ export default async function RunsPage({
       />
 
       {filtered && (
-        <div className="flex items-center gap-2 border-b border-line px-4 py-1.5 text-[12px]">
+        <div className="border-line flex items-center gap-2 border-b px-4 py-1.5 text-[12px]">
           <span className="text-ink-faint">Filtered to</span>
-          <span className="flex items-center gap-1.5 rounded bg-accent-soft px-1.5 py-0.5 text-accent">
+          <span className="bg-accent-soft text-accent flex items-center gap-1.5 rounded px-1.5 py-0.5">
             <Icon name="Workflow" className="size-3" />
             {workflow?.name ?? slug}
           </span>
           <Link
             href="/runs"
-            className="flex items-center gap-1 text-ink-faint hover:text-ink"
+            className="text-ink-faint hover:text-ink flex items-center gap-1"
             aria-label="Clear filter"
           >
             <Icon name="X" className="size-3" />
@@ -60,7 +60,7 @@ export default async function RunsPage({
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {runs.length === 0 ? (
-          <p className="p-6 text-center text-[12.5px] text-ink-faint">
+          <p className="text-ink-faint p-6 text-center text-[12.5px]">
             {filtered && !workflow
               ? "That workflow doesn't exist."
               : filtered
@@ -69,8 +69,8 @@ export default async function RunsPage({
           </p>
         ) : (
           <table className="w-full text-[12.5px]">
-            <thead className="sticky top-0 bg-panel text-left text-[11px] uppercase tracking-wider text-ink-faint">
-              <tr className="border-b border-line">
+            <thead className="bg-panel text-ink-faint sticky top-0 text-left text-[11px] tracking-wider uppercase">
+              <tr className="border-line border-b">
                 <th className="px-4 py-2 font-semibold">Status</th>
                 <th className="px-4 py-2 font-semibold">Workflow</th>
                 <th className="px-4 py-2 font-semibold">Steps</th>
@@ -88,13 +88,13 @@ export default async function RunsPage({
                 return (
                   <tr
                     key={run.id}
-                    className="border-b border-line hover:bg-line/30"
+                    className="border-line hover:bg-line/30 border-b"
                   >
                     <td className="px-4 py-1.5">
                       <Link
                         href={`/runs/${run.id}`}
                         className={cn(
-                          "inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide",
+                          "inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 text-[10.5px] font-semibold tracking-wide uppercase",
                           style.badge,
                         )}
                       >
@@ -110,21 +110,21 @@ export default async function RunsPage({
                       </Link>
                       <Link
                         href={`/w/${run.workflow.slug}`}
-                        className="ml-1.5 text-ink-faint hover:text-accent"
+                        className="text-ink-faint hover:text-accent ml-1.5"
                         title="Open canvas"
                       >
                         v{run.version}
                       </Link>
                     </td>
-                    <td className="px-4 py-1.5 text-ink-soft">
+                    <td className="text-ink-soft px-4 py-1.5">
                       {run._count.nodeRuns}
                     </td>
-                    <td className="px-4 py-1.5 font-mono text-ink-soft">
+                    <td className="text-ink-soft px-4 py-1.5 font-mono">
                       {run.status === "running"
                         ? "running…"
                         : formatDuration(duration)}
                     </td>
-                    <td className="px-4 py-1.5 text-ink-faint">
+                    <td className="text-ink-faint px-4 py-1.5">
                       {formatRelative(run.startedAt)}
                     </td>
                   </tr>

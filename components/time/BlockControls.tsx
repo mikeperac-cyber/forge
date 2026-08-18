@@ -23,7 +23,7 @@ export function BlockForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-2 rounded-lg border border-dashed border-line-strong px-3 py-2.5 text-[13px] text-ink-soft hover:border-accent-line hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="border-line-strong text-ink-soft hover:border-accent-line hover:text-accent focus-visible:outline-accent flex w-full items-center gap-2 rounded-lg border border-dashed px-3 py-2.5 text-[13px] focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         <Icon name="Plus" className="size-4" />
         Block out time
@@ -47,7 +47,7 @@ export function BlockForm({
           }
         })
       }
-      className="rounded-lg border border-line bg-panel p-3"
+      className="border-line bg-panel rounded-lg border p-3"
     >
       <input
         name="title"
@@ -55,45 +55,45 @@ export function BlockForm({
         required
         maxLength={120}
         placeholder="What are you going to do?"
-        className="w-full bg-transparent text-[14px] font-bold outline-none placeholder:font-normal placeholder:text-ink-faint"
+        className="placeholder:text-ink-faint w-full bg-transparent text-[14px] font-bold outline-none placeholder:font-normal"
       />
 
-      <div className="mt-3 flex flex-wrap items-end gap-3 border-t border-line pt-2.5">
-        <label className="text-[11.5px] text-ink-faint">
+      <div className="border-line mt-3 flex flex-wrap items-end gap-3 border-t pt-2.5">
+        <label className="text-ink-faint text-[11.5px]">
           <span className="mb-1 block">Date</span>
           <input
             type="date"
             name="date"
             required
             defaultValue={defaultDate}
-            className="rounded border border-line bg-canvas px-2 py-1 text-[12.5px] text-ink outline-none focus:border-accent"
+            className="border-line bg-canvas text-ink focus:border-accent rounded border px-2 py-1 text-[12.5px] outline-none"
           />
         </label>
-        <label className="text-[11.5px] text-ink-faint">
+        <label className="text-ink-faint text-[11.5px]">
           <span className="mb-1 block">From</span>
           <input
             type="time"
             name="start"
             required
-            className="rounded border border-line bg-canvas px-2 py-1 text-[12.5px] text-ink outline-none focus:border-accent"
+            className="border-line bg-canvas text-ink focus:border-accent rounded border px-2 py-1 text-[12.5px] outline-none"
           />
         </label>
-        <label className="text-[11.5px] text-ink-faint">
+        <label className="text-ink-faint text-[11.5px]">
           <span className="mb-1 block">To</span>
           <input
             type="time"
             name="end"
             required
-            className="rounded border border-line bg-canvas px-2 py-1 text-[12.5px] text-ink outline-none focus:border-accent"
+            className="border-line bg-canvas text-ink focus:border-accent rounded border px-2 py-1 text-[12.5px] outline-none"
           />
         </label>
 
         {goals.length > 0 && (
-          <label className="text-[11.5px] text-ink-faint">
+          <label className="text-ink-faint text-[11.5px]">
             <span className="mb-1 block">Toward</span>
             <select
               name="goalId"
-              className="max-w-40 rounded border border-line bg-canvas px-2 py-1 text-[12.5px] text-ink outline-none focus:border-accent"
+              className="border-line bg-canvas text-ink focus:border-accent max-w-40 rounded border px-2 py-1 text-[12.5px] outline-none"
             >
               <option value="">Nothing in particular</option>
               {goals.map((goal) => (
@@ -106,18 +106,21 @@ export function BlockForm({
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          {error && <span className="text-[11.5px] text-bad">{error}</span>}
+          {error && <span className="text-bad text-[11.5px]">{error}</span>}
           <button
             type="button"
-            onClick={() => { setOpen(false); setError(null); }}
-            className="rounded px-2 py-1 text-[12.5px] text-ink-soft hover:text-ink"
+            onClick={() => {
+              setOpen(false);
+              setError(null);
+            }}
+            className="text-ink-soft hover:text-ink rounded px-2 py-1 text-[12.5px]"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={pending}
-            className="rounded bg-accent px-3 py-1 text-[12.5px] font-bold text-canvas disabled:opacity-50"
+            className="bg-accent text-canvas rounded px-3 py-1 text-[12.5px] font-bold disabled:opacity-50"
           >
             {pending ? "Adding…" : "Add block"}
           </button>
@@ -143,7 +146,7 @@ export function DeleteBlockButton({ blockId }: { blockId: string }) {
           router.refresh();
         })
       }
-      className="shrink-0 rounded p-1 text-ink-faint hover:bg-bad-soft hover:text-bad disabled:opacity-50"
+      className="text-ink-faint hover:bg-bad-soft hover:text-bad shrink-0 rounded p-1 disabled:opacity-50"
     >
       <Icon name="X" className="size-3.5" />
     </button>

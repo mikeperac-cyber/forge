@@ -50,7 +50,7 @@ export function RunningTimer({
   return (
     <div
       className={cn(
-        "mx-2 mb-2 rounded-md border border-accent-line bg-accent-soft",
+        "border-accent-line bg-accent-soft mx-2 mb-2 rounded-md border",
         collapsed ? "p-1.5" : "p-2",
       )}
     >
@@ -59,27 +59,40 @@ export function RunningTimer({
           type="button"
           title={`${session.label} — ${display}. Stop timer.`}
           aria-label="Stop timer"
-          onClick={() => start(async () => { await stopSessionAction(); router.refresh(); })}
-          className="flex w-full items-center justify-center text-accent"
+          onClick={() =>
+            start(async () => {
+              await stopSessionAction();
+              router.refresh();
+            })
+          }
+          className="text-accent flex w-full items-center justify-center"
         >
           <Icon name="Square" className="size-3.5" />
         </button>
       ) : (
         <>
           <div className="flex items-baseline gap-2">
-            <span className="font-mono text-[15px] font-bold tabular-nums text-accent">
+            <span className="text-accent font-mono text-[15px] font-bold tabular-nums">
               {display}
             </span>
-            <span className="size-1.5 shrink-0 rounded-full bg-now forge-pulse" />
+            <span className="bg-now forge-pulse size-1.5 shrink-0 rounded-full" />
           </div>
-          <p className="mt-0.5 truncate text-[11.5px] text-ink-soft" title={session.label}>
+          <p
+            className="text-ink-soft mt-0.5 truncate text-[11.5px]"
+            title={session.label}
+          >
             {session.label}
           </p>
           <button
             type="button"
             disabled={pending}
-            onClick={() => start(async () => { await stopSessionAction(); router.refresh(); })}
-            className="mt-1.5 flex w-full items-center justify-center gap-1.5 rounded border border-accent-line px-2 py-1 text-[12px] text-accent hover:bg-canvas disabled:opacity-50"
+            onClick={() =>
+              start(async () => {
+                await stopSessionAction();
+                router.refresh();
+              })
+            }
+            className="border-accent-line text-accent hover:bg-canvas mt-1.5 flex w-full items-center justify-center gap-1.5 rounded border px-2 py-1 text-[12px] disabled:opacity-50"
           >
             <Icon name="Square" className="size-3" />
             {pending ? "Stopping…" : "Stop"}
@@ -118,7 +131,7 @@ export function StartButton({
         })
       }
       className={cn(
-        "flex shrink-0 items-center gap-1.5 rounded border border-line text-ink-soft hover:border-accent-line hover:text-accent disabled:opacity-50",
+        "border-line text-ink-soft hover:border-accent-line hover:text-accent flex shrink-0 items-center gap-1.5 rounded border disabled:opacity-50",
         compact ? "px-1.5 py-0.5 text-[11.5px]" : "px-2 py-1 text-[12px]",
       )}
     >

@@ -40,13 +40,17 @@ export default async function VersionsPage({
         tabs={[
           { href: `/w/${workflow.slug}`, label: "Canvas", icon: "Workflow" },
           { href: `/runs?w=${workflow.slug}`, label: "Runs", icon: "History" },
-          { href: `/w/${workflow.slug}/versions`, label: "Versions", icon: "Clock" },
+          {
+            href: `/w/${workflow.slug}/versions`,
+            label: "Versions",
+            icon: "Clock",
+          },
         ]}
         active={`/w/${workflow.slug}/versions`}
         actions={
           <Link
             href={`/w/${workflow.slug}`}
-            className="rounded border border-line px-2 py-1 text-[12.5px] text-ink-soft hover:bg-line/50"
+            className="border-line text-ink-soft hover:bg-line/50 rounded border px-2 py-1 text-[12.5px]"
           >
             Open canvas
           </Link>
@@ -58,7 +62,7 @@ export default async function VersionsPage({
           <article
             key={entry.version}
             className={cn(
-              "flex items-start gap-3 border-b border-line px-4 py-2.5",
+              "border-line flex items-start gap-3 border-b px-4 py-2.5",
               entry.isCurrent && "bg-accent-soft/40",
             )}
           >
@@ -76,16 +80,17 @@ export default async function VersionsPage({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-[12.5px] font-medium">
-                  {entry.note ?? (entry.isCurrent ? "Current version" : "Saved")}
+                  {entry.note ??
+                    (entry.isCurrent ? "Current version" : "Saved")}
                 </span>
                 {entry.isCurrent && (
-                  <span className="rounded bg-accent px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-white">
+                  <span className="bg-accent rounded px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-white uppercase">
                     Live
                   </span>
                 )}
               </div>
 
-              <p className="mt-0.5 text-[12px] text-ink-faint">
+              <p className="text-ink-faint mt-0.5 text-[12px]">
                 {diff ? summariseDiff(diff) : "Initial version"}
                 {" · "}
                 {entry.graph.nodes.length} nodes, {entry.graph.edges.length}{" "}
@@ -109,7 +114,7 @@ export default async function VersionsPage({
                   {diff.nodesChanged.map((change) => (
                     <Change key={`c-${change.after.id}`} kind="edit">
                       {change.after.data.label ?? change.after.kind}
-                      <span className="ml-1.5 font-mono text-[10.5px] text-ink-faint">
+                      <span className="text-ink-faint ml-1.5 font-mono text-[10.5px]">
                         {change.fields.join(", ")}
                       </span>
                     </Change>
@@ -140,7 +145,7 @@ export default async function VersionsPage({
         ))}
 
         {versions.length <= 1 && (
-          <p className="p-6 text-center text-[12.5px] text-ink-faint">
+          <p className="text-ink-faint p-6 text-center text-[12.5px]">
             Only one version so far. Saving the canvas archives the previous
             graph here.
           </p>
@@ -165,7 +170,7 @@ function Change({
   } as const;
 
   return (
-    <li className="flex items-baseline gap-1.5 text-[12px] text-ink-soft">
+    <li className="text-ink-soft flex items-baseline gap-1.5 text-[12px]">
       <span className={cn("font-mono", tone[kind])}>{marks[kind]}</span>
       <span className="min-w-0 truncate">{children}</span>
     </li>

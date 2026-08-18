@@ -16,7 +16,10 @@ describe("renameWorkflow (integration)", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.findFirst({ orderBy: { createdAt: "asc" } });
-    expect(user, "seed the database first: npx tsx prisma/seed.ts").toBeTruthy();
+    expect(
+      user,
+      "seed the database first: npx tsx prisma/seed.ts",
+    ).toBeTruthy();
     userId = user!.id;
 
     // A second account, purely to prove nothing crosses between them.
@@ -41,21 +44,29 @@ describe("renameWorkflow (integration)", () => {
   it("refuses a blank name", async () => {
     expect(await renameWorkflow(userId, workflowId, "   ")).toBe(false);
 
-    const after = await prisma.workflow.findUnique({ where: { id: workflowId } });
+    const after = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+    });
     expect(after?.name).toBe("Rename fixture");
   });
 
   it("trims and saves a real name", async () => {
     expect(await renameWorkflow(userId, workflowId, "  Renamed  ")).toBe(true);
 
-    const after = await prisma.workflow.findUnique({ where: { id: workflowId } });
+    const after = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+    });
     expect(after?.name).toBe("Renamed");
   });
 
   it("will not rename another account's workflow", async () => {
-    expect(await renameWorkflow(otherUserId, workflowId, "Hijacked")).toBe(false);
+    expect(await renameWorkflow(otherUserId, workflowId, "Hijacked")).toBe(
+      false,
+    );
 
-    const after = await prisma.workflow.findUnique({ where: { id: workflowId } });
+    const after = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+    });
     expect(after?.name).toBe("Renamed");
   });
 });
