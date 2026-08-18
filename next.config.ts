@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import path from "node:path";
 
 const nextConfig: NextConfig = {
+  // No reason to advertise the framework in every response header.
+  poweredByHeader: false,
   turbopack: {
     // Without this Turbopack walks up and finds the package-lock.json in the
     // home directory, then treats C:\Users\micha as the project root.
