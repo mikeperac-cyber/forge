@@ -1,0 +1,309 @@
+// Forge — workflow orchestrator
+//
+// Kept deliberately Postgres-compatible: no native enums (SQLite has none), so
+// every status/kind column is a String validated by a Zod union in lib/engine.
+// Switching to Postgres later is a `provider` change plus one migration.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  workflows    Workflow[]
+  goals        Goal[]
+  blocks       Block[]
+  sessions     Session[]
+  projects     Project[]
+  activities   Activity[]
+  harvestState HarvestState[]
+}
+
+/// Something you're working toward. Time accumulates against it via sessions.
+model Goal {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title String
+  /// The reason, in your own words. Goals without one get abandoned.
+  why   String?
+  /// active | done | archived — a String because SQLite has no enums.
+  status String @default("active")
+
+  targetDate DateTime?
+  /// Optional commitment, in minutes. Progress is measured against it.
+  targetMinutes Int?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  blocks   Block[]
+  sessions Session[]
+  projects Project[]
+
+  @@index([userId, status])
+}
+
+/// Time you *planned* to spend. The intention, laid out before the day starts.
+model Block {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  goalId String?
+  goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  title    String
+  startsAt DateTime
+  endsAt   DateTime
+  note     String?
+
+  createdAt DateTime  @default(now())
+  sessions  Session[]
+
+  @@index([userId, startsAt])
+}
+
+/// Time you *actually* spent. Kept separate from Block on purpose — the gap
+/// between the two is the only thing that tells you whether the plan was real.
+model Session {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  goalId String?
+  goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  blockId String?
+  block   Block?  @relation(fields: [blockId], references: [id], onDelete: SetNull)
+
+  startedAt DateTime  @default(now())
+  /// Null while the timer is still running.
+  endedAt   DateTime?
+
+  /// Length in minutes, written when the timer stops.
+  ///
+  /// Stored rather than derived, so a goal's total is one `SUM` in the database
+  /// instead of every session row being loaded to be added up in JavaScript —
+  /// the same shape as `Activity.activeMinutes`.
+  ///
+  /// It has to be stored because a *computed* duration can't be aggregated
+  /// portably: SQLite wants `julianday()`, Postgres wants
+  /// `EXTRACT(EPOCH FROM …)`, and this schema is deliberately movable between
+  /// the two.
+  ///
+  /// **Invariant: a session with `endedAt` set must have `minutes` set.**
+  /// `stopSession()` is the only thing that finishes a session; anything else
+  /// that writes `endedAt` must write this too, or that time disappears from
+  /// goal totals without any error.
+  minutes   Int?
+
+  note      String?
+
+  @@index([userId, startedAt])
+  @@index([goalId])
+}
+
+/// A folder you work in, promoted to a first-class thing.
+///
+/// `path` is the canonical form from `lib/harvest/paths.ts` — lowercased on
+/// Windows, separators normalised — and it is the identity key. `displayPath`
+/// keeps the original casing, because the canonical form is for matching and
+/// should never be shown to anyone.
+///
+/// `name` is seeded from the last path segment but stored rather than derived,
+/// so renaming a project doesn't require renaming the folder.
+model Project {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  path        String
+  displayPath String
+  name        String
+  /// active | archived — a String because SQLite has no enums.
+  status      String  @default("active")
+  note        String?
+
+  /// Work in this folder counts toward this goal. The whole point of the
+  /// ledger: time gets attributed without anyone remembering to start a timer.
+  goalId String?
+  goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  activities Activity[]
+
+  // Scoped per user for the same reason Workflow.slug is — see the note there.
+  @@unique([userId, path])
+  @@index([userId, status])
+}
+
+/// One observed work session, harvested from a tool's own history.
+///
+/// Kept apart from `Session` deliberately. `Session` is time you *claimed* by
+/// starting a timer; this is time a tool *witnessed*. Merging them would let a
+/// harvest silently inflate a day you already logged by hand, and there would
+/// be no way to tell afterwards which number you had actually stood behind.
+///
+/// `activeMinutes` is not `endedAt - startedAt`: gaps longer than the idle
+/// threshold are removed, because a transcript left open overnight otherwise
+/// claims fourteen hours of work. See `lib/harvest/claude-code.ts`.
+model Activity {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  /// Which tool recorded this — "claude-code", and others as they're added.
+  tool String
+  /// The tool's own id for the session. With `tool` it is the idempotency key:
+  /// re-harvesting updates the row rather than duplicating the day's work.
+  sessionRef String
+
+  startedAt     DateTime
+  endedAt       DateTime
+  activeMinutes Int
+  messageCount  Int
+  gitBranch     String?
+  label         String?
+
+  /// When we recorded it, as opposed to when the work happened.
+  harvestedAt DateTime @default(now())
+
+  @@unique([userId, tool, sessionRef])
+  @@index([userId, startedAt])
+  @@index([projectId])
+}
+
+/// Where the last harvest got to, per tool.
+///
+/// The harvester skips files whose mtime predates `lastHarvestedAt`, which is
+/// the only thing keeping repeat harvests cheap as transcripts accumulate.
+/// Deriving this from `max(Activity.harvestedAt)` would go stale the moment a
+/// harvest found nothing new.
+model HarvestState {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tool            String
+  lastHarvestedAt DateTime?
+
+  /// Last run's counts, kept for display so Settings can say what happened
+  /// without re-scanning.
+  filesSeen     Int @default(0)
+  filesSkipped  Int @default(0)
+  activities    Int @default(0)
+  unattributed  Int @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, tool])
+}
+
+/// The graph lives as JSON rather than normalised node/edge tables: React Flow's
+/// model *is* { nodes, edges }, saves are atomic, and versioning is a snapshot.
+model Workflow {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  description String?
+  graph       Json
+  version     Int               @default(1)
+  /// Why the *live* version looks the way it does. Archived alongside the graph
+  /// when this version is superseded, so each snapshot carries its own note.
+  note        String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  archivedAt  DateTime?
+  versions    WorkflowVersion[]
+  runs        Run[]
+
+  // Scoped per user, never globally — global-unique slugs plus no ownership
+  // check is exactly how the GitScrum original leaked records across accounts.
+  @@unique([userId, slug])
+  @@index([userId, archivedAt])
+}
+
+model WorkflowVersion {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  version    Int
+  graph      Json
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@unique([workflowId, version])
+}
+
+model Run {
+  id         String    @id @default(cuid())
+  workflowId String
+  workflow   Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  /// Pinned so a run stays interpretable after the workflow graph is edited.
+  version    Int
+  status     String    @default("pending")
+  trigger    String    @default("manual")
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  nodeRuns   NodeRun[]
+  logs       LogLine[]
+
+  @@index([workflowId, startedAt])
+}
+
+model NodeRun {
+  id     String @id @default(cuid())
+  runId  String
+  run    Run    @relation(fields: [runId], references: [id], onDelete: Cascade)
+  /// The node's id *within* the graph JSON, not a foreign key.
+  nodeId String
+  kind   String
+  status String @default("pending")
+  /// Already here so retries-with-backoff is an additive change later.
+  attempt    Int       @default(1)
+  input      Json?
+  output     Json?
+  error      String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+  logs       LogLine[]
+
+  @@unique([runId, nodeId, attempt])
+  @@index([runId])
+}
+
+model LogLine {
+  id        String   @id @default(cuid())
+  runId     String
+  run       Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  nodeRunId String?
+  nodeRun   NodeRun? @relation(fields: [nodeRunId], references: [id], onDelete: Cascade)
+  /// Monotonic per run. The SSE endpoint replays by seq before attaching to the
+  /// live bus, so a mid-run page reload loses nothing.
+  seq       Int
+  ts        DateTime @default(now())
+  stream    String   @default("stdout")
+  text      String
+
+  @@unique([runId, seq])
+  @@index([nodeRunId])
+}

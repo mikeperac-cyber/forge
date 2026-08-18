@@ -1,0 +1,227 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+/*
+  Zen — sumi ink on washi, lit three ways.
+
+  Colour carries meaning here rather than decoration:
+    blue   — interactive, and work in progress. The calm default.
+    gold   — clear, complete, nothing left to do.
+    orange — wants your attention.
+    vermilion — broken. Orange can't mean both "look here" and "this failed".
+
+  `data-theme` is always a concrete "light" or "dark" — the inline script in
+  <head> resolves "follow the system" before first paint, and a listener keeps
+  it in step afterwards.
+
+  This started out using `light-dark()`, which reads far better: one line per
+  token, day and night side by side. It had to go. `light-dark()` inside an
+  *inherited custom property* does not reliably invalidate when `color-scheme`
+  changes at runtime — toggling left elements holding their previous value
+  until some unrelated recalc touched them, so half the page changed theme one
+  click behind the other half. Selector-driven tokens invalidate correctly.
+*/
+
+:root {
+  color-scheme: light;
+
+  /* --- surfaces: paper, and the chrome around it ---------------------- */
+  --canvas: #fcfbf8;
+  --panel: #f5f3ee;
+  --rail: #f1efe9;
+  --sunken: #efede7;
+  --line: #e3e0d8;
+  --line-strong: #cfcbc0;
+
+  /* --- ink ------------------------------------------------------------ */
+  --ink: #1c1f24;
+  --ink-soft: #585d66;
+  --ink-faint: #8a8f99;
+
+  /* --- blue: interactive ---------------------------------------------- */
+  --accent: #2a5c8a;
+  --accent-soft: #e8eff6;
+  --accent-line: #bbd0e3;
+
+  /* --- orange: attention. A FILL, never text — it can't pass contrast
+         as small type on paper, and restricting it is what makes it read. */
+  --now: #d9822b;
+  --now-soft: #fbf0e2;
+
+  /* --- gold: clear / complete. Darkened here so it survives as status
+         text at 11px, which raw gold does not. ------------------------- */
+  --ok: #8e6c2a;
+  --ok-soft: #f5eedd;
+
+  --bad: #a8342a;
+  --bad-soft: #f9ebe9;
+
+  --warn: #9a5b12;
+  --warn-soft: #fbf0e2;
+
+  --busy: #2a5c8a;
+  --busy-soft: #e8eff6;
+
+  --idle: #8a8f99;
+  --idle-soft: #efede7;
+}
+
+/* Night — ink wash. Gold and orange lift, blue cools to moonlight. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #15171b;
+  --panel: #1a1d22;
+  --rail: #101216;
+  --sunken: #0e1013;
+  --line: #262a31;
+  --line-strong: #383d46;
+
+  --ink: #e9e7e1;
+  --ink-soft: #a0a5ae;
+  --ink-faint: #71767f;
+
+  --accent: #7fa8ce;
+  --accent-soft: #17222e;
+  --accent-line: #2e4459;
+
+  --now: #e8935a;
+  --now-soft: #2a1d13;
+
+  --ok: #d9b15c;
+  --ok-soft: #262013;
+
+  --bad: #d8705e;
+  --bad-soft: #2a1614;
+
+  --warn: #e0a45e;
+  --warn-soft: #2a2013;
+
+  --busy: #7fa8ce;
+  --busy-soft: #17222e;
+
+  --idle: #71767f;
+  --idle-soft: #1e2126;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-panel: var(--panel);
+  --color-rail: var(--rail);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-now: var(--now);
+  --color-now-soft: var(--now-soft);
+
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-busy: var(--busy);
+  --color-busy-soft: var(--busy-soft);
+  --color-idle: var(--idle);
+  --color-idle-soft: var(--idle-soft);
+
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "Cascadia Code", monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* An interface reads denser than a web page. */
+  font-size: 13px;
+  /* Zen lives in the leading as much as the palette — room to breathe. */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* Thin scrollbars — full-width ones look wrong inside quiet panels. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* React Flow inherits our surface rather than its own white. */
+.react-flow {
+  background: var(--sunken);
+}
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__handle {
+  width: 9px;
+  height: 9px;
+  background: var(--canvas);
+  border: 1.5px solid var(--line-strong);
+}
+.react-flow__handle:hover {
+  border-color: var(--accent);
+}
+.react-flow__edge-path {
+  stroke: var(--line-strong);
+  stroke-width: 1.75;
+}
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--accent);
+}
+.react-flow__controls-button {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  fill: var(--ink-soft);
+}
+
+@keyframes forge-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.forge-pulse {
+  animation: forge-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-pulse {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
