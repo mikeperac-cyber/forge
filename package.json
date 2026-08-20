@@ -17,7 +17,8 @@
     "harvest:calibrate": "tsx scripts/harvest-calibrate.ts",
     "schedules": "tsx --conditions=react-server scripts/run-schedules.ts",
     "check": "tsc --noEmit && eslint . && prettier --check . && vitest run",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.1",
