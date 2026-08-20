@@ -74,11 +74,25 @@ export function formatDuration(ms: number | null | undefined): string {
   return `${minutes}m ${seconds}s`;
 }
 
+/** `diff` is assumed non-negative — callers pick the sign, this just buckets it. */
+function bucketMagnitude(diff: number): string | null {
+  if (diff < 60_000) return null;
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
+  return `${Math.floor(diff / 86_400_000)}d`;
+}
+
 export function formatRelative(date: Date | string): string {
   const then = typeof date === "string" ? new Date(date) : date;
-  const diff = Date.now() - then.getTime();
-  if (diff < 60_000) return "just now";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
-  return `${Math.floor(diff / 86_400_000)}d ago`;
+  const bucket = bucketMagnitude(Date.now() - then.getTime());
+  return bucket ? `${bucket} ago` : "just now";
+}
+
+/** The future-facing twin of `formatRelative` — "in 15m", not "-15m ago". */
+export function formatUntil(date: Date | string): string {
+  const then = typeof date === "string" ? new Date(date) : date;
+  const diff = then.getTime() - Date.now();
+  if (diff <= 0) return "any moment";
+  const bucket = bucketMagnitude(diff);
+  return bucket ? `in ${bucket}` : "any moment";
 }

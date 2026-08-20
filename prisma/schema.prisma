@@ -26,6 +26,7 @@ model User {
   projects     Project[]
   activities   Activity[]
   harvestState HarvestState[]
+  schedules    Schedule[]
 }
 
 /// Something you're working toward. Time accumulates against it via sessions.
@@ -234,6 +235,7 @@ model Workflow {
   archivedAt  DateTime?
   versions    WorkflowVersion[]
   runs        Run[]
+  schedules   Schedule[]
 
   // Scoped per user, never globally — global-unique slugs plus no ownership
   // check is exactly how the GitScrum original leaked records across accounts.
@@ -306,4 +308,39 @@ model LogLine {
 
   @@unique([runId, seq])
   @@index([nodeRunId])
+}
+
+/// A workflow that runs itself, on a timer.
+///
+/// Fired by `scripts/run-schedules.ts`, which a Windows Task Scheduler entry
+/// (see `windows-tasks.ps1`) polls every minute — there's no long-running
+/// process inside `next dev`/`next start` that could hold a `setInterval`
+/// alive across restarts and dev-reloads, so this reuses the exact
+/// poll-and-fire shape the harvester already runs on.
+model Schedule {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  /// interval | daily | weekly — a String because SQLite has no enums.
+  kind String
+  /// Shape depends on `kind`. See `lib/schedule.ts`, the one place that reads
+  /// it: `{ minutes }` | `{ hour, minute }` | `{ dayOfWeek, hour, minute }`.
+  config Json
+
+  enabled Boolean @default(true)
+
+  lastRunAt DateTime?
+  /// Precomputed on every write, so the poller is a single indexed `WHERE`
+  /// rather than evaluating every schedule's recurrence on every tick.
+  nextRunAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([enabled, nextRunAt])
+  @@index([workflowId])
 }

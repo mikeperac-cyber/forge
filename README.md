@@ -379,8 +379,17 @@ versioning is a snapshot. `Run.version` pins which graph a run belongs to.
   is re-derived and stable on this machine (`npm run harvest:calibrate`), but
   it encodes an assumption — that a pause over a quarter of an hour isn't work
   — which is a judgement rather than a measurement.
-- Schedules, secrets storage, webhooks and graph↔YAML round-tripping are
-  stubbed in the UI as disabled tabs, not implemented.
+- Secrets storage, webhooks and graph↔YAML round-tripping are stubbed in the
+  UI as disabled tabs, not implemented.
+- **Schedules** (interval / daily / weekly recurring runs) are real —
+  `lib/schedule.ts` for the recurrence math, `data/schedules.ts` for the
+  storage, `/schedules` for the UI. They don't fire themselves, though:
+  there's no long-running process inside `next dev`/`next start` that could
+  hold a timer alive across restarts and dev-reloads, so `scripts/run-schedules.ts`
+  polls for due schedules and needs an external trigger — the Windows Task
+  Scheduler entry in `windows-tasks.ps1` (`npm run schedules`, every minute)
+  is that trigger. Without it running, schedules sit in the database and
+  never fire.
 
 ## Environment notes
 

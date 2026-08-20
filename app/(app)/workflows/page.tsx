@@ -23,12 +23,7 @@ export default async function WorkflowsPage() {
           { href: "/workflows", label: "All", icon: "LayoutGrid" },
           { href: "/runs", label: "Runs", icon: "History" },
           { href: "/nodes", label: "Nodes", icon: "Boxes" },
-          {
-            href: "#schedules",
-            label: "Schedules",
-            icon: "Clock",
-            disabled: true,
-          },
+          { href: "/schedules", label: "Schedules", icon: "Clock" },
           {
             href: "#secrets",
             label: "Secrets",

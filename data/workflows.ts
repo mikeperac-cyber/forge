@@ -26,7 +26,8 @@ export interface WorkflowSummary {
   successRate: number | null;
 }
 
-function graphOf(value: unknown): WorkflowGraph {
+/** Guards the raw `Json` column into a real `WorkflowGraph` shape. */
+export function graphOf(value: unknown): WorkflowGraph {
   if (!value || typeof value !== "object") return EMPTY_GRAPH;
   const candidate = value as Partial<WorkflowGraph>;
   return {
@@ -128,6 +129,17 @@ export async function listFailingWorkflows(
   return rows
     .filter((row) => row.runs[0]?.status === "failed")
     .map((row) => ({ id: row.id, name: row.name, lastRunId: row.runs[0].id }));
+}
+
+/** Just id and name, for pickers — same reasoning as `listGoalOptions`. */
+export async function listWorkflowOptions(
+  userId: string,
+): Promise<{ id: string; name: string }[]> {
+  return prisma.workflow.findMany({
+    where: { userId, archivedAt: null },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
 }
 
 export async function getWorkflow(userId: string, slug: string) {
