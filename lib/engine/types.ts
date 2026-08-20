@@ -97,6 +97,12 @@ export interface GraphNode {
   data: {
     label?: string;
     config: Record<string, unknown>;
+    /**
+     * Per-node override of the run's retry policy. Either field left unset
+     * falls back to `RunOptions.maxAttempts`/`retryDelayMs` — this is a
+     * narrowing knob, not a second source of truth.
+     */
+    retry?: { maxAttempts?: number; retryDelayMs?: number };
   };
 }
 

@@ -32,6 +32,12 @@ const graphSchema = z.object({
       data: z.object({
         label: z.string().optional(),
         config: z.record(z.string(), z.unknown()).default({}),
+        retry: z
+          .object({
+            maxAttempts: z.number().int().min(1).max(5).optional(),
+            retryDelayMs: z.number().int().min(0).max(60_000).optional(),
+          })
+          .optional(),
       }),
     }),
   ),

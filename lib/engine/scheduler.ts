@@ -164,8 +164,11 @@ export async function executeWorkflow({
    */
   async function handleFailure(nodeId: string, error: string) {
     const attempt = attempts.get(nodeId) ?? 1;
+    const override = byId.get(nodeId)?.data.retry;
+    const maxAttempts = override?.maxAttempts ?? opts.maxAttempts;
+    const retryDelayMs = override?.retryDelayMs ?? opts.retryDelayMs;
 
-    if (attempt >= opts.maxAttempts || controller.signal.aborted) {
+    if (attempt >= maxAttempts || controller.signal.aborted) {
       finish(nodeId, "failed", { error });
       if (opts.onFailure === "stop-run") {
         runError ??= outputsErrorFor(nodeId);
@@ -181,14 +184,14 @@ export async function executeWorkflow({
       nodeId,
       attempt,
       nextAttempt,
-      maxAttempts: opts.maxAttempts,
+      maxAttempts,
       error,
-      delayMs: opts.retryDelayMs,
+      delayMs: retryDelayMs,
       at: Date.now(),
     });
 
     try {
-      await sleep(opts.retryDelayMs, controller.signal);
+      await sleep(retryDelayMs, controller.signal);
     } catch {
       // Aborted while waiting to retry — same outcome as any other in-flight
       // node caught by cancellation, not a failure of this attempt.

@@ -55,3 +55,6 @@ next-env.d.ts
 
 # understand-anything intermediate/scratch output
 /.ua
+
+.vercel
+.env*

@@ -10,8 +10,14 @@ function node(
   id: string,
   kind: string,
   config: Record<string, unknown> = {},
+  retry?: GraphNode["data"]["retry"],
 ): GraphNode {
-  return { id, kind, position: { x: 0, y: 0 }, data: { label: id, config } };
+  return {
+    id,
+    kind,
+    position: { x: 0, y: 0 },
+    data: { label: id, config, retry },
+  };
 }
 
 function edge(
@@ -360,6 +366,60 @@ describe("scheduler", () => {
       (e) => e.type === "node:started" && e.nodeId === "bad",
     );
     expect(started).toHaveLength(1);
+  });
+
+  it("a per-node maxAttempts of 1 skips retrying even when the run default allows it", async () => {
+    const graph: WorkflowGraph = {
+      nodes: [
+        node("start", "start"),
+        {
+          ...boom("bad"),
+          data: { ...boom("bad").data, retry: { maxAttempts: 1 } },
+        },
+      ],
+      edges: [edge("start", "bad")],
+    };
+
+    // Run default is 2 (retryDelayMs default too, but the node fails on
+    // attempt 1 so no delay is ever waited).
+    const { result, events } = await run(graph);
+
+    expect(result.nodeStatuses.bad).toBe("failed");
+    const started = events.filter(
+      (e) => e.type === "node:started" && e.nodeId === "bad",
+    );
+    expect(started).toHaveLength(1);
+  });
+
+  it("a per-node maxAttempts higher than the run default gets the extra attempts", async () => {
+    const graph: WorkflowGraph = {
+      nodes: [
+        node("start", "start"),
+        {
+          ...boom("bad"),
+          data: {
+            ...boom("bad").data,
+            retry: { maxAttempts: 3, retryDelayMs: 5 },
+          },
+        },
+      ],
+      edges: [edge("start", "bad")],
+    };
+
+    // Run-level default is 2 — the node's own override must win.
+    const { result, events } = await run(graph, { maxAttempts: 2 });
+
+    expect(result.nodeStatuses.bad).toBe("failed");
+    const started = events.filter(
+      (e) => e.type === "node:started" && e.nodeId === "bad",
+    );
+    expect(started).toHaveLength(3);
+
+    const retrying = events.filter((e) => e.type === "node:retrying");
+    expect(retrying).toHaveLength(2);
+    expect(
+      retrying.every((e) => (e as { maxAttempts: number }).maxAttempts === 3),
+    ).toBe(true);
   });
 
   it("seeds each attempt's randomness independently", () => {

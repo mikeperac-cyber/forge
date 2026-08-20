@@ -5,12 +5,17 @@ import { getExecutor } from "@/lib/engine/registry";
 import { introspect, type FieldDef } from "@/lib/engine/schema-form";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/shell/Icon";
-import type { GraphNode } from "@/lib/engine/types";
+import { DEFAULT_RUN_OPTIONS, type GraphNode } from "@/lib/engine/types";
 
 interface Props {
   node: GraphNode | null;
   onChangeConfig: (nodeId: string, key: string, value: unknown) => void;
   onChangeLabel: (nodeId: string, label: string) => void;
+  onChangeRetry: (
+    nodeId: string,
+    key: "maxAttempts" | "retryDelayMs",
+    value: number | undefined,
+  ) => void;
   onDelete: (nodeId: string) => void;
 }
 
@@ -18,6 +23,7 @@ export function NodeInspector({
   node,
   onChangeConfig,
   onChangeLabel,
+  onChangeRetry,
   onDelete,
 }: Props) {
   const executor = node ? getExecutor(node.kind) : undefined;
@@ -89,6 +95,55 @@ export function NodeInspector({
             onChange={(value) => onChangeConfig(node.id, field.name, value)}
           />
         ))}
+
+        <div className="border-line space-y-2 border-t pt-2">
+          <p className="text-ink-faint text-[11px] font-medium tracking-wide uppercase">
+            Retries
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Max attempts">
+              <input
+                type="number"
+                min={1}
+                max={5}
+                step={1}
+                placeholder={String(DEFAULT_RUN_OPTIONS.maxAttempts)}
+                value={node.data.retry?.maxAttempts ?? ""}
+                onChange={(e) =>
+                  onChangeRetry(
+                    node.id,
+                    "maxAttempts",
+                    e.target.value === "" ? undefined : e.target.valueAsNumber,
+                  )
+                }
+                className="border-line bg-canvas focus:border-accent w-full rounded border px-2 py-1 text-[12.5px] outline-none"
+              />
+            </Field>
+            <Field label="Delay (ms)">
+              <input
+                type="number"
+                min={0}
+                max={60_000}
+                step={500}
+                placeholder={String(DEFAULT_RUN_OPTIONS.retryDelayMs)}
+                value={node.data.retry?.retryDelayMs ?? ""}
+                onChange={(e) =>
+                  onChangeRetry(
+                    node.id,
+                    "retryDelayMs",
+                    e.target.value === "" ? undefined : e.target.valueAsNumber,
+                  )
+                }
+                className="border-line bg-canvas focus:border-accent w-full rounded border px-2 py-1 text-[12.5px] outline-none"
+              />
+            </Field>
+          </div>
+          <p className="text-ink-faint text-[11px]">
+            Blank uses the run&rsquo;s default (
+            {DEFAULT_RUN_OPTIONS.maxAttempts} attempts,{" "}
+            {DEFAULT_RUN_OPTIONS.retryDelayMs}ms delay).
+          </p>
+        </div>
 
         <div className="border-line border-t pt-2">
           <p className="text-ink-faint text-[11px]">
