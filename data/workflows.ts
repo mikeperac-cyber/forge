@@ -94,6 +94,42 @@ export async function listWorkflows(
   });
 }
 
+export interface FailingWorkflow {
+  id: string;
+  name: string;
+  lastRunId: string;
+}
+
+/**
+ * Just the workflows whose latest run failed, for the "Needs you" strip.
+ *
+ * `listWorkflows` was built for the workflows list — full graph (to count
+ * nodes), a success-rate tally query, everything. `/today` renders on every
+ * visit and only ever reads `id`/`name`/whether the latest run failed, so
+ * paying for a graph-JSON parse and a groupBy per node it never displays is
+ * pure waste. Same reasoning as `countActiveGoals` next door.
+ */
+export async function listFailingWorkflows(
+  userId: string,
+): Promise<FailingWorkflow[]> {
+  const rows = await prisma.workflow.findMany({
+    where: { userId, archivedAt: null },
+    select: {
+      id: true,
+      name: true,
+      runs: {
+        take: 1,
+        orderBy: { startedAt: "desc" },
+        select: { id: true, status: true },
+      },
+    },
+  });
+
+  return rows
+    .filter((row) => row.runs[0]?.status === "failed")
+    .map((row) => ({ id: row.id, name: row.name, lastRunId: row.runs[0].id }));
+}
+
 export async function getWorkflow(userId: string, slug: string) {
   const row = await prisma.workflow.findFirst({
     where: { userId, slug, archivedAt: null },
