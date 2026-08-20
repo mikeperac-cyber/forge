@@ -1,12 +1,14 @@
 import { z } from "zod";
 import type { NodeExecutor } from "../engine/types";
 import { sleep } from "../engine/rng";
+import { resolveSecrets } from "../secrets";
 
 const configSchema = z.object({
   prompt: z.string().min(1).meta({
     control: "textarea",
     placeholder: "Summarise the test output in one sentence.",
-    description: "Supports {{input}} as a placeholder for the upstream value.",
+    description:
+      "Supports {{input}} for the upstream value and {{secret.NAME}} for a stored secret.",
   }),
   model: z
     .enum(["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"])
@@ -44,6 +46,12 @@ export const aiExecutor: NodeExecutor<AiConfig> = {
       /\{\{\s*input\s*\}\}/g,
       JSON.stringify(ctx.inputs.in ?? null),
     );
+    // Resolved for whatever a real model call would actually send. Never
+    // logged, and never used for anything but the token estimate below — a
+    // {{secret.NAME}} reference in a prompt is unusual, but if one's there,
+    // its value must not end up in the console any more than an HTTP
+    // header's would.
+    const withSecrets = resolveSecrets(resolved, ctx.secrets);
 
     yield {
       type: "log",
@@ -71,7 +79,7 @@ export const aiExecutor: NodeExecutor<AiConfig> = {
       };
     }
 
-    const tokens = Math.round(resolved.length / 4 + buffer.length / 4);
+    const tokens = Math.round(withSecrets.length / 4 + buffer.length / 4);
     yield { type: "log", stream: "system", text: `${tokens} tokens` };
     yield { type: "succeeded", outputs: { text: buffer, tokens } };
   },

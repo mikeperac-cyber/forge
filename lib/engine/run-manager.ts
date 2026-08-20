@@ -26,6 +26,12 @@ interface StartRunArgs {
   options?: Partial<RunOptions>;
   /** manual | schedule — a String because SQLite has no enums. */
   trigger?: string;
+  /** Decrypted, keyed by name — fetched by the caller (an action already
+   * holding `userId`, or the schedule poller) via
+   * `data/secrets.ts#loadDecryptedSecrets`. `run-manager.ts` stays decoupled
+   * from the `Secret` model itself; it only ever moves this bag through to
+   * `executeWorkflow`. */
+  secrets?: Record<string, string>;
 }
 
 /** Flush the log buffer once it reaches this many lines. */
@@ -47,6 +53,7 @@ export async function startRun({
   graph,
   options,
   trigger = "manual",
+  secrets,
 }: StartRunArgs): Promise<string> {
   const run = await prisma.run.create({
     data: { workflowId, version, status: "running", trigger },
@@ -214,6 +221,7 @@ export async function startRun({
     emit,
     options,
     signal: controller.signal,
+    secrets,
   })
     .catch((err) => {
       console.error(`[run ${run.id}] scheduler crashed:`, err);

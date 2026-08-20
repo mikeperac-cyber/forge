@@ -27,6 +27,7 @@ model User {
   activities   Activity[]
   harvestState HarvestState[]
   schedules    Schedule[]
+  secrets      Secret[]
 }
 
 /// Something you're working toward. Time accumulates against it via sessions.
@@ -343,4 +344,32 @@ model Schedule {
 
   @@index([enabled, nextRunAt])
   @@index([workflowId])
+}
+
+/// A value a workflow can use without putting it in the graph JSON in
+/// plaintext — the graph is versioned on every save (`WorkflowVersion`), so
+/// anything written straight into a node's config would be permanently
+/// readable in every snapshot ever taken, not just the live one.
+///
+/// Referenced from node config as `{{secret.NAME}}` — see `lib/secrets.ts`,
+/// which is also the only place that knows how to turn `ciphertext`/`iv`
+/// back into the real value. There is no code path anywhere in this app that
+/// returns a secret's plaintext to the browser once it has been saved; the
+/// UI only ever shows whether one exists.
+model Secret {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name String
+
+  /// AES-256-GCM ciphertext (includes the auth tag) — base64.
+  ciphertext String
+  /// The per-secret random IV used to encrypt it — base64.
+  iv String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
 }

@@ -24,12 +24,7 @@ export default async function WorkflowsPage() {
           { href: "/runs", label: "Runs", icon: "History" },
           { href: "/nodes", label: "Nodes", icon: "Boxes" },
           { href: "/schedules", label: "Schedules", icon: "Clock" },
-          {
-            href: "#secrets",
-            label: "Secrets",
-            icon: "Settings",
-            disabled: true,
-          },
+          { href: "/secrets", label: "Secrets", icon: "Settings" },
         ]}
         active="/workflows"
         actions={

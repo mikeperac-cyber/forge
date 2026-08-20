@@ -16,9 +16,24 @@
 import "dotenv/config";
 import { dueSchedules, markScheduleFired } from "../data/schedules";
 import { graphOf } from "../data/workflows";
+import { loadDecryptedSecrets } from "../data/secrets";
 import { startRun, waitForSettled } from "../lib/engine/run-manager";
 import { describeSchedule, type ScheduleKind } from "../lib/schedule";
 import { prisma } from "../lib/db";
+
+/** One decrypt pass per account per poll, not per schedule — two schedules
+ * owned by the same account share the same secrets. */
+function secretsLoader() {
+  const cache = new Map<string, Promise<Record<string, string>>>();
+  return (userId: string) => {
+    let secrets = cache.get(userId);
+    if (!secrets) {
+      secrets = loadDecryptedSecrets(userId);
+      cache.set(userId, secrets);
+    }
+    return secrets;
+  };
+}
 
 /**
  * Generous, but finite — a hung run must not wedge the poller forever, since
@@ -54,6 +69,7 @@ async function waitWithTimeout(
 async function main() {
   const now = new Date();
   const due = await dueSchedules(now);
+  const secretsFor = secretsLoader();
 
   if (due.length === 0) {
     console.log(`${now.toISOString()}  no schedules due`);
@@ -82,6 +98,7 @@ async function main() {
       version: schedule.workflow.version,
       graph,
       trigger: "schedule",
+      secrets: await secretsFor(schedule.userId),
     });
 
     // Firing is recorded before the run finishes, not after — a run that

@@ -379,8 +379,19 @@ versioning is a snapshot. `Run.version` pins which graph a run belongs to.
   is re-derived and stable on this machine (`npm run harvest:calibrate`), but
   it encodes an assumption — that a pause over a quarter of an hour isn't work
   — which is a judgement rather than a measurement.
-- Secrets storage, webhooks and graph↔YAML round-tripping are stubbed in the
-  UI as disabled tabs, not implemented.
+- Webhooks and graph↔YAML round-tripping are stubbed in the UI as disabled
+  tabs, not implemented.
+- **Secrets** are real — AES-256-GCM, key derived from `AUTH_SECRET` via HKDF
+  (`lib/secrets.ts`; deliberately not `lib/session.ts`'s `secret()`, which
+  falls back to a random-per-process value in dev — fine for session
+  signing, disastrous for an encryption key). Reference one from a node's
+  config as `{{secret.NAME}}`; `http` and `ai` resolve it for the (simulated)
+  request but never let the resolved value reach a log line — every log line
+  and error string passes through value-based redaction before it's emitted,
+  which catches a leaked secret regardless of which node kind or code path
+  it came from. `/secrets` is write-only: there is no function anywhere in
+  the app that returns a saved value in plaintext except right before a run
+  starts.
 - **Schedules** (interval / daily / weekly recurring runs) are real —
   `lib/schedule.ts` for the recurrence math, `data/schedules.ts` for the
   storage, `/schedules` for the UI. They don't fire themselves, though:

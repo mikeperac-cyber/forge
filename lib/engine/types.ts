@@ -69,6 +69,14 @@ export interface ExecContext<TConfig> {
   nodeRunId: string;
   /** Seeded per run so simulated output is reproducible. */
   random: () => number;
+  /**
+   * This account's secrets, decrypted, keyed by name — for an executor that
+   * needs the real value behind a `{{secret.NAME}}` reference (see
+   * `lib/secrets.ts`'s `resolveSecrets`). Never log a value read from here;
+   * pass whatever's built from it through `redactSecrets` first, or log the
+   * unresolved config text instead.
+   */
+  secrets: Record<string, string>;
 }
 
 export interface NodeExecutor<TConfig = unknown> {
