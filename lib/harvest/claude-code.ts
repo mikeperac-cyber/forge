@@ -194,12 +194,15 @@ async function readSession(
     return null;
   }
 
+  const cleanCwd =
+    cwd.endsWith("\\") || cwd.endsWith("/") ? cwd.slice(0, -1) : cwd;
+
   return {
     tool: "claude-code",
     // The filename is the session id; fall back to it if no line carried one.
     sessionRef: sessionId ?? path.basename(fileName, ".jsonl"),
-    path: canonicalPath(cwd),
-    displayPath: displayPath(cwd),
+    path: canonicalPath(cleanCwd),
+    displayPath: displayPath(cleanCwd),
     startedAt,
     // Clock skew or out-of-order lines mustn't produce a negative duration.
     endedAt: endedAt >= startedAt ? endedAt : startedAt,
