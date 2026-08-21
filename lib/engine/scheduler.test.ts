@@ -10,8 +10,14 @@ function node(
   id: string,
   kind: string,
   config: Record<string, unknown> = {},
+  retry?: GraphNode["data"]["retry"],
 ): GraphNode {
-  return { id, kind, position: { x: 0, y: 0 }, data: { label: id, config } };
+  return {
+    id,
+    kind,
+    position: { x: 0, y: 0 },
+    data: { label: id, config, retry },
+  };
 }
 
 function edge(
@@ -39,14 +45,17 @@ async function run(
   graph: WorkflowGraph,
   opts?: Parameters<typeof executeWorkflow>[0]["options"],
   signal?: AbortSignal,
+  secrets?: Record<string, string>,
+  runId = "test-run",
 ) {
   const events: EngineEvent[] = [];
   const result = await executeWorkflow({
-    runId: "test-run",
+    runId,
     graph,
     emit: (e) => events.push(e),
     options: opts,
     signal,
+    secrets,
   });
   return { result, events };
 }
@@ -362,6 +371,60 @@ describe("scheduler", () => {
     expect(started).toHaveLength(1);
   });
 
+  it("a per-node maxAttempts of 1 skips retrying even when the run default allows it", async () => {
+    const graph: WorkflowGraph = {
+      nodes: [
+        node("start", "start"),
+        {
+          ...boom("bad"),
+          data: { ...boom("bad").data, retry: { maxAttempts: 1 } },
+        },
+      ],
+      edges: [edge("start", "bad")],
+    };
+
+    // Run default is 2 (retryDelayMs default too, but the node fails on
+    // attempt 1 so no delay is ever waited).
+    const { result, events } = await run(graph);
+
+    expect(result.nodeStatuses.bad).toBe("failed");
+    const started = events.filter(
+      (e) => e.type === "node:started" && e.nodeId === "bad",
+    );
+    expect(started).toHaveLength(1);
+  });
+
+  it("a per-node maxAttempts higher than the run default gets the extra attempts", async () => {
+    const graph: WorkflowGraph = {
+      nodes: [
+        node("start", "start"),
+        {
+          ...boom("bad"),
+          data: {
+            ...boom("bad").data,
+            retry: { maxAttempts: 3, retryDelayMs: 5 },
+          },
+        },
+      ],
+      edges: [edge("start", "bad")],
+    };
+
+    // Run-level default is 2 — the node's own override must win.
+    const { result, events } = await run(graph, { maxAttempts: 2 });
+
+    expect(result.nodeStatuses.bad).toBe("failed");
+    const started = events.filter(
+      (e) => e.type === "node:started" && e.nodeId === "bad",
+    );
+    expect(started).toHaveLength(3);
+
+    const retrying = events.filter((e) => e.type === "node:retrying");
+    expect(retrying).toHaveLength(2);
+    expect(
+      retrying.every((e) => (e as { maxAttempts: number }).maxAttempts === 3),
+    ).toBe(true);
+  });
+
   it("seeds each attempt's randomness independently", () => {
     // Regression guard for the retry seeding fix: without the attempt number
     // in the seed, a retried node's simulated outcome (e.g. a shell node's
@@ -386,5 +449,136 @@ describe("scheduler", () => {
     expect(seqs.length).toBeGreaterThan(0);
     expect(seqs).toEqual([...seqs].sort((x, y) => x - y));
     expect(new Set(seqs).size).toBe(seqs.length);
+  });
+
+  describe("secrets", () => {
+    const SECRET_VALUE = "sk-should-never-appear-anywhere-in-a-log-line";
+
+    /** Every log line and every error string emitted across the whole run. */
+    function allText(events: EngineEvent[]): string[] {
+      return events.flatMap((e) => {
+        if (e.type === "node:log") return [e.text];
+        if (e.type === "node:finished" && e.error) return [e.error];
+        if (e.type === "node:retrying") return [e.error];
+        if (e.type === "run:finished" && e.error) return [e.error];
+        return [];
+      });
+    }
+
+    it("resolves a {{secret.NAME}} reference for the node to actually use", async () => {
+      const graph: WorkflowGraph = {
+        nodes: [
+          node("start", "start"),
+          node("call", "http", {
+            url: "https://example.com",
+            headers: `{"Authorization": "Bearer {{secret.API_KEY}}"}`,
+          }),
+        ],
+        edges: [edge("start", "call")],
+      };
+
+      // http's simulated request has a random ~10% failure chance, and
+      // `headersResolved` — the evidence resolution ran — is only in the
+      // success output shape. Try a small, bounded set of seeds rather than
+      // asserting against whichever one this specific runId happens to
+      // land on; ~10% per attempt makes exhausting this vanishingly
+      // unlikely without making the assertion depend on a random outcome.
+      let headersResolved: unknown;
+      for (let i = 0; i < 10 && headersResolved === undefined; i++) {
+        const { result } = await run(
+          graph,
+          undefined,
+          undefined,
+          { API_KEY: SECRET_VALUE },
+          `test-run-resolve-${i}`,
+        );
+        const body = result.outputs.call?.body as
+          { headersResolved?: number } | undefined;
+        headersResolved = body?.headersResolved;
+      }
+
+      // http's simulated response reports how many headers it resolved,
+      // without saying what they resolved to — proof the substitution ran.
+      expect(headersResolved).toBe(1);
+    });
+
+    it("never lets a resolved secret value reach a log line, however the node ends", async () => {
+      const graph: WorkflowGraph = {
+        nodes: [
+          node("start", "start"),
+          node("call", "http", {
+            url: "https://example.com",
+            headers: `{"Authorization": "Bearer {{secret.API_KEY}}"}`,
+          }),
+        ],
+        edges: [edge("start", "call")],
+      };
+
+      // Run several times with a distinct runId each time — the seed is
+      // `${runId}:${nodeId}:${attempt}`, so a fixed runId across iterations
+      // would replay the identical simulated outcome every time. The
+      // guarantee has to hold on every random path, not just whichever one
+      // a single seed happens to take.
+      for (let i = 0; i < 8; i++) {
+        const { events } = await run(
+          graph,
+          undefined,
+          undefined,
+          { API_KEY: SECRET_VALUE },
+          `test-run-${i}`,
+        );
+        for (const text of allText(events)) {
+          expect(text).not.toContain(SECRET_VALUE);
+        }
+      }
+    });
+
+    it("redacts a secret value even from a plain executor error, not only http/ai", async () => {
+      // A transform node whose expression happens to embed a secret in its
+      // thrown error — redaction is applied at the scheduler level, so it
+      // has to catch this too, not just the two executors that call
+      // resolveSecrets deliberately.
+      const graph: WorkflowGraph = {
+        nodes: [
+          node("start", "start"),
+          {
+            ...node("leaky", "transform", {
+              expression: `(() => { throw new Error("failed with key " + ${JSON.stringify(SECRET_VALUE)}) })()`,
+            }),
+          },
+        ],
+        edges: [edge("start", "leaky")],
+      };
+
+      const { events } = await run(graph, { maxAttempts: 1 }, undefined, {
+        API_KEY: SECRET_VALUE,
+      });
+
+      for (const text of allText(events)) {
+        expect(text).not.toContain(SECRET_VALUE);
+      }
+    });
+
+    it("leaves an unresolved reference as the placeholder when no secret matches", async () => {
+      const graph: WorkflowGraph = {
+        nodes: [
+          node("start", "start"),
+          node("call", "http", {
+            url: "https://example.com",
+            headers: `{"Authorization": "Bearer {{secret.MISSING}}"}`,
+          }),
+        ],
+        edges: [edge("start", "call")],
+      };
+
+      const { events } = await run(graph, undefined, undefined, {});
+      const logs = events.filter(
+        (e): e is Extract<EngineEvent, { type: "node:log" }> =>
+          e.type === "node:log",
+      );
+      expect(logs.some((l) => l.text.includes("{{secret.MISSING}}"))).toBe(
+        true,
+      );
+    });
   });
 });

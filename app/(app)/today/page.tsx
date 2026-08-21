@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireUserId } from "@/lib/session";
 import { effortMinutes, listGoals } from "@/data/goals";
 import { getDayReport, getRunningSession } from "@/data/time";
-import { listWorkflows } from "@/data/workflows";
+import { listFailingWorkflows } from "@/data/workflows";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { Icon } from "@/components/shell/Icon";
 import { StartButton } from "@/components/time/RunningTimer";
@@ -34,14 +34,12 @@ export default async function TodayPage() {
   const userId = await requireUserId();
   const now = new Date();
 
-  const [report, goals, running, workflows] = await Promise.all([
+  const [report, goals, running, needsYou] = await Promise.all([
     getDayReport(userId, now, now),
     listGoals(userId, { status: "active" }),
     getRunningSession(userId),
-    listWorkflows(userId),
+    listFailingWorkflows(userId),
   ]);
-
-  const needsYou = workflows.filter((w) => w.lastRun?.status === "failed");
   const upcoming = report.blocks.filter((b) => b.endsAt > now);
   const next = upcoming[0] ?? null;
 
@@ -204,7 +202,7 @@ export default async function TodayPage() {
                 {needsYou.map((workflow) => (
                   <li key={workflow.id}>
                     <Link
-                      href={`/runs/${workflow.lastRun!.id}`}
+                      href={`/runs/${workflow.lastRunId}`}
                       className="border-line hover:border-line-strong flex items-center gap-2.5 rounded-md border px-2.5 py-1.5"
                     >
                       <span className="bg-now size-1.5 shrink-0 rounded-full" />

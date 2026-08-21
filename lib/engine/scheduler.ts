@@ -10,6 +10,7 @@ import {
 } from "./types";
 import { getExecutor } from "./registry";
 import { hashSeed, isAbortError, mulberry32, sleep } from "./rng";
+import { redactSecrets } from "../secrets";
 
 export interface ExecuteArgs {
   runId: string;
@@ -17,6 +18,9 @@ export interface ExecuteArgs {
   emit: Emit;
   options?: Partial<RunOptions>;
   signal?: AbortSignal;
+  /** Decrypted, keyed by name. Never persisted here — only ever handed to an
+   * executor's `ctx.secrets`, and redacted out of anything logged. */
+  secrets?: Record<string, string>;
 }
 
 export interface ExecuteResult {
@@ -35,6 +39,7 @@ export async function executeWorkflow({
   emit,
   options,
   signal,
+  secrets = {},
 }: ExecuteArgs): Promise<ExecuteResult> {
   const opts: RunOptions = { ...DEFAULT_RUN_OPTIONS, ...options };
   const nodes = graph.nodes;
@@ -164,8 +169,11 @@ export async function executeWorkflow({
    */
   async function handleFailure(nodeId: string, error: string) {
     const attempt = attempts.get(nodeId) ?? 1;
+    const override = byId.get(nodeId)?.data.retry;
+    const maxAttempts = override?.maxAttempts ?? opts.maxAttempts;
+    const retryDelayMs = override?.retryDelayMs ?? opts.retryDelayMs;
 
-    if (attempt >= opts.maxAttempts || controller.signal.aborted) {
+    if (attempt >= maxAttempts || controller.signal.aborted) {
       finish(nodeId, "failed", { error });
       if (opts.onFailure === "stop-run") {
         runError ??= outputsErrorFor(nodeId);
@@ -181,14 +189,14 @@ export async function executeWorkflow({
       nodeId,
       attempt,
       nextAttempt,
-      maxAttempts: opts.maxAttempts,
+      maxAttempts,
       error,
-      delayMs: opts.retryDelayMs,
+      delayMs: retryDelayMs,
       at: Date.now(),
     });
 
     try {
-      await sleep(opts.retryDelayMs, controller.signal);
+      await sleep(retryDelayMs, controller.signal);
     } catch {
       // Aborted while waiting to retry — same outcome as any other in-flight
       // node caught by cancellation, not a failure of this attempt.
@@ -259,6 +267,7 @@ export async function executeWorkflow({
           nodeId: node.id,
           nodeRunId: `${runId}:${node.id}:${attempt}`,
           random,
+          secrets,
         });
 
         let settled = false;
@@ -271,7 +280,11 @@ export async function executeWorkflow({
                 runId,
                 nodeId: node.id,
                 stream: event.stream,
-                text: event.text,
+                // An executor that logs a resolved config value (a header,
+                // a prompt) would otherwise put the real secret in the run
+                // console and the LogLine table — this is the one point
+                // every log line passes through on its way there.
+                text: redactSecrets(event.text, secrets),
                 seq: nextSeq(),
                 at: Date.now(),
               });
@@ -290,7 +303,7 @@ export async function executeWorkflow({
               settled = true;
               break;
             case "failed":
-              await handleFailure(node.id, event.error);
+              await handleFailure(node.id, redactSecrets(event.error, secrets));
               settled = true;
               break;
           }
@@ -309,7 +322,10 @@ export async function executeWorkflow({
         if (isAbortError(err) || controller.signal.aborted) {
           finish(node.id, "cancelled");
         } else {
-          await handleFailure(node.id, (err as Error).message);
+          await handleFailure(
+            node.id,
+            redactSecrets((err as Error).message, secrets),
+          );
         }
       }
     })().finally(() => {

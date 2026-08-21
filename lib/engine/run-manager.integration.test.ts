@@ -1,10 +1,8 @@
 import "dotenv/config";
 import { afterAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
-import { startRun } from "./run-manager";
-import { subscribe } from "./bus";
+import { startRun, waitForSettled } from "./run-manager";
 import { demoGraph } from "@/lib/demo-workflow";
-import type { EngineEvent } from "./events";
 import type { WorkflowGraph } from "./types";
 
 /**
@@ -49,31 +47,11 @@ describe("run manager (integration)", () => {
     });
     createdRunIds.push(runId);
 
-    // Subscribing after startRun misses `run:started`, which is emitted
-    // synchronously — but not `run:finished`, which is what we're waiting on.
-    // The database poll is the backstop in case the event is missed entirely,
-    // so a wiring bug fails the assertions rather than hanging the suite.
-    await new Promise<void>((resolve) => {
-      const off = subscribe(runId, (event: EngineEvent) => {
-        if (event.type === "run:finished") {
-          off();
-          clearInterval(poll);
-          resolve();
-        }
-      });
-
-      const poll = setInterval(async () => {
-        const row = await prisma.run.findUnique({ where: { id: runId } });
-        if (row && row.finishedAt) {
-          off();
-          clearInterval(poll);
-          resolve();
-        }
-      }, 250);
-    });
-
-    // Persistence is queued behind the scheduler; let the chain drain.
-    await new Promise((r) => setTimeout(r, 500));
+    // Waits for every write to actually land, not just for `run:finished` to
+    // be published — the event fires before the trailing log flush is
+    // awaited, and reading the database in that gap is exactly the race this
+    // test exists to not have.
+    await waitForSettled(runId);
 
     const stored = await prisma.run.findUnique({
       where: { id: runId },
@@ -167,26 +145,7 @@ describe("run manager (integration)", () => {
     });
     createdRunIds.push(runId);
 
-    await new Promise<void>((resolve) => {
-      const off = subscribe(runId, (event: EngineEvent) => {
-        if (event.type === "run:finished") {
-          off();
-          clearInterval(poll);
-          resolve();
-        }
-      });
-
-      const poll = setInterval(async () => {
-        const row = await prisma.run.findUnique({ where: { id: runId } });
-        if (row && row.finishedAt) {
-          off();
-          clearInterval(poll);
-          resolve();
-        }
-      }, 250);
-    });
-
-    await new Promise((r) => setTimeout(r, 500));
+    await waitForSettled(runId);
 
     const stored = await prisma.run.findUnique({
       where: { id: runId },
@@ -227,4 +186,10 @@ describe("run manager (integration)", () => {
     );
     expect(evaluatingLogs).toHaveLength(2);
   }, 15000);
+
+  it("waitForSettled resolves immediately for a run id it never tracked", async () => {
+    // Either it already settled and was cleaned up, or nothing here ever
+    // started it — both cases mean there is nothing left to wait for.
+    await expect(waitForSettled("not-a-real-run-id")).resolves.toBeUndefined();
+  });
 });

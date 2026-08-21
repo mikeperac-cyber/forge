@@ -26,6 +26,8 @@ model User {
   projects     Project[]
   activities   Activity[]
   harvestState HarvestState[]
+  schedules    Schedule[]
+  secrets      Secret[]
 }
 
 /// Something you're working toward. Time accumulates against it via sessions.
@@ -234,6 +236,7 @@ model Workflow {
   archivedAt  DateTime?
   versions    WorkflowVersion[]
   runs        Run[]
+  schedules   Schedule[]
 
   // Scoped per user, never globally — global-unique slugs plus no ownership
   // check is exactly how the GitScrum original leaked records across accounts.
@@ -306,4 +309,67 @@ model LogLine {
 
   @@unique([runId, seq])
   @@index([nodeRunId])
+}
+
+/// A workflow that runs itself, on a timer.
+///
+/// Fired by `scripts/run-schedules.ts`, which a Windows Task Scheduler entry
+/// (see `windows-tasks.ps1`) polls every minute — there's no long-running
+/// process inside `next dev`/`next start` that could hold a `setInterval`
+/// alive across restarts and dev-reloads, so this reuses the exact
+/// poll-and-fire shape the harvester already runs on.
+model Schedule {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  /// interval | daily | weekly — a String because SQLite has no enums.
+  kind String
+  /// Shape depends on `kind`. See `lib/schedule.ts`, the one place that reads
+  /// it: `{ minutes }` | `{ hour, minute }` | `{ dayOfWeek, hour, minute }`.
+  config Json
+
+  enabled Boolean @default(true)
+
+  lastRunAt DateTime?
+  /// Precomputed on every write, so the poller is a single indexed `WHERE`
+  /// rather than evaluating every schedule's recurrence on every tick.
+  nextRunAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([enabled, nextRunAt])
+  @@index([workflowId])
+}
+
+/// A value a workflow can use without putting it in the graph JSON in
+/// plaintext — the graph is versioned on every save (`WorkflowVersion`), so
+/// anything written straight into a node's config would be permanently
+/// readable in every snapshot ever taken, not just the live one.
+///
+/// Referenced from node config as `{{secret.NAME}}` — see `lib/secrets.ts`,
+/// which is also the only place that knows how to turn `ciphertext`/`iv`
+/// back into the real value. There is no code path anywhere in this app that
+/// returns a secret's plaintext to the browser once it has been saved; the
+/// UI only ever shows whether one exists.
+model Secret {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name String
+
+  /// AES-256-GCM ciphertext (includes the auth tag) — base64.
+  ciphertext String
+  /// The per-secret random IV used to encrypt it — base64.
+  iv String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
 }

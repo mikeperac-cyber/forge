@@ -11,6 +11,7 @@ export interface NodeCardData extends Record<string, unknown> {
   kind: string;
   label?: string;
   config: Record<string, unknown>;
+  retry?: { maxAttempts?: number; retryDelayMs?: number };
   status?: RunStatus;
   progress?: number;
 }

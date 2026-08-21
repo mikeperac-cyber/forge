@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { formatDuration, formatRelative, statusStyle } from "./status";
+import {
+  formatDuration,
+  formatRelative,
+  formatUntil,
+  statusStyle,
+} from "./status";
 
 describe("formatDuration", () => {
   it("shows a dash for null or undefined", () => {
@@ -55,6 +60,43 @@ describe("formatRelative", () => {
 
   it("accepts an ISO string the same as a Date", () => {
     expect(formatRelative("2026-08-18T11:45:00.000Z")).toBe("15m ago");
+  });
+});
+
+describe("formatUntil", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-18T12:00:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("says 'any moment' under a minute away", () => {
+    expect(formatUntil(new Date("2026-08-18T12:00:30.000Z"))).toBe(
+      "any moment",
+    );
+  });
+
+  it("says 'any moment' for a time already in the past", () => {
+    // The one case formatRelative would mangle: a negative diff must not
+    // read as some huge number of days away.
+    expect(formatUntil(new Date("2026-08-18T09:00:00.000Z"))).toBe(
+      "any moment",
+    );
+  });
+
+  it("shows minutes under an hour away", () => {
+    expect(formatUntil(new Date("2026-08-18T12:15:00.000Z"))).toBe("in 15m");
+  });
+
+  it("shows hours under a day away", () => {
+    expect(formatUntil(new Date("2026-08-18T15:00:00.000Z"))).toBe("in 3h");
+  });
+
+  it("shows days at a day or beyond", () => {
+    expect(formatUntil(new Date("2026-08-20T12:00:00.000Z"))).toBe("in 2d");
   });
 });
 

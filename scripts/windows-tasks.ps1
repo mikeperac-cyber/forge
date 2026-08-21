@@ -1,15 +1,16 @@
 <#
 .SYNOPSIS
-  Register (or remove) the two scheduled tasks that keep Forge running.
+  Register (or remove) the scheduled tasks that keep Forge running.
 
 .DESCRIPTION
   Forge is a local-first app: the harvester reads your AI tools' histories from
   this machine's home directory, so the app has to run where those files are.
-  This registers two tasks under your own account — no elevation, no service
+  This registers three tasks under your own account — no elevation, no service
   install, nothing system-wide:
 
-    Forge Server   — `npm start` at logon, restarted if it falls over
-    Forge Harvest  — `npm run harvest` every 30 minutes
+    Forge Server     — `npm start` at logon, restarted if it falls over
+    Forge Harvest    — `npm run harvest` every 30 minutes
+    Forge Schedules  — `npm run schedules` every minute, firing due workflow schedules
 
   Everything is reversible with -Uninstall.
 
@@ -19,7 +20,8 @@
 #>
 param(
   [switch]$Uninstall,
-  [int]$HarvestMinutes = 30
+  [int]$HarvestMinutes = 30,
+  [int]$ScheduleMinutes = 1
 )
 
 $ErrorActionPreference = "Stop"
@@ -27,6 +29,7 @@ $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 $ServerTask = "Forge Server"
 $HarvestTask = "Forge Harvest"
+$SchedulesTask = "Forge Schedules"
 
 function Remove-IfPresent([string]$Name) {
   $existing = Get-ScheduledTask -TaskName $Name -ErrorAction SilentlyContinue
@@ -41,7 +44,8 @@ function Remove-IfPresent([string]$Name) {
 if ($Uninstall) {
   $a = Remove-IfPresent $ServerTask
   $b = Remove-IfPresent $HarvestTask
-  if (-not ($a -or $b)) { Write-Host "nothing to remove." }
+  $c = Remove-IfPresent $SchedulesTask
+  if (-not ($a -or $b -or $c)) { Write-Host "nothing to remove." }
   Write-Host "`nAny already-running server keeps going until you close it or reboot."
   return
 }
@@ -65,6 +69,7 @@ Write-Host "npm     : $npm`n"
 # Replace rather than duplicate, so re-running this is safe.
 Remove-IfPresent $ServerTask | Out-Null
 Remove-IfPresent $HarvestTask | Out-Null
+Remove-IfPresent $SchedulesTask | Out-Null
 
 # ----------------------------------------------------------------- server
 $serverAction = New-ScheduledTaskAction -Execute "cmd.exe" `
@@ -105,8 +110,33 @@ Register-ScheduledTask -TaskName $HarvestTask -Action $harvestAction `
   -Description "Forge — read AI tool histories into the activity ledger" | Out-Null
 Write-Host "created  $HarvestTask       (every $HarvestMinutes min)"
 
+# -------------------------------------------------------------- schedules
+$schedulesAction = New-ScheduledTaskAction -Execute "cmd.exe" `
+  -Argument "/c `"npm run schedules`"" -WorkingDirectory $Root
+
+# Polling every minute is the tightest granularity a schedule can actually
+# have (see lib/schedule.ts) — anything less than that isn't checked for
+# between ticks. `IgnoreNew` matters more here than for the harvest task: the
+# script itself waits for each fired run to finish (up to 15 minutes), so an
+# overlapping second invocation is expected, not exceptional.
+$schedulesTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+$schedulesTrigger.Repetition = (New-ScheduledTaskTrigger -Once -At (Get-Date) `
+  -RepetitionInterval (New-TimeSpan -Minutes $ScheduleMinutes) `
+  -RepetitionDuration ([TimeSpan]::MaxValue)).Repetition
+
+$schedulesSettings = New-ScheduledTaskSettingsSet `
+  -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+  -ExecutionTimeLimit (New-TimeSpan -Minutes 20) `
+  -MultipleInstances IgnoreNew
+
+Register-ScheduledTask -TaskName $SchedulesTask -Action $schedulesAction `
+  -Trigger $schedulesTrigger -Settings $schedulesSettings `
+  -Description "Forge — fire due workflow schedules" | Out-Null
+Write-Host "created  $SchedulesTask     (every $ScheduleMinutes min)"
+
 Write-Host "`nStart them now without logging out:"
 Write-Host "  Start-ScheduledTask -TaskName '$ServerTask'"
 Write-Host "  Start-ScheduledTask -TaskName '$HarvestTask'"
-Write-Host "`nRemove both:"
+Write-Host "  Start-ScheduledTask -TaskName '$SchedulesTask'"
+Write-Host "`nRemove all three:"
 Write-Host "  powershell -ExecutionPolicy Bypass -File scripts\windows-tasks.ps1 -Uninstall"

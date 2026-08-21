@@ -14,6 +14,7 @@ async function drive(
     nodeId: "split",
     nodeRunId: "test-run:split:1",
     random: () => 0.5,
+    secrets: {},
   });
   for await (const event of iterator) events.push(event);
   return events;

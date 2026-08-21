@@ -65,6 +65,7 @@ function toFlowNodes(graph: WorkflowGraph): Node[] {
       kind: node.kind,
       label: node.data.label,
       config: node.data.config ?? {},
+      retry: node.data.retry,
     } satisfies NodeCardData,
   }));
 }
@@ -117,6 +118,7 @@ function Canvas({ workflow, initialGraph }: Props) {
         data: {
           label: (node.data as NodeCardData).label,
           config: (node.data as NodeCardData).config ?? {},
+          retry: (node.data as NodeCardData).retry,
         },
       })),
       edges: edges.map<GraphEdge>((edge) => ({
@@ -229,6 +231,36 @@ function Canvas({ workflow, initialGraph }: Props) {
               }
             : node,
         ),
+      );
+      markDirty();
+    },
+    [setNodes, markDirty],
+  );
+
+  const changeRetry = useCallback(
+    (
+      nodeId: string,
+      key: "maxAttempts" | "retryDelayMs",
+      value: number | undefined,
+    ) => {
+      setNodes((current) =>
+        current.map((node) => {
+          if (node.id !== nodeId) return node;
+          const retry = { ...(node.data as NodeCardData).retry, [key]: value };
+          // An override with nothing actually overridden isn't an override —
+          // storing `{}` would round-trip through save/load as "explicitly
+          // unset both", which reads identically to "never touched" anyway,
+          // so keep the graph clean instead of accumulating empty objects.
+          const hasValue =
+            retry.maxAttempts !== undefined || retry.retryDelayMs !== undefined;
+          return {
+            ...node,
+            data: {
+              ...(node.data as NodeCardData),
+              retry: hasValue ? retry : undefined,
+            },
+          };
+        }),
       );
       markDirty();
     },
@@ -451,6 +483,7 @@ function Canvas({ workflow, initialGraph }: Props) {
                   node={selected}
                   onChangeConfig={changeConfig}
                   onChangeLabel={changeLabel}
+                  onChangeRetry={changeRetry}
                   onDelete={deleteNode}
                 />
               </div>

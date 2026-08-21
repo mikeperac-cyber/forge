@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { NodeExecutor } from "../engine/types";
 import { sleep } from "../engine/rng";
+import { resolveSecrets } from "../secrets";
 
 const configSchema = z.object({
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]).default("GET"),
@@ -8,10 +9,11 @@ const configSchema = z.object({
     .string()
     .min(1)
     .meta({ placeholder: "https://api.example.com/status" }),
-  headers: z
-    .string()
-    .default("{}")
-    .meta({ control: "code", description: "JSON object of request headers." }),
+  headers: z.string().default("{}").meta({
+    control: "code",
+    description:
+      "JSON object of request headers. A value may reference {{secret.NAME}}.",
+  }),
   body: z
     .string()
     .default("")
@@ -51,12 +53,27 @@ export const httpExecutor: NodeExecutor<HttpConfig> = {
       return;
     }
 
+    // Validated on the resolved form — a `{{secret.NAME}}` reference should
+    // fail here if what it resolves to isn't actually a valid URL, not only
+    // if the literal placeholder text happens to look like one.
+    const resolvedUrl = resolveSecrets(url, ctx.secrets);
     try {
-      new URL(url);
+      new URL(resolvedUrl);
     } catch {
       yield { type: "failed", error: `Not a valid URL: ${url}` };
       return;
     }
+
+    // Resolved so a real HTTP call would carry the actual value. Never
+    // logged and never put in `outputs` — both are persisted and displayed,
+    // so this stays local to the (simulated) request itself. Everywhere
+    // else in this function uses the unresolved `url`/`headers`.
+    const resolvedHeaders = Object.fromEntries(
+      Object.entries(parsedHeaders).map(([key, value]) => [
+        key,
+        resolveSecrets(value, ctx.secrets),
+      ]),
+    );
 
     yield { type: "log", stream: "system", text: `${method} ${url}` };
     for (const [key, value] of Object.entries(parsedHeaders)) {
@@ -67,7 +84,15 @@ export const httpExecutor: NodeExecutor<HttpConfig> = {
     await sleep(latency, ctx.signal);
 
     const status = ctx.random() < 0.9 ? 200 : 500;
-    const body = { ok: status === 200, url, method, receivedAt: null };
+    const body = {
+      ok: status === 200,
+      url,
+      method,
+      receivedAt: null,
+      // Evidence resolution actually ran, without exposing any value it
+      // resolved to.
+      headersResolved: Object.keys(resolvedHeaders).length,
+    };
 
     yield {
       type: "log",

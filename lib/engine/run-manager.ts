@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
-import { activeRuns, publish } from "./bus";
+import { activeRuns, publish, settlingRuns } from "./bus";
 import type { EngineEvent } from "./events";
 import { executeWorkflow } from "./scheduler";
 import type { RunOptions, WorkflowGraph } from "./types";
@@ -24,6 +24,14 @@ interface StartRunArgs {
   version: number;
   graph: WorkflowGraph;
   options?: Partial<RunOptions>;
+  /** manual | schedule — a String because SQLite has no enums. */
+  trigger?: string;
+  /** Decrypted, keyed by name — fetched by the caller (an action already
+   * holding `userId`, or the schedule poller) via
+   * `data/secrets.ts#loadDecryptedSecrets`. `run-manager.ts` stays decoupled
+   * from the `Secret` model itself; it only ever moves this bag through to
+   * `executeWorkflow`. */
+  secrets?: Record<string, string>;
 }
 
 /** Flush the log buffer once it reaches this many lines. */
@@ -44,9 +52,11 @@ export async function startRun({
   version,
   graph,
   options,
+  trigger = "manual",
+  secrets,
 }: StartRunArgs): Promise<string> {
   const run = await prisma.run.create({
-    data: { workflowId, version, status: "running", trigger: "manual" },
+    data: { workflowId, version, status: "running", trigger },
   });
 
   const controller = new AbortController();
@@ -199,14 +209,19 @@ export async function startRun({
     }
   };
 
-  // Deliberately not awaited: the action returns the run id immediately and the
-  // client follows along over SSE.
-  void executeWorkflow({
+  // Not awaited by the caller: the action returns the run id immediately and
+  // the client follows along over SSE. The chain is still captured (rather
+  // than `void`-discarded) and registered in `settlingRuns`, so a caller that
+  // genuinely needs to know when every write has landed — see
+  // `waitForSettled` — has a correct way to ask, instead of racing the
+  // `run:finished` bus event against the trailing log flush.
+  const settled = executeWorkflow({
     runId: run.id,
     graph,
     emit,
     options,
     signal: controller.signal,
+    secrets,
   })
     .catch((err) => {
       console.error(`[run ${run.id}] scheduler crashed:`, err);
@@ -228,7 +243,32 @@ export async function startRun({
       // client reconnecting right after completion sees the full log.
       await chain;
       activeRuns.delete(run.id);
-    });
+    })
+    // Belt-and-suspenders: `chain` rejecting inside the `finally` above would
+    // otherwise surface as an unhandled rejection whenever nobody calls
+    // `waitForSettled` on this run (the ordinary request-handler case).
+    .catch((err) => {
+      console.error(`[run ${run.id}] settling failed:`, err);
+    })
+    .finally(() => {
+      settlingRuns.delete(run.id);
+    })
+    // The success path resolves with `ExecuteResult`; callers of
+    // `waitForSettled` only care that settling happened, not with what.
+    .then(() => undefined);
+
+  settlingRuns.set(run.id, settled);
 
   return run.id;
+}
+
+/**
+ * Resolves once every write for this run — including the trailing log flush
+ * — has actually landed, not merely once `run:finished` has been published.
+ * A no-op resolve for an unknown run id: either it settled and was cleaned up
+ * already, or it was never started here, and either way there is nothing left
+ * to wait for.
+ */
+export function waitForSettled(runId: string): Promise<void> {
+  return settlingRuns.get(runId) ?? Promise.resolve();
 }

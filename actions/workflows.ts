@@ -15,6 +15,7 @@ import { startRun } from "@/lib/engine/run-manager";
 import { cancelRun } from "@/lib/engine/bus";
 import { getRun, ownsRun } from "@/data/runs";
 import { getVersionGraph } from "@/data/versions";
+import { loadDecryptedSecrets } from "@/data/secrets";
 import type { WorkflowGraph } from "@/lib/engine/types";
 
 /**
@@ -32,6 +33,12 @@ const graphSchema = z.object({
       data: z.object({
         label: z.string().optional(),
         config: z.record(z.string(), z.unknown()).default({}),
+        retry: z
+          .object({
+            maxAttempts: z.number().int().min(1).max(5).optional(),
+            retryDelayMs: z.number().int().min(0).max(60_000).optional(),
+          })
+          .optional(),
       }),
     }),
   ),
@@ -122,6 +129,7 @@ export async function runWorkflowAction(workflowId: string) {
     workflowId: workflow.id,
     version: workflow.version,
     graph: workflow.graph,
+    secrets: await loadDecryptedSecrets(userId),
   });
 
   revalidatePath(`/w/${workflow.slug}`);
@@ -163,6 +171,7 @@ export async function rerunAction(runId: string) {
     workflowId: run.workflowId,
     version,
     graph,
+    secrets: await loadDecryptedSecrets(userId),
   });
 
   revalidatePath("/runs");
