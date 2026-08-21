@@ -1,5 +1,5 @@
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import { PrismaClient } from "./generated/prisma/client";
+import { PrismaClient } from "@/lib/generated/prisma/client";
 
 /**
  * Prisma 7 connects through a driver adapter rather than a connection string,
