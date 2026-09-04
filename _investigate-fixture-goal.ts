@@ -18,9 +18,6 @@ async function main() {
   });
 
   console.log(`Found ${goals.length} goal(s) titled "Ledger fixture goal"\n`);
-  for (const g of goals) {
-    console.log(JSON.stringify(g, null, 2));
-  }
 
   const allGoalTitles = await prisma.goal.findMany({
     select: { id: true, title: true, userId: true },
