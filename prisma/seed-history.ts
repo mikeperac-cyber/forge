@@ -46,7 +46,7 @@ async function main() {
     where: { slug: "build-and-notify" },
   });
   if (!workflow) {
-    console.log(
+    console.error(
       "Demo workflow not found — run `npx tsx prisma/seed.ts` first.",
     );
     return;
