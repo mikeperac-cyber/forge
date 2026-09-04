@@ -21,16 +21,6 @@ async function main() {
   for (const g of goals) {
     console.log(JSON.stringify(g, null, 2));
   }
-
-  const allGoalTitles = await prisma.goal.findMany({
-    select: { id: true, title: true, userId: true },
-  });
-  console.log(
-    `\nAll ${allGoalTitles.length} goals in dev.db (id, title, userId):`,
-  );
-  for (const g of allGoalTitles) {
-    console.log(`  ${g.id}  ${JSON.stringify(g.title)}  user=${g.userId}`);
-  }
 }
 
 main()
