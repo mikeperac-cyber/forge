@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
+import { PageHeader, Icon } from "@/components/shell";
 
 /**
  * In-app 404 — a workflow slug or run id that doesn't resolve. Renders inside

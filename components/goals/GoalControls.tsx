@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createGoalAction, setGoalStatusAction } from "@/actions/goals";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 
 export function GoalForm() {
   const router = useRouter();

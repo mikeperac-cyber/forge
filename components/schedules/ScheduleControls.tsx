@@ -8,7 +8,7 @@ import {
   setScheduleEnabledAction,
 } from "@/actions/schedules";
 import { SCHEDULE_KINDS, type ScheduleKind } from "@/lib/schedule";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 
 export interface WorkflowOption {
   id: string;

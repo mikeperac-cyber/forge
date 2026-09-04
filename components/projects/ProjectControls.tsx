@@ -8,8 +8,7 @@ import {
   setProjectGoalAction,
   setProjectStatusAction,
 } from "@/actions/projects";
-import { Icon } from "@/components/shell/Icon";
-import { InlineRename } from "@/components/shell/InlineRename";
+import { Icon, InlineRename } from "@/components/shell";
 
 export interface GoalOption {
   id: string;

@@ -4,7 +4,7 @@ import { requireUserId } from "@/lib/session";
 import { getWorkflow } from "@/data/workflows";
 import { listVersions } from "@/data/versions";
 import { diffGraphs, summariseDiff } from "@/lib/engine/diff";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { PageHeader } from "@/components/shell";
 
 import { RestoreVersionButton } from "@/components/versions/RestoreVersionButton";
 import { cn } from "@/lib/cn";

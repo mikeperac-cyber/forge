@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireUserId } from "@/lib/session";
 import { getRun } from "@/data/runs";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { PageHeader } from "@/components/shell";
 import { RunDetail, type NodeRunDetail } from "@/components/timeline/RunDetail";
 import { RerunButton } from "@/components/timeline/RerunButton";
 import { cn } from "@/lib/cn";

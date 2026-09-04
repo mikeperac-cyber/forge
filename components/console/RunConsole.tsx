@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { statusStyle } from "@/lib/status";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 import type { Problem } from "@/lib/engine/validate";
 import type { RunStreamState } from "./use-run-stream";
 import type { GraphNode } from "@/lib/engine/types";

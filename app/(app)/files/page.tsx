@@ -1,4 +1,4 @@
-import { EmptySection } from "@/components/shell/EmptySection";
+import { EmptySection } from "@/components/shell";
 
 /**
  * Report-only by design. It will read folders you point it at and tell you

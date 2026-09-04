@@ -1,7 +1,6 @@
 import { requireUserId } from "@/lib/session";
 import { effortMinutes, listGoals } from "@/data/goals";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
+import { PageHeader, Icon } from "@/components/shell";
 import { StartButton } from "@/components/time/RunningTimer";
 import { GoalForm, GoalStatusButton } from "@/components/goals/GoalControls";
 import { cn } from "@/lib/cn";

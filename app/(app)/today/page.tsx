@@ -3,8 +3,7 @@ import { requireUserId } from "@/lib/session";
 import { effortMinutes, listGoals } from "@/data/goals";
 import { getDayReport, getRunningSession } from "@/data/time";
 import { listFailingWorkflows } from "@/data/workflows";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
+import { PageHeader, Icon } from "@/components/shell";
 import { StartButton } from "@/components/time/RunningTimer";
 import { cn } from "@/lib/cn";
 

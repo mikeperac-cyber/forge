@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { RunTimeline, type TimelineNode } from "./RunTimeline";
 import { LogList } from "@/components/console/LogList";
 import { useRunStream } from "@/components/console/use-run-stream";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 import { cn } from "@/lib/cn";
 import { formatDuration, statusStyle } from "@/lib/status";
 

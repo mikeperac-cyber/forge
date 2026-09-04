@@ -1,4 +1,4 @@
-import { EmptySection } from "@/components/shell/EmptySection";
+import { EmptySection } from "@/components/shell";
 
 export default function NotesPage() {
   return (

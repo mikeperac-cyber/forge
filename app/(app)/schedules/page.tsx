@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireUserId } from "@/lib/session";
 import { listSchedules } from "@/data/schedules";
 import { listWorkflowOptions } from "@/data/workflows";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { PageHeader } from "@/components/shell";
 import { formatRelative, formatUntil } from "@/lib/status";
 import { describeSchedule } from "@/lib/schedule";
 import {

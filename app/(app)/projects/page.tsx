@@ -1,8 +1,7 @@
 import { requireUserId } from "@/lib/session";
 import { listHarvestState, listProjects } from "@/data/projects";
 import { listGoalOptions } from "@/data/goals";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
+import { PageHeader, Icon } from "@/components/shell";
 import { formatRelative } from "@/lib/status";
 import {
   ArchiveButton,

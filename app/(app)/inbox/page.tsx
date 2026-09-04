@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { requireUserId } from "@/lib/session";
 import { listWorkflows } from "@/data/workflows";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
+import { PageHeader, Icon } from "@/components/shell";
 import { formatRelative } from "@/lib/status";
 
 /**

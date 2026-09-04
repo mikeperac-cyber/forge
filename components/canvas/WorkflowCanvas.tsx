@@ -37,9 +37,7 @@ import {
   cancelRunAction,
   renameWorkflowAction,
 } from "@/actions/workflows";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
-import { InlineRename } from "@/components/shell/InlineRename";
+import { PageHeader, Icon, InlineRename } from "@/components/shell";
 import { NodeInspector } from "@/components/inspector/NodeInspector";
 import { RunConsole } from "@/components/console/RunConsole";
 import { useRunStream } from "@/components/console/use-run-stream";

@@ -4,7 +4,7 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { getExecutor } from "@/lib/engine/registry";
 import { statusStyle } from "@/lib/status";
 import { cn } from "@/lib/cn";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 import type { RunStatus } from "@/lib/engine/types";
 
 export interface NodeCardData extends Record<string, unknown> {
