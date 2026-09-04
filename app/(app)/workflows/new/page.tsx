@@ -1,5 +1,5 @@
 import { createWorkflowAction } from "@/actions/workflows";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { PageHeader } from "@/components/shell";
 
 export default function NewWorkflowPage() {
   return (

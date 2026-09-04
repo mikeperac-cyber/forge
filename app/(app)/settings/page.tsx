@@ -2,9 +2,7 @@ import { requireUserId } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { getRunStats } from "@/data/runs";
 import { logoutAction } from "@/actions/auth";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { SHORTCUTS } from "@/components/shell/shortcuts";
-import { ThemeToggle } from "@/components/shell/ThemeToggle";
+import { PageHeader, SHORTCUTS, ThemeToggle } from "@/components/shell";
 import { formatDuration } from "@/lib/status";
 import { cn } from "@/lib/cn";
 

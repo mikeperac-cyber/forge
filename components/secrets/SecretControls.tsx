@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteSecretAction, saveSecretAction } from "@/actions/secrets";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 
 /**
  * Write-only by design: this form's value field never gets pre-filled from

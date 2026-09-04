@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { stopSessionAction } from "@/actions/goals";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 import { cn } from "@/lib/cn";
 import { useTick } from "@/lib/use-tick";
 

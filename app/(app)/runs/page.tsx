@@ -2,8 +2,7 @@ import Link from "next/link";
 import { requireUserId } from "@/lib/session";
 import { listRuns } from "@/data/runs";
 import { getWorkflow } from "@/data/workflows";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
+import { PageHeader, Icon } from "@/components/shell";
 import { cn } from "@/lib/cn";
 import { formatDuration, formatRelative, statusStyle } from "@/lib/status";
 

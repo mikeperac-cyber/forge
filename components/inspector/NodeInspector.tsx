@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { getExecutor } from "@/lib/engine/registry";
 import { introspect, type FieldDef } from "@/lib/engine/schema-form";
 import { cn } from "@/lib/cn";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 import { DEFAULT_RUN_OPTIONS, type GraphNode } from "@/lib/engine/types";
 
 interface Props {

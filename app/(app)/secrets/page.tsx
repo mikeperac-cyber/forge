@@ -1,6 +1,6 @@
 import { requireUserId } from "@/lib/session";
 import { listSecrets } from "@/data/secrets";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { PageHeader } from "@/components/shell";
 import { formatRelative } from "@/lib/status";
 import {
   DeleteSecretButton,

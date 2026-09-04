@@ -5,7 +5,7 @@ import { countActiveGoals } from "@/data/goals";
 import { getRunningSession } from "@/data/time";
 import { listRuns } from "@/data/runs";
 import { prisma } from "@/lib/db";
-import { AppShell } from "@/components/shell/AppShell";
+import { AppShell } from "@/components/shell";
 
 /**
  * The session guard for everything inside the shell. Pages below this can

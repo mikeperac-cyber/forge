@@ -1,7 +1,6 @@
 import { EXECUTORS } from "@/lib/engine/registry";
 import { introspect } from "@/lib/engine/schema-form";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Icon } from "@/components/shell/Icon";
+import { PageHeader, Icon } from "@/components/shell";
 
 /**
  * Generated entirely from the executor registry — no hand-written docs to fall

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { rerunAction } from "@/actions/workflows";
-import { Icon } from "@/components/shell/Icon";
+import { Icon } from "@/components/shell";
 
 export function RerunButton({
   runId,

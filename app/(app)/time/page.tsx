@@ -1,7 +1,7 @@
 import { requireUserId } from "@/lib/session";
 import { getDayReport, getRecentTotals } from "@/data/time";
 import { listGoals } from "@/data/goals";
-import { PageHeader } from "@/components/shell/PageHeader";
+import { PageHeader } from "@/components/shell";
 import { StartButton } from "@/components/time/RunningTimer";
 import { BlockForm, DeleteBlockButton } from "@/components/time/BlockControls";
 import { cn } from "@/lib/cn";
