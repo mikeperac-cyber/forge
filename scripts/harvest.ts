@@ -39,7 +39,6 @@ async function main() {
     return;
   }
 
-  console.log(`account : ${user.email}`);
   for (const harvester of HARVESTERS) {
     console.log(`  ${harvester.id.padEnd(12)} ${harvester.describeSource()}`);
   }
