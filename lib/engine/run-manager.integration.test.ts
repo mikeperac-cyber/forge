@@ -105,9 +105,6 @@ describe("run manager (integration)", () => {
       "seed the database first: npx tsx prisma/seed.ts",
     ).toBeTruthy();
 
-    // A minimal graph of its own — `transform`'s expression is a pure
-    // function, so this fails identically and deterministically on every
-    // attempt, which is exactly what proves both attempts are persisted.
     const graph: WorkflowGraph = {
       nodes: [
         {
