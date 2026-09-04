@@ -9,13 +9,12 @@ import { endExecutor } from "../executors/end";
 
 /**
  * A registry holds executors with *different* config types, so the element type
- * has to erase that parameter. `any` here is deliberate and contained: each
- * executor still narrows its own config internally via `configSchema`, and the
- * scheduler re-parses config before calling `run`, so nothing downstream trusts
- * this type.
+ * has to erase that parameter. `NodeExecutor<unknown>` erases the config type
+ * safely without using `any`: each executor still narrows its own config
+ * internally via `configSchema`, and the scheduler re-parses config before calling
+ * `run`, so nothing downstream trusts this type.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyExecutor = NodeExecutor<any>;
+export type AnyExecutor = NodeExecutor<unknown>;
 
 /**
  * The only place that knows the full set of node kinds. Adding one means adding
