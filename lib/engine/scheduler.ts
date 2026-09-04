@@ -261,7 +261,7 @@ export async function executeWorkflow({
 
       try {
         const iterator = executor.run({
-          config: parsed.data as never,
+          config: parsed.data,
           inputs,
           signal: controller.signal,
           nodeId: node.id,
