@@ -12,7 +12,6 @@
  * resolves to an empty module exactly as it does inside Next.
  */
 import "dotenv/config";
-import { HARVESTERS } from "../lib/harvest/registry";
 import { runAllHarvests, summariseReports } from "../lib/harvest/run";
 import { prisma } from "../lib/db";
 
@@ -40,9 +39,6 @@ async function main() {
   }
 
   console.log(`account : ${user.email}`);
-  for (const harvester of HARVESTERS) {
-    console.log(`  ${harvester.id.padEnd(12)} ${harvester.describeSource()}`);
-  }
   console.log("");
 
   const reports = await runAllHarvests(user.id, { full });
