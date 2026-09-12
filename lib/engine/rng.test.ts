@@ -6,7 +6,7 @@ describe("hashSeed", () => {
     // FNV-1a 32-bit initial basis and deterministic hashes
     expect(hashSeed("")).toBe(2166136261);
     expect(hashSeed("a")).toBe(3826002220);
-    expect(hashSeed("abc")).toBe(2492058047);
+    expect(hashSeed("abc")).toBe(440920331);
   });
 
   it("is deterministic for identical string inputs", () => {
