@@ -3,6 +3,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import {
   getHarvestState,
+  getProject,
+  listHarvestState,
   getObservedMinutesByGoal,
   listProjects,
   recordActivities,
@@ -267,5 +269,133 @@ describe("activity ledger (integration)", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].lastHarvestedAt?.toISOString()).toBe(later.toISOString());
     expect(rows[0].filesSeen).toBe(9);
+  });
+
+  it("fetches a project by id and enforces user isolation", async () => {
+    const project = await prisma.project.findUnique({
+      where: {
+        userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+      },
+    });
+
+    const fetched = await getProject(userId, project!.id);
+    expect(fetched).not.toBeNull();
+    expect(fetched?.id).toBe(project!.id);
+    expect(fetched?.name).toBe("Forge");
+
+    // Other user cannot fetch this project
+    const otherFetched = await getProject(otherUserId, project!.id);
+    expect(otherFetched).toBeNull();
+
+    // Non-existent ID returns null
+    const nonExistent = await getProject(userId, "non-existent-id");
+    expect(nonExistent).toBeNull();
+  });
+
+  it("enforces user isolation when renaming or setting status of a project", async () => {
+    const project = await prisma.project.findUnique({
+      where: {
+        userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+      },
+    });
+
+    // Other user attempting to rename project
+    const renamed = await renameProject(
+      otherUserId,
+      project!.id,
+      "Hacked Name",
+    );
+    expect(renamed).toBe(false);
+
+    const unchangedProject = await prisma.project.findUnique({
+      where: { id: project!.id },
+    });
+    expect(unchangedProject?.name).toBe("Forge");
+
+    // Other user attempting to change status
+    const statusChanged = await setProjectStatus(
+      otherUserId,
+      project!.id,
+      "archived",
+    );
+    expect(statusChanged).toBe(false);
+
+    const unchangedStatus = await prisma.project.findUnique({
+      where: { id: project!.id },
+    });
+    expect(unchangedStatus?.status).toBe("active");
+  });
+
+  it("lists harvest states ordered by tool name ascending and isolated by user", async () => {
+    const summary: HarvestSummary = {
+      tool: "tool-b",
+      filesSeen: 10,
+      filesSkipped: 0,
+      activities: 10,
+      unattributed: 0,
+    };
+    const at = new Date("2026-08-16T14:00:00.000Z");
+
+    await saveHarvestState(userId, "tool-b", summary, at);
+    await saveHarvestState(
+      userId,
+      "tool-a",
+      { ...summary, tool: "tool-a" },
+      at,
+    );
+    await saveHarvestState(
+      otherUserId,
+      "tool-other",
+      { ...summary, tool: "tool-other" },
+      at,
+    );
+
+    const states = await listHarvestState(userId);
+    const tools = states.map((s) => s.tool);
+
+    expect(tools).toContain("tool-a");
+    expect(tools).toContain("tool-b");
+    expect(tools).not.toContain("tool-other");
+
+    // Check order
+    const toolAIndex = tools.indexOf("tool-a");
+    const toolBIndex = tools.indexOf("tool-b");
+    expect(toolAIndex).toBeLessThan(toolBIndex);
+
+    await prisma.harvestState.deleteMany({
+      where: { tool: { in: ["tool-a", "tool-b", "tool-other"] } },
+    });
+  });
+
+  it("handles empty projects list and checks project sorting by lastActiveAt", async () => {
+    const emptyProjects = await listProjects(otherUserId);
+    expect(emptyProjects).toEqual([]);
+
+    const projects = await listProjects(userId);
+    expect(projects.length).toBeGreaterThan(0);
+
+    for (let i = 0; i < projects.length - 1; i++) {
+      const timeA = projects[i].lastActiveAt?.getTime() ?? 0;
+      const timeB = projects[i + 1].lastActiveAt?.getTime() ?? 0;
+      expect(timeA).toBeGreaterThanOrEqual(timeB);
+    }
+  });
+
+  it("filters out activities without paths in recordActivities", async () => {
+    const invalidActivity: RawActivity = {
+      tool: "test-tool",
+      path: "",
+      displayPath: "",
+      startedAt: new Date(),
+      endedAt: new Date(),
+      activeMinutes: 10,
+      messageCount: 2,
+      sessionRef: "invalid-s",
+    };
+
+    const res = await recordActivities(userId, [invalidActivity]);
+    expect(res.projectsCreated).toBe(0);
+    expect(res.activitiesCreated).toBe(0);
+    expect(res.activitiesUpdated).toBe(0);
   });
 });
