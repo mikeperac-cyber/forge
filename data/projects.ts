@@ -146,8 +146,6 @@ export async function recordActivities(
   }
   const batch = [...byKey.values()];
 
-  /* ------------------------------------------------------- projects */
-
   const paths = [...new Set(batch.map((a) => a.path))];
   const known = await prisma.project.findMany({
     where: { userId, path: { in: paths } },
