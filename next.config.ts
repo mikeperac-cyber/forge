@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import path from "node:path";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   // No reason to advertise the framework in every response header.
   poweredByHeader: false,
   turbopack: {

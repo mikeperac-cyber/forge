@@ -15,7 +15,11 @@ const credentials = z.object({
 });
 
 export async function hasAnyUser(): Promise<boolean> {
-  return (await prisma.user.count()) > 0;
+  try {
+    return (await prisma.user.count()) > 0;
+  } catch {
+    return false;
+  }
 }
 
 /**

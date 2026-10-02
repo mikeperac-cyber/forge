@@ -1,0 +1,7 @@
+{
+  "name": "Forge",
+  "description": "A quiet workspace for teaching.",
+  "request_capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
