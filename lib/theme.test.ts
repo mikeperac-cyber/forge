@@ -11,6 +11,7 @@ import {
   watchSystemTheme,
   THEME_STORAGE_KEY,
   DARK_QUERY,
+  NO_FLASH_SCRIPT,
 } from "./theme";
 
 describe("theme utilities", () => {
@@ -245,6 +246,16 @@ describe("theme utilities", () => {
 
       if (changeHandler) changeHandler();
       expect(document.documentElement.dataset.theme).toBe("light");
+    });
+  });
+
+  describe("NO_FLASH_SCRIPT", () => {
+    it("evaluates without syntax errors and sets dataset theme based on localStorage", () => {
+      localStorage.setItem(THEME_STORAGE_KEY, "dark");
+      expect(() => {
+        new Function(NO_FLASH_SCRIPT)();
+      }).not.toThrow();
+      expect(document.documentElement.dataset.theme).toBe("dark");
     });
   });
 });

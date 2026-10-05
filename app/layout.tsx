@@ -52,7 +52,7 @@ export default function RootLayout({
         {/* Applies the stored theme before first paint. Without it the page
             renders in the system theme and then snaps — the flash every theme
             toggle gets judged by. */}
-        <script dangerouslySetInnerHTML={{ __html: NO_FLASH_SCRIPT }} />
+        <script>{NO_FLASH_SCRIPT}</script>
       </head>
       <body className="h-full">{children}</body>
     </html>
