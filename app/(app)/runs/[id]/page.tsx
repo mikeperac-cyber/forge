@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireUserId } from "@/lib/session";
 import { getRun } from "@/data/runs";
 import { PageHeader } from "@/components/shell";
-import { RunDetail, type NodeRunDetail } from "@/components/timeline/RunDetail";
+import { RunDetail } from "@/components/timeline/RunDetail";
 import { RerunButton } from "@/components/timeline/RerunButton";
 import { cn } from "@/lib/cn";
 import { formatDuration, formatRelative, statusStyle } from "@/lib/status";
@@ -39,32 +39,30 @@ export default async function RunPage({
 
   // Dates and JSON columns cross the server/client boundary, so serialise
   // explicitly rather than relying on whatever the framework infers.
-  const nodes: NodeRunDetail[] = [...byNode.entries()].map(
-    ([nodeId, attemptRows]) => {
-      const sorted = [...attemptRows].sort((a, b) => a.attempt - b.attempt);
-      const first = sorted[0];
-      const latest = sorted[sorted.length - 1];
+  const nodes = [...byNode.entries()].map(([nodeId, attemptRows]) => {
+    const sorted = [...attemptRows].sort((a, b) => a.attempt - b.attempt);
+    const first = sorted[0];
+    const latest = sorted[sorted.length - 1];
 
-      return {
-        nodeId,
-        label: labels.get(nodeId) ?? nodeId,
-        kind: latest.kind,
-        status: latest.status,
-        startedAt: first.startedAt?.toISOString() ?? null,
-        finishedAt: latest.finishedAt?.toISOString() ?? null,
-        input: latest.input ?? null,
-        output: latest.output ?? null,
-        error: latest.error,
-        attempts: sorted.map((row) => ({
-          attempt: row.attempt,
-          status: row.status,
-          startedAt: row.startedAt?.toISOString() ?? null,
-          finishedAt: row.finishedAt?.toISOString() ?? null,
-          error: row.error,
-        })),
-      };
-    },
-  );
+    return {
+      nodeId,
+      label: labels.get(nodeId) ?? nodeId,
+      kind: latest.kind,
+      status: latest.status,
+      startedAt: first.startedAt?.toISOString() ?? null,
+      finishedAt: latest.finishedAt?.toISOString() ?? null,
+      input: latest.input ?? null,
+      output: latest.output ?? null,
+      error: latest.error,
+      attempts: sorted.map((row) => ({
+        attempt: row.attempt,
+        status: row.status,
+        startedAt: row.startedAt?.toISOString() ?? null,
+        finishedAt: row.finishedAt?.toISOString() ?? null,
+        error: row.error,
+      })),
+    };
+  });
 
   const style = statusStyle(run.status);
   const duration = run.finishedAt
