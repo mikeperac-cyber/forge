@@ -114,14 +114,22 @@ export async function dueSchedules(now: Date) {
 }
 
 /** Called once a due schedule has actually been fired. */
-export async function markScheduleFired(scheduleId: string, firedAt: Date) {
-  const schedule = await prisma.schedule.findUnique({
-    where: { id: scheduleId },
-  });
+export async function markScheduleFired(
+  scheduleOrId:
+    string | { id: string; kind: string | ScheduleKind; config: unknown },
+  firedAt: Date,
+) {
+  const schedule =
+    typeof scheduleOrId === "string"
+      ? await prisma.schedule.findUnique({
+          where: { id: scheduleOrId },
+        })
+      : scheduleOrId;
+
   if (!schedule) return;
 
   await prisma.schedule.update({
-    where: { id: scheduleId },
+    where: { id: schedule.id },
     data: {
       lastRunAt: firedAt,
       nextRunAt: computeNextRun(

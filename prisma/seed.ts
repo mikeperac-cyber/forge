@@ -5,7 +5,9 @@ import { PrismaClient } from "../lib/generated/prisma/client";
 import { demoGraph, DEMO_DESCRIPTION, DEMO_NAME } from "../lib/demo-workflow";
 
 const prisma = new PrismaClient({
-  adapter: new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || "file:./dev.db" }),
+  adapter: new PrismaBetterSqlite3({
+    url: process.env.DATABASE_URL || "file:./dev.db",
+  }),
 });
 
 async function main() {

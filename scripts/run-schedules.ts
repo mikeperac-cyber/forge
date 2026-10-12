@@ -89,7 +89,7 @@ async function main() {
       console.log(
         `${now.toISOString()}  ${schedule.workflow.name} (${label}) — skipped, empty canvas`,
       );
-      await markScheduleFired(schedule.id, now);
+      await markScheduleFired(schedule, now);
       continue;
     }
 
@@ -103,7 +103,7 @@ async function main() {
 
     // Firing is recorded before the run finishes, not after — a run that
     // hangs must not also jam nextRunAt and make the schedule look stuck.
-    await markScheduleFired(schedule.id, now);
+    await markScheduleFired(schedule, now);
     console.log(
       `${now.toISOString()}  ${schedule.workflow.name} (${label}) — run ${runId} started`,
     );
