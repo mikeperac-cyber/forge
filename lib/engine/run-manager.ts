@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { activeRuns, publish, settlingRuns } from "./bus";
 import type { EngineEvent } from "./events";
 import { executeWorkflow } from "./scheduler";
@@ -69,7 +70,7 @@ export async function startRun({
 
   const enqueue = (work: () => Promise<unknown>) => {
     chain = chain.then(work).catch((err) => {
-      console.error(`[run ${run.id}] persistence error:`, err);
+      logger.error("persistence error", { runId: run.id }, err);
     });
   };
 
@@ -224,7 +225,7 @@ export async function startRun({
     secrets,
   })
     .catch((err) => {
-      console.error(`[run ${run.id}] scheduler crashed:`, err);
+      logger.error("scheduler crashed", { runId: run.id }, err);
       enqueue(() =>
         prisma.run.update({
           where: { id: run.id },
@@ -248,7 +249,7 @@ export async function startRun({
     // otherwise surface as an unhandled rejection whenever nobody calls
     // `waitForSettled` on this run (the ordinary request-handler case).
     .catch((err) => {
-      console.error(`[run ${run.id}] settling failed:`, err);
+      logger.error("settling failed", { runId: run.id }, err);
     })
     .finally(() => {
       settlingRuns.delete(run.id);
