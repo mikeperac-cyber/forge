@@ -76,41 +76,43 @@ async function main() {
     return;
   }
 
-  for (const schedule of due) {
-    const graph = graphOf(schedule.workflow.graph);
-    const label = describeSchedule(
-      schedule.kind as ScheduleKind,
-      schedule.config,
-    );
-
-    if (graph.nodes.length === 0) {
-      // Recording the fire (without a run) still moves nextRunAt forward —
-      // an empty canvas would otherwise poll as "due" forever, every minute.
-      console.log(
-        `${now.toISOString()}  ${schedule.workflow.name} (${label}) — skipped, empty canvas`,
+  await Promise.all(
+    due.map(async (schedule) => {
+      const graph = graphOf(schedule.workflow.graph);
+      const label = describeSchedule(
+        schedule.kind as ScheduleKind,
+        schedule.config,
       );
+
+      if (graph.nodes.length === 0) {
+        // Recording the fire (without a run) still moves nextRunAt forward —
+        // an empty canvas would otherwise poll as "due" forever, every minute.
+        console.log(
+          `${now.toISOString()}  ${schedule.workflow.name} (${label}) — skipped, empty canvas`,
+        );
+        await markScheduleFired(schedule.id, now);
+        return;
+      }
+
+      const runId = await startRun({
+        workflowId: schedule.workflow.id,
+        version: schedule.workflow.version,
+        graph,
+        trigger: "schedule",
+        secrets: await secretsFor(schedule.userId),
+      });
+
+      // Firing is recorded before the run finishes, not after — a run that
+      // hangs must not also jam nextRunAt and make the schedule look stuck.
       await markScheduleFired(schedule.id, now);
-      continue;
-    }
+      console.log(
+        `${now.toISOString()}  ${schedule.workflow.name} (${label}) — run ${runId} started`,
+      );
 
-    const runId = await startRun({
-      workflowId: schedule.workflow.id,
-      version: schedule.workflow.version,
-      graph,
-      trigger: "schedule",
-      secrets: await secretsFor(schedule.userId),
-    });
-
-    // Firing is recorded before the run finishes, not after — a run that
-    // hangs must not also jam nextRunAt and make the schedule look stuck.
-    await markScheduleFired(schedule.id, now);
-    console.log(
-      `${now.toISOString()}  ${schedule.workflow.name} (${label}) — run ${runId} started`,
-    );
-
-    const outcome = await waitWithTimeout(runId);
-    console.log(`${new Date().toISOString()}  run ${runId} ${outcome}`);
-  }
+      const outcome = await waitWithTimeout(runId);
+      console.log(`${new Date().toISOString()}  run ${runId} ${outcome}`);
+    }),
+  );
 }
 
 main()
