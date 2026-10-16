@@ -83,6 +83,7 @@ async function main() {
         schedule.kind as ScheduleKind,
         schedule.config,
       );
+<<<<<<< HEAD
 
       if (graph.nodes.length === 0) {
         // Recording the fire (without a run) still moves nextRunAt forward —
@@ -113,6 +114,30 @@ async function main() {
       console.log(`${new Date().toISOString()}  run ${runId} ${outcome}`);
     }),
   );
+=======
+      await markScheduleFired(schedule, now);
+      continue;
+    }
+
+    const runId = await startRun({
+      workflowId: schedule.workflow.id,
+      version: schedule.workflow.version,
+      graph,
+      trigger: "schedule",
+      secrets: await secretsFor(schedule.userId),
+    });
+
+    // Firing is recorded before the run finishes, not after — a run that
+    // hangs must not also jam nextRunAt and make the schedule look stuck.
+    await markScheduleFired(schedule, now);
+    console.log(
+      `${now.toISOString()}  ${schedule.workflow.name} (${label}) — run ${runId} started`,
+    );
+
+    const outcome = await waitWithTimeout(runId);
+    console.log(`${new Date().toISOString()}  run ${runId} ${outcome}`);
+  }
+>>>>>>> origin/optimize-schedule-queries-3202546535985487497
 }
 
 main()
