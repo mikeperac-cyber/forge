@@ -95,12 +95,26 @@ describe("schedules (integration)", () => {
     expect(due.some((s) => s.workflowId === workflowId)).toBe(true);
   });
 
-  it("marking it fired moves lastRunAt and pushes nextRunAt forward again", async () => {
+  it("marking it fired with schedule ID moves lastRunAt and pushes nextRunAt forward again", async () => {
     const before = await listSchedules(userId);
     const mine = before.find((s) => s.workflowId === workflowId)!;
 
     const firedAt = new Date();
     await markScheduleFired(mine.id, firedAt);
+
+    const after = await listSchedules(userId);
+    const updated = after.find((s) => s.workflowId === workflowId)!;
+
+    expect(updated.lastRunAt?.getTime()).toBe(firedAt.getTime());
+    expect(updated.nextRunAt.getTime()).toBeGreaterThan(firedAt.getTime());
+  });
+
+  it("marking it fired with schedule object moves lastRunAt and pushes nextRunAt forward again", async () => {
+    const before = await listSchedules(userId);
+    const mine = before.find((s) => s.workflowId === workflowId)!;
+
+    const firedAt = new Date();
+    await markScheduleFired(mine, firedAt);
 
     const after = await listSchedules(userId);
     const updated = after.find((s) => s.workflowId === workflowId)!;
