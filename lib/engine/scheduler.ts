@@ -357,11 +357,15 @@ export async function executeWorkflow({
     }
 
     if (!controller.signal.aborted) {
+      const readyNodes: GraphNode[] = [];
       for (const node of nodes) {
-        if (running.size >= opts.concurrency) break;
+        if (running.size + readyNodes.length >= opts.concurrency) break;
         if (status.get(node.id) !== "pending") continue;
         if (readiness(node.id) !== "run") continue;
-        await dispatch(node);
+        readyNodes.push(node);
+      }
+      if (readyNodes.length > 0) {
+        await Promise.all(readyNodes.map((node) => dispatch(node)));
         progressed = true;
       }
     }
