@@ -62,13 +62,17 @@ export async function getDayReport(
 
   // A running session counts up to `now`, passed in rather than read here so
   // the same report renders identically for a given moment.
-  const actualFor = (blockId: string | null) =>
-    sessions
-      .filter((s) => s.blockId === blockId)
-      .reduce(
-        (total, s) => total + minutesBetween(s.startedAt, s.endedAt ?? now),
-        0,
-      );
+  const actualMinutesByBlockId = new Map<string | null, number>();
+  let totalActualMinutes = 0;
+
+  for (const s of sessions) {
+    const mins = minutesBetween(s.startedAt, s.endedAt ?? now);
+    totalActualMinutes += mins;
+    actualMinutesByBlockId.set(
+      s.blockId,
+      (actualMinutesByBlockId.get(s.blockId) ?? 0) + mins,
+    );
+  }
 
   const dayBlocks: DayBlock[] = blocks.map((block) => ({
     id: block.id,
@@ -78,18 +82,15 @@ export async function getDayReport(
     note: block.note,
     goal: block.goal,
     plannedMinutes: minutesBetween(block.startsAt, block.endsAt),
-    actualMinutes: actualFor(block.id),
+    actualMinutes: actualMinutesByBlockId.get(block.id) ?? 0,
   }));
 
   return {
     date: start,
     blocks: dayBlocks,
     plannedMinutes: dayBlocks.reduce((t, b) => t + b.plannedMinutes, 0),
-    actualMinutes: sessions.reduce(
-      (t, s) => t + minutesBetween(s.startedAt, s.endedAt ?? now),
-      0,
-    ),
-    unplannedMinutes: actualFor(null),
+    actualMinutes: totalActualMinutes,
+    unplannedMinutes: actualMinutesByBlockId.get(null) ?? 0,
   };
 }
 
