@@ -30,7 +30,7 @@ export function NodeInspector({
 
   // Introspection is pure and cheap, but it runs on every keystroke otherwise.
   const fields = useMemo(
-    () => (executor ? introspect(executor.configSchema as never) : []),
+    () => (executor ? introspect(executor.configSchema) : []),
     [executor],
   );
 

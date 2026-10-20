@@ -24,7 +24,7 @@ export default function NodesPage() {
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
         <div className="grid [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))] gap-3">
           {EXECUTORS.map((executor) => {
-            const fields = introspect(executor.configSchema as never);
+            const fields = introspect(executor.configSchema);
             return (
               <article
                 key={executor.kind}
