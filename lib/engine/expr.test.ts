@@ -71,6 +71,53 @@ describe("evaluateExpression", () => {
   });
 });
 
+describe("security sandboxing in evaluateExpression", () => {
+  it("prevents access to process and runtime globals", () => {
+    expect(() => evaluateExpression("process.env", null)).toThrow(
+      /Access to global 'process' is prohibited/,
+    );
+    expect(() => evaluateExpression("globalThis.process", null)).toThrow(
+      /Access to global 'globalThis' is prohibited/,
+    );
+    expect(() => evaluateExpression("global.process", null)).toThrow(
+      /Access to global 'global' is prohibited/,
+    );
+    expect(() => evaluateExpression("require('child_process')", null)).toThrow(
+      /Access to global 'require' is prohibited/,
+    );
+    expect(() => evaluateExpression("import('fs')", null)).toThrow(
+      /Access to global 'import' is prohibited/,
+    );
+  });
+
+  it("prevents prototype pollution and property access escapes", () => {
+    expect(() => evaluateExpression("input.constructor", {})).toThrow(
+      /Access to property 'constructor' is prohibited/,
+    );
+    expect(() => evaluateExpression("input.__proto__", {})).toThrow(
+      /Access to property '__proto__' is prohibited/,
+    );
+    expect(() => evaluateExpression("input.prototype", {})).toThrow(
+      /Access to property 'prototype' is prohibited/,
+    );
+    expect(() => evaluateExpression("({}).__proto__", null)).toThrow(
+      /Access to property '__proto__' is prohibited/,
+    );
+    expect(() => evaluateExpression("({}).constructor", null)).toThrow(
+      /Access to property 'constructor' is prohibited/,
+    );
+  });
+
+  it("prevents execution via Function constructor or eval", () => {
+    expect(() => evaluateExpression("Function('return 1')()", null)).toThrow(
+      /Access to global 'Function' is prohibited/,
+    );
+    expect(() => evaluateExpression("eval('1 + 1')", null)).toThrow(
+      /Access to global 'eval' is prohibited/,
+    );
+  });
+});
+
 describe("ExpressionError", () => {
   it("constructs with correct message, expression, and name", () => {
     const err = new ExpressionError("Test message", "input.x");
