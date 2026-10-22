@@ -382,9 +382,7 @@ versioning is a snapshot. `Run.version` pins which graph a run belongs to.
 - Webhooks and graph↔YAML round-tripping are stubbed in the UI as disabled
   tabs, not implemented.
 - **Secrets** are real — AES-256-GCM, key derived from `AUTH_SECRET` via HKDF
-  (`lib/secrets.ts`; deliberately not `lib/session.ts`'s `secret()`, which
-  falls back to a random-per-process value in dev — fine for session
-  signing, disastrous for an encryption key). Reference one from a node's
+  (`lib/secrets.ts`). Reference one from a node's
   config as `{{secret.NAME}}`; `http` and `ai` resolve it for the (simulated)
   request but never let the resolved value reach a log line — every log line
   and error string passes through value-based redaction before it's emitted,

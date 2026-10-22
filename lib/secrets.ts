@@ -9,14 +9,9 @@ import {
  * Encryption, and the `{{secret.NAME}}` reference syntax nodes use instead of
  * a plaintext value.
  *
- * Deliberately not `lib/session.ts`'s `secret()`: that function falls back to
- * a random-per-process value when `AUTH_SECRET` is unset, which is a fine
- * trade for session signing (worst case, a dev restart logs you out) and a
- * disastrous one for an encryption key (every secret ever saved would become
- * permanently undecryptable the next time `npm run dev` restarts). Encrypted
- * storage needs a key that cannot silently change out from under it, so this
- * requires the real environment variable rather than inheriting that
- * fallback.
+ * Encrypted storage requires `AUTH_SECRET` to be set (at least 16 characters).
+ * Encrypted storage needs a key that cannot change out from under it, so this
+ * requires the real environment variable.
  */
 
 const ALGORITHM = "aes-256-gcm";
