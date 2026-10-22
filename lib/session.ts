@@ -38,7 +38,7 @@ function secret(): string {
  * with no error in the console, the server log, or anywhere else. It is a
  * genuinely horrible thing to debug.
  *
- * The default stays on, because the right answer is to serve HTTPS: `tailscale
+ * The default stays on (`true`), because the right answer is to serve HTTPS: `tailscale
  * serve` issues a real certificate for `<machine>.<tailnet>.ts.net` and needs
  * no change here. `FORGE_ALLOW_INSECURE_COOKIE=1` is the deliberate escape
  * hatch for plain HTTP on a trusted private network — never on the internet,
@@ -46,7 +46,7 @@ function secret(): string {
  */
 function secureCookie(): boolean {
   if (process.env.FORGE_ALLOW_INSECURE_COOKIE === "1") return false;
-  return process.env.NODE_ENV === "production";
+  return true;
 }
 
 function sign(value: string): string {
