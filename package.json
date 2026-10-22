@@ -17,7 +17,7 @@
     "harvest:calibrate": "tsx scripts/harvest-calibrate.ts",
     "schedules": "tsx --conditions=react-server scripts/run-schedules.ts",
     "check": "tsc --noEmit && eslint . && prettier --check . && vitest run",
-    "postinstall": "prisma generate && prisma db push --accept-data-loss"
+    "postinstall": "prisma generate && node -e \"if (!process.env.VERCEL) { require('child_process').execSync('prisma db push --accept-data-loss', { stdio: 'inherit' }); }\""
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.1",
