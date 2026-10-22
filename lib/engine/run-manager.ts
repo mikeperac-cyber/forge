@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@/lib/generated/prisma/client";
 import { activeRuns, publish, settlingRuns } from "./bus";
 import type { EngineEvent } from "./events";
 import { executeWorkflow } from "./scheduler";
@@ -45,6 +46,12 @@ interface BufferedLog {
   ts: Date;
   stream: string;
   text: string;
+}
+
+function toJsonValue(
+  value: Record<string, unknown> | null | undefined,
+): Prisma.InputJsonValue {
+  return (value ?? Prisma.JsonNull) as Prisma.InputJsonValue;
 }
 
 export async function startRun({
@@ -113,7 +120,7 @@ export async function startRun({
               kind: event.kind,
               status: "running",
               attempt: event.attempt,
-              input: (event.inputs ?? null) as never,
+              input: toJsonValue(event.inputs),
               startedAt: new Date(event.at),
             },
           });
@@ -168,7 +175,7 @@ export async function startRun({
           const id = nodeRunIds.get(event.nodeId);
           const data = {
             status: event.status,
-            output: (event.outputs ?? null) as never,
+            output: toJsonValue(event.outputs),
             error: event.error ?? null,
             finishedAt: new Date(event.at),
           };
