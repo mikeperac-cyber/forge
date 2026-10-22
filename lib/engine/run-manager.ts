@@ -1,4 +1,5 @@
 import "server-only";
+import type { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { activeRuns, publish, settlingRuns } from "./bus";
 import type { EngineEvent } from "./events";
@@ -113,7 +114,7 @@ export async function startRun({
               kind: event.kind,
               status: "running",
               attempt: event.attempt,
-              input: (event.inputs ?? null) as never,
+              input: (event.inputs ?? null) as Prisma.InputJsonValue,
               startedAt: new Date(event.at),
             },
           });
@@ -168,7 +169,7 @@ export async function startRun({
           const id = nodeRunIds.get(event.nodeId);
           const data = {
             status: event.status,
-            output: (event.outputs ?? null) as never,
+            output: (event.outputs ?? null) as Prisma.InputJsonValue,
             error: event.error ?? null,
             finishedAt: new Date(event.at),
           };
