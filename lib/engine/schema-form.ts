@@ -90,8 +90,10 @@ function numericBounds(inner: { def: Record<string, unknown> }) {
   return { min, max };
 }
 
-export function introspect(schema: z.ZodObject<z.ZodRawShape>): FieldDef[] {
-  const shape = schema.def.shape as Record<string, z.ZodType>;
+export function introspect(schema: z.ZodType): FieldDef[] {
+  const { inner } = unwrap(schema);
+  const shape = inner.def.shape as Record<string, z.ZodType> | undefined;
+  if (!shape) return [];
 
   return Object.entries(shape).map(([name, fieldSchema]) => {
     const { inner, meta, required, defaultValue } = unwrap(fieldSchema);
