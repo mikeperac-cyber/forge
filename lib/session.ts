@@ -1,6 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 /**
  * A deliberately small session layer.
@@ -18,15 +18,7 @@ const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 function secret(): string {
   const fromEnv = process.env.AUTH_SECRET;
   if (fromEnv && fromEnv.length >= 16) return fromEnv;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "AUTH_SECRET must be set (at least 16 characters) outside development.",
-    );
-  }
-  // Dev-only fallback so `npm run dev` works before .env is filled in. It is
-  // stable per process, so restarting the dev server logs you out.
-  return ((globalThis as { __forgeDevSecret?: string }).__forgeDevSecret ??=
-    randomBytes(32).toString("hex"));
+  throw new Error("AUTH_SECRET must be set (at least 16 characters).");
 }
 
 /**
