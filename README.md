@@ -82,9 +82,9 @@ system-wide — starting the server at logon and harvesting every 30 minutes.
 
 ### Before putting it anywhere public
 
-Two things in here are fine for a single trusted user on a private network and
-are not fine on the internet, both called out under _Known limitations_: the
-`new Function` expression evaluator, and the hand-rolled session cookie.
+One thing in here is fine for a single trusted user on a private network and
+is not fine on the internet, called out under _Known limitations_: the
+hand-rolled session cookie.
 Tailscale sidesteps both by never exposing the app in the first place.
 
 ---
@@ -324,11 +324,9 @@ versioning is a snapshot. `Run.version` pins which graph a run belongs to.
 
 ## Known limitations
 
-- **`transform` and `branch` use `new Function`.** Expressions are arbitrary
-  JavaScript with access to globals. Acceptable here because the app is local
-  and single-user and the person writing the expression is the person running
-  it — the same trust level as a shell node. Do **not** expose this to
-  untrusted input without a real sandbox.
+- **`transform` and `branch` sandboxing.** Expressions are evaluated inside an
+  `isolated-vm` sandbox with memory limits and execution timeouts to prevent
+  arbitrary host code execution.
 - **Auth is a signed cookie**, not a full framework (`lib/session.ts`). Fine for
   a local single-user tool; swap in Auth.js at `requireUserId()` if this ever
   grows multi-user or goes on a network. Set `AUTH_SECRET` in `.env`.
