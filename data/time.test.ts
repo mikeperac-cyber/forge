@@ -274,7 +274,6 @@ describe("time tracking (integration)", () => {
       // Total actual minutes = Session 1 (30m) + Session 2 (45m) + Session 3 (15m) = 90m
       expect(report.actualMinutes).toBe(90);
 
-      // Clean up blocks and sessions
       await prisma.session.deleteMany({ where: { userId } });
       await prisma.block.deleteMany({ where: { userId } });
     });
