@@ -271,25 +271,60 @@ describe("activity ledger (integration)", () => {
     expect(rows[0].filesSeen).toBe(9);
   });
 
-  it("fetches a project by id and enforces user isolation", async () => {
-    const project = await prisma.project.findUnique({
-      where: {
-        userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
-      },
+  describe("getProject", () => {
+    it("returns a project with its dependencies", async () => {
+      const project = await prisma.project.findUnique({
+        where: {
+          userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+        },
+      });
+
+      const fetched = await getProject(userId, project!.id);
+      expect(fetched).not.toBeNull();
+      expect(fetched?.id).toBe(project!.id);
+      expect(fetched?.name).toBe("Forge");
+      expect(fetched?.goal).toBeNull();
     });
 
-    const fetched = await getProject(userId, project!.id);
-    expect(fetched).not.toBeNull();
-    expect(fetched?.id).toBe(project!.id);
-    expect(fetched?.name).toBe("Forge");
+    it("returns a project with its linked goal dependency", async () => {
+      const goal = await prisma.goal.create({
+        data: { userId, title: "Linked Goal Fixture" },
+      });
 
-    // Other user cannot fetch this project
-    const otherFetched = await getProject(otherUserId, project!.id);
-    expect(otherFetched).toBeNull();
+      const project = await prisma.project.findUnique({
+        where: {
+          userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+        },
+      });
 
-    // Non-existent ID returns null
-    const nonExistent = await getProject(userId, "non-existent-id");
-    expect(nonExistent).toBeNull();
+      await setProjectGoal(userId, project!.id, goal.id);
+
+      const fetched = await getProject(userId, project!.id);
+      expect(fetched).not.toBeNull();
+      expect(fetched?.goal).toEqual({
+        id: goal.id,
+        title: "Linked Goal Fixture",
+      });
+
+      await setProjectGoal(userId, project!.id, null);
+      await prisma.goal.delete({ where: { id: goal.id } });
+    });
+
+    it("enforces user isolation by returning null for another user's project", async () => {
+      const project = await prisma.project.findUnique({
+        where: {
+          userId_path: { userId, path: canonicalPath(joinFixture("forge")) },
+        },
+      });
+
+      const otherFetched = await getProject(otherUserId, project!.id);
+      expect(otherFetched).toBeNull();
+    });
+
+    it("returns null when project ID does not exist", async () => {
+      const nonExistent = await getProject(userId, "non-existent-id");
+      expect(nonExistent).toBeNull();
+    });
   });
 
   it("enforces user isolation when renaming or setting status of a project", async () => {
