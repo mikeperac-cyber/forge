@@ -106,3 +106,45 @@ describe("isTruthy", () => {
     expect(isTruthy({ key: undefined })).toBe(true);
   });
 });
+
+describe("security sandboxing in evaluateExpression", () => {
+  it("prevents access to host process and require", () => {
+    expect(() => evaluateExpression("process.exit(1)", null)).toThrow(
+      ExpressionError,
+    );
+    expect(() => evaluateExpression("process.env", null)).toThrow(
+      "process is not defined",
+    );
+    expect(() => evaluateExpression("require('fs')", null)).toThrow(
+      "require is not defined",
+    );
+  });
+
+  it("prevents globalThis process access and prototype escaping", () => {
+    expect(() => evaluateExpression("globalThis.process.env", null)).toThrow(
+      ExpressionError,
+    );
+    expect(() =>
+      evaluateExpression(
+        "this.constructor.constructor('return process')()",
+        null,
+      ),
+    ).toThrow(ExpressionError);
+  });
+
+  it("terminates infinite loops on timeout", () => {
+    expect(() =>
+      evaluateExpression("(() => { while (true) {} })()", null),
+    ).toThrow(ExpressionError);
+    expect(() =>
+      evaluateExpression("(() => { while (true) {} })()", null),
+    ).toThrow(/timed out/);
+  });
+
+  it("isolates execution state between runs", () => {
+    evaluateExpression("((globalThis.secretLeak = 12345), 1)", null);
+    expect(() => evaluateExpression("secretLeak", null)).toThrow(
+      "secretLeak is not defined",
+    );
+  });
+});

@@ -10,8 +10,12 @@ const nextConfig: NextConfig = {
     // home directory, then treats C:\Users\micha as the project root.
     root: path.resolve(import.meta.dirname),
   },
-  // better-sqlite3 is a native addon; bundling it breaks the binding lookup.
-  serverExternalPackages: ["better-sqlite3", "@prisma/adapter-better-sqlite3"],
+  // Native addons; bundling them breaks the binding lookup.
+  serverExternalPackages: [
+    "better-sqlite3",
+    "@prisma/adapter-better-sqlite3",
+    "isolated-vm",
+  ],
 };
 
 export default nextConfig;
