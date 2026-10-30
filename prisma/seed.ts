@@ -38,7 +38,6 @@ async function main() {
   });
 
   console.log(`Seeded ${user.email} with "${user.workflows[0].name}".`);
-  console.log(`Password: ${password}  (override with SEED_PASSWORD)`);
 }
 
 main()
