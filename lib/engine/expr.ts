@@ -1,4 +1,3 @@
-import { createRequire } from "node:module";
 import type ivmType from "isolated-vm";
 
 /**
@@ -30,8 +29,16 @@ let ivmModule: typeof ivmType | null = null;
 
 function getIvm(): typeof ivmType {
   if (!ivmModule) {
+    // Bundler-invisible: the shared registry pulls this into the client. node:module
+    // is reached via getBuiltinModule; isolated-vm is browser-aliased in next.config.
     const req =
-      typeof require !== "undefined" ? require : createRequire(import.meta.url);
+      typeof require !== "undefined"
+        ? require
+        : (
+            process as NodeJS.Process & {
+              getBuiltinModule(id: "node:module"): typeof import("node:module");
+            }
+          ).getBuiltinModule("node:module").createRequire(import.meta.url);
     ivmModule = req("isolated-vm") as typeof ivmType;
   }
   return ivmModule;

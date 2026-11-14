@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+
+# portable Node 22 LTS — isolated-vm has no Node 26 prebuild
+/.node22
 /.pnp
 .pnp.*
 .yarn/*
