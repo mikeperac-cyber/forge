@@ -7,7 +7,7 @@ import { prisma } from "@/lib/db";
 import { createSession, destroySession } from "@/lib/session";
 import { demoGraph, DEMO_DESCRIPTION, DEMO_NAME } from "@/lib/demo-workflow";
 
-export type AuthState = { error?: string };
+export type AuthState = { error?: string; email?: string };
 
 const credentials = z.object({
   email: z.email("Enter a valid email address"),
@@ -35,7 +35,10 @@ export async function setupAction(
     password: formData.get("password"),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0].message };
+    return {
+      error: parsed.error.issues[0].message,
+      email: String(formData.get("email") ?? ""),
+    };
   }
 
   // Single-user by design: refuse rather than quietly creating a second account.
@@ -74,7 +77,7 @@ export async function loginAction(
 
   // Same message either way, so this can't be used to enumerate accounts.
   const ok = user ? await compare(password, user.passwordHash) : false;
-  if (!user || !ok) return { error: "Incorrect email or password" };
+  if (!user || !ok) return { error: "Incorrect email or password", email };
 
   await createSession(user.id);
   redirect("/today");

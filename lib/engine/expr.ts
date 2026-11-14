@@ -38,7 +38,9 @@ function getIvm(): typeof ivmType {
             process as NodeJS.Process & {
               getBuiltinModule(id: "node:module"): typeof import("node:module");
             }
-          ).getBuiltinModule("node:module").createRequire(import.meta.url);
+          )
+            .getBuiltinModule("node:module")
+            .createRequire(import.meta.url);
     ivmModule = req("isolated-vm") as typeof ivmType;
   }
   return ivmModule;

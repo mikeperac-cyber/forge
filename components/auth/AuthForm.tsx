@@ -44,6 +44,7 @@ export function AuthForm({
                 type="email"
                 required
                 autoComplete="email"
+                defaultValue={state.email ?? ""}
                 className="border-line bg-canvas focus:border-accent w-full rounded border px-2.5 py-1.5 text-[13px] outline-none"
               />
             </label>

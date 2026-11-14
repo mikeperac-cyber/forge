@@ -21,6 +21,11 @@ const eslintConfig = defineConfig([
     "lib/generated/**",
     // Scratch files owned by tooling, not part of the app.
     ".remember/**",
+    // Desktop build artifacts — bundled/minified output, not authored code.
+    "src-tauri/sidecar/**",
+    "src-tauri/target/**",
+    "src-tauri/gen/**",
+    ".node22/**",
   ]),
 ]);
 
