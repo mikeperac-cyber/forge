@@ -5,6 +5,11 @@
 
 # portable Node 22 LTS — isolated-vm has no Node 26 prebuild
 /.node22
+
+# desktop build artifacts — regenerated, not authored
+/src-tauri/sidecar
+/src-tauri/target
+/src-tauri/gen/schemas
 /.pnp
 .pnp.*
 .yarn/*
