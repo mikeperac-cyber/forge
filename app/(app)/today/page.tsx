@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { requireUserId } from "@/lib/session";
 import { effortMinutes, listGoals } from "@/data/goals";
+import { listTasks } from "@/data/tasks";
 import { getDayReport, getRunningSession } from "@/data/time";
 import { listFailingWorkflows } from "@/data/workflows";
 import { PageHeader, Icon } from "@/components/shell";
 import { StartButton } from "@/components/time/RunningTimer";
+import { TaskStatusButton } from "@/components/tasks/TaskControls";
 import { cn } from "@/lib/cn";
 
 function hm(minutes: number): string {
@@ -33,11 +35,12 @@ export default async function TodayPage() {
   const userId = await requireUserId();
   const now = new Date();
 
-  const [report, goals, running, needsYou] = await Promise.all([
+  const [report, goals, running, needsYou, tasks] = await Promise.all([
     getDayReport(userId, now, now),
     listGoals(userId, { status: "active" }),
     getRunningSession(userId),
     listFailingWorkflows(userId),
+    listTasks(userId, { status: "open", limit: 5 }),
   ]);
   const upcoming = report.blocks.filter((b) => b.endsAt > now);
   const next = upcoming[0] ?? null;
@@ -185,6 +188,44 @@ export default async function TodayPage() {
                       {hm(effortMinutes(goal))}
                     </span>
                     <StartButton goalId={goal.id} compact />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* --- what needs doing ---------------------------------------- */}
+          {tasks.length > 0 && (
+            <section className="mt-6">
+              <div className="flex items-baseline justify-between">
+                <h2 className="text-ink-faint text-[10.5px] font-bold tracking-[0.08em] uppercase">
+                  Tasks
+                </h2>
+                <Link
+                  href="/tasks"
+                  className="text-accent text-[11.5px] hover:underline"
+                >
+                  All tasks
+                </Link>
+              </div>
+              <ul className="mt-2 space-y-1">
+                {tasks.map((task) => (
+                  <li
+                    key={task.id}
+                    className="border-line flex items-center gap-2.5 rounded-md border px-2.5 py-1.5"
+                  >
+                    <TaskStatusButton task={task} compact />
+                    <span className="min-w-0 flex-1 truncate text-[13px]">
+                      {task.title}
+                    </span>
+                    {task.displayPath && (
+                      <span
+                        className="text-ink-faint max-w-52 shrink-0 truncate font-mono text-[10.5px]"
+                        title={task.displayPath}
+                      >
+                        {task.displayPath}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -95,6 +95,50 @@ export async function listWorkflows(
   });
 }
 
+/**
+ * The shell's slice of `listWorkflows`: what the explorer list and the
+ * needs-you badge render, and nothing else.
+ *
+ * `listWorkflows` is built for the workflows page — the full row (description,
+ * updatedAt), a run tally per workflow for success rates, and counts. The app
+ * layout runs on *every* navigation and reads id, name, slug, node count and
+ * the latest run's status, so the tally and count queries there are pure cost
+ * on the hottest path in the app. Same reasoning as `countActiveGoals`.
+ */
+export async function listShellWorkflows(userId: string): Promise<
+  {
+    id: string;
+    name: string;
+    slug: string;
+    nodeCount: number;
+    lastRunStatus: string | null;
+  }[]
+> {
+  const rows = await prisma.workflow.findMany({
+    where: { userId, archivedAt: null },
+    orderBy: { updatedAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      graph: true,
+      runs: {
+        take: 1,
+        orderBy: { startedAt: "desc" },
+        select: { status: true },
+      },
+    },
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    nodeCount: graphOf(row.graph).nodes.length,
+    lastRunStatus: row.runs[0]?.status ?? null,
+  }));
+}
+
 export interface FailingWorkflow {
   id: string;
   name: string;

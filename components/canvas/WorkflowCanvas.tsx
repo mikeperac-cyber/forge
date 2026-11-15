@@ -367,7 +367,9 @@ function Canvas({ workflow, initialGraph }: Props) {
         meta={
           <>
             <span>v{version}</span>
-            <span>{graph.nodes.length} nodes</span>
+            <span>
+              {graph.nodes.length} {graph.nodes.length === 1 ? "step" : "steps"}
+            </span>
             {dirty && <span className="text-warn">Unsaved changes</span>}
             {notice && <span className="text-bad">{notice}</span>}
           </>

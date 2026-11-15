@@ -34,6 +34,7 @@ interface AppShellProps {
   userEmail: string;
   userName: string;
   activeGoals: number;
+  openTasks: number;
   runningSession: RunningSession | null;
   children: React.ReactNode;
 }
@@ -69,6 +70,7 @@ export function AppShell({
   userEmail,
   userName,
   activeGoals,
+  openTasks,
   runningSession,
   children,
 }: AppShellProps) {
@@ -183,6 +185,7 @@ export function AppShell({
         userEmail={userEmail}
         workflows={workflows}
         activeGoals={activeGoals}
+        openTasks={openTasks}
         runningSession={runningSession}
         collapsed={sidebarCollapsed}
         onToggle={() => setCollapsed((value) => !value)}
@@ -243,7 +246,7 @@ export function AppShell({
         <footer className="border-line bg-panel text-ink-faint flex h-6 shrink-0 items-center gap-4 border-t px-3 text-[11px]">
           <span className="flex items-center gap-1.5">
             <span className="bg-accent size-1.5 rounded-full" />
-            Practice mode
+            Desktop app
           </span>
           <span>
             {workflows.length} automation{workflows.length === 1 ? "" : "s"}
@@ -253,7 +256,7 @@ export function AppShell({
             onClick={() => openPalette("all")}
             className="hover:text-ink ml-auto"
           >
-            ⌘K for anything
+            Ctrl K for anything
           </button>
         </footer>
       </div>

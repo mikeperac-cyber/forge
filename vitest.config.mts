@@ -9,6 +9,7 @@ export default defineConfig({
     include: [
       "lib/**/*.test.ts",
       "data/**/*.test.ts",
+      "actions/**/*.test.ts",
       "components/**/*.test.tsx",
     ],
     testTimeout: 30000,

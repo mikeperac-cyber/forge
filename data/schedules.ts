@@ -5,9 +5,10 @@ import { computeNextRun, type ScheduleKind } from "@/lib/schedule";
 /**
  * Same rule as everywhere else in `data/`: `userId` first, filtered on — with
  * one deliberate exception. `dueSchedules()` has no `userId` because the
- * poller (`scripts/run-schedules.ts`) runs system-wide across every account
- * on this machine; it is never called from a request, so there is no session
- * to scope it to. Every other function here keeps the rule.
+ * ticker (`lib/jobs.ts`, and `scripts/run-schedules.ts` for manual use) runs
+ * system-wide across every account on this machine; it is never called from a
+ * request, so there is no session to scope it to. Every other function here
+ * keeps the rule.
  */
 
 export interface ScheduleSummary {

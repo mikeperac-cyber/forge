@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000 -H 0.0.0.0",
+    "dev": "next dev -p 3000 -H 127.0.0.1",
     "build": "next build",
     "build:desktop": "node scripts/build-desktop.mjs",
-    "start": "next start",
+    "start": "next start -H 127.0.0.1",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -18,7 +18,7 @@
     "harvest:calibrate": "tsx scripts/harvest-calibrate.ts",
     "schedules": "tsx --conditions=react-server scripts/run-schedules.ts",
     "check": "tsc --noEmit && eslint . && prettier --check . && vitest run",
-    "postinstall": "prisma generate && node -e \"if (!process.env.VERCEL) { require('child_process').execSync('prisma db push --accept-data-loss', { stdio: 'inherit' }); }\""
+    "postinstall": "prisma generate && prisma db push --accept-data-loss"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.1",

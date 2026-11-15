@@ -5,11 +5,13 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 /**
  * A deliberately small session layer.
  *
- * This is a local, single-user tool, so it carries an HMAC-signed cookie
- * holding a user id rather than a full auth framework. That is a considered
- * trade: it avoids pinning a beta auth library to a brand-new Next major, and
- * the surface it replaces is one cookie. If this ever grows multi-user or goes
- * on a network, swap in Auth.js — `requireUser()` is the only seam that matters.
+ * This is a local, single-user desktop tool, so it carries an HMAC-signed
+ * cookie holding a user id rather than a full auth framework. That is a
+ * considered trade: it avoids pinning a beta auth library to a brand-new Next
+ * major, and the surface it replaces is one cookie. The cookie exists to keep
+ * the sidecar honest about *who* is asking even though the only client is the
+ * app's own webview; if this ever grows multi-user, swap in Auth.js —
+ * `requireUser()` is the only seam that matters.
  */
 
 const COOKIE = "forge_session";
@@ -22,23 +24,16 @@ function secret(): string {
 }
 
 /**
- * Whether to mark the session cookie `Secure`.
- *
- * A `Secure` cookie is only ever sent over HTTPS. Serve a production build on a
- * tailnet or LAN over plain `http://` with this on and the browser quietly
- * discards the session — every login redirects straight back to the login page,
- * with no error in the console, the server log, or anywhere else. It is a
- * genuinely horrible thing to debug.
- *
- * The default stays on, because the right answer is to serve HTTPS: `tailscale
- * serve` issues a real certificate for `<machine>.<tailnet>.ts.net` and needs
- * no change here. `FORGE_ALLOW_INSECURE_COOKIE=1` is the deliberate escape
- * hatch for plain HTTP on a trusted private network — never on the internet,
- * where it would put the session token on the wire in clear text.
+ * The session cookie is never marked `Secure`, because the transport is always
+ * plain HTTP on the loopback interface: the Tauri shell serves the webview
+ * from `http://127.0.0.1:<ephemeral>` and the port dies with the process. A
+ * `Secure` cookie would be silently dropped and every login would bounce back
+ * to /login with no error anywhere — genuinely horrible to debug, and now
+ * structurally impossible. This is safe *only* while the server binds to
+ * 127.0.0.1; anything else must revisit this line.
  */
 function secureCookie(): boolean {
-  if (process.env.FORGE_ALLOW_INSECURE_COOKIE === "1") return false;
-  return process.env.NODE_ENV === "production";
+  return false;
 }
 
 function sign(value: string): string {

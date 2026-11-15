@@ -17,11 +17,11 @@ export default async function WorkflowsPage() {
     <div className="flex h-full flex-col">
       <PageHeader
         icon="LayoutGrid"
-        title="Workflows"
+        title="Automations"
         tabs={[
           { href: "/workflows", label: "All", icon: "LayoutGrid" },
           { href: "/runs", label: "Runs", icon: "History" },
-          { href: "/nodes", label: "Nodes", icon: "Boxes" },
+          { href: "/nodes", label: "Steps", icon: "Boxes" },
           { href: "/schedules", label: "Schedules", icon: "Clock" },
           { href: "/secrets", label: "Secrets", icon: "Settings" },
         ]}
@@ -32,7 +32,7 @@ export default async function WorkflowsPage() {
             className="bg-accent flex items-center gap-1.5 rounded px-2.5 py-1 text-[12.5px] font-medium text-white"
           >
             <Icon name="Plus" className="size-3.5" />
-            New workflow
+            New automation
           </Link>
         }
       />
@@ -40,7 +40,7 @@ export default async function WorkflowsPage() {
       <div className="border-line text-ink-soft flex items-center gap-4 border-b px-4 py-2 text-[12px]">
         <span>
           <strong className="text-ink font-semibold">{workflows.length}</strong>{" "}
-          workflows
+          {workflows.length === 1 ? "automation" : "automations"}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="bg-ok size-1.5 rounded-full" />
@@ -126,7 +126,7 @@ export default async function WorkflowsPage() {
                   </div>
 
                   <div className="border-line text-ink-faint mt-3 flex items-center gap-3 border-t pt-2 text-[11px]">
-                    <span>{workflow.nodeCount} nodes</span>
+                    <span>{workflow.nodeCount} steps</span>
                     <span>{workflow.runCount} runs</span>
                     <span>v{workflow.version}</span>
                     <span className="ml-auto">
@@ -149,16 +149,16 @@ function EmptyState() {
       <span className="bg-accent-soft text-accent flex size-12 items-center justify-center rounded-lg">
         <Icon name="Workflow" className="size-6" />
       </span>
-      <h2 className="mt-3 text-[14px] font-semibold">No workflows yet</h2>
+      <h2 className="mt-3 text-[14px] font-semibold">No automations yet</h2>
       <p className="text-ink-faint mt-1 max-w-xs text-[12.5px]">
-        A workflow is a graph of steps — shell commands, model calls, HTTP
+        An automation is a graph of steps — shell commands, model calls, HTTP
         requests — wired together and run on demand.
       </p>
       <Link
         href="/workflows/new"
         className="bg-accent mt-4 rounded px-3 py-1.5 text-[12.5px] font-medium text-white"
       >
-        Create your first workflow
+        Create your first automation
       </Link>
     </div>
   );

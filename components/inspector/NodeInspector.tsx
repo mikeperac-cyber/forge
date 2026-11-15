@@ -51,7 +51,7 @@ export function NodeInspector({
       <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
         <Icon name="Settings" className="text-ink-faint size-5" />
         <p className="text-ink-faint text-[12.5px]">
-          Select a node to edit its configuration.
+          Select a step to edit its configuration.
         </p>
       </div>
     );

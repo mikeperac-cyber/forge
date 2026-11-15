@@ -12,9 +12,9 @@ export interface Shortcut {
 
 export const SHORTCUTS: Shortcut[] = [
   { keys: "Ctrl K", label: "Command palette" },
-  { keys: "Ctrl P", label: "Go to workflow" },
+  { keys: "Ctrl P", label: "Go to automation" },
   { keys: "Ctrl B", label: "Toggle explorer" },
-  { keys: "Ctrl S", label: "Save workflow" },
+  { keys: "Ctrl S", label: "Save automation" },
   { keys: "Alt 1–9", label: "Switch to tab" },
   { keys: "Alt W", label: "Close tab" },
   { keys: "Alt [ / ]", label: "Previous / next tab" },

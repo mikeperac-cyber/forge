@@ -54,7 +54,7 @@ export function NewScheduleForm({
   if (workflows.length === 0) {
     return (
       <p className="text-ink-faint text-[12.5px]">
-        Create a workflow first — there&rsquo;s nothing to schedule yet.
+        Create an automation first — there&rsquo;s nothing to schedule yet.
       </p>
     );
   }

@@ -11,12 +11,12 @@ export default function NodesPage() {
     <div className="flex h-full flex-col">
       <PageHeader
         icon="Boxes"
-        title="Nodes"
+        title="Steps"
         meta={<span>{EXECUTORS.length} kinds available</span>}
         tabs={[
           { href: "/workflows", label: "All", icon: "LayoutGrid" },
           { href: "/runs", label: "Runs", icon: "History" },
-          { href: "/nodes", label: "Nodes", icon: "Boxes" },
+          { href: "/nodes", label: "Steps", icon: "Boxes" },
         ]}
         active="/nodes"
       />

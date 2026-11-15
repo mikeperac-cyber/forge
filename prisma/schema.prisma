@@ -28,6 +28,7 @@ model User {
   harvestState HarvestState[]
   schedules    Schedule[]
   secrets      Secret[]
+  tasks        Task[]
 }
 
 /// Something you're working toward. Time accumulates against it via sessions.
@@ -53,6 +54,7 @@ model Goal {
   blocks   Block[]
   sessions Session[]
   projects Project[]
+  tasks    Task[]
 
   @@index([userId, status])
 }
@@ -150,6 +152,9 @@ model Project {
   // Scoped per user for the same reason Workflow.slug is — see the note there.
   @@unique([userId, path])
   @@index([userId, status])
+  // `getObservedMinutesByGoal` groups the whole Activity ledger by this column
+  // via the join; without an index SQLite scans every project per goals visit.
+  @@index([goalId])
 }
 
 /// One observed work session, harvested from a tool's own history.
@@ -313,11 +318,10 @@ model LogLine {
 
 /// A workflow that runs itself, on a timer.
 ///
-/// Fired by `scripts/run-schedules.ts`, which a Windows Task Scheduler entry
-/// (see `windows-tasks.ps1`) polls every minute — there's no long-running
-/// process inside `next dev`/`next start` that could hold a `setInterval`
-/// alive across restarts and dev-reloads, so this reuses the exact
-/// poll-and-fire shape the harvester already runs on.
+/// Fired in-process by the desktop app: `lib/jobs.ts` polls every minute from
+/// `instrumentation.ts register()` inside the packaged sidecar — the app IS
+/// the long-running process now, so the old external Task Scheduler poller is
+/// gone. `scripts/run-schedules.ts` keeps the same shape for manual use.
 model Schedule {
   id     String @id @default(cuid())
   userId String
@@ -372,4 +376,44 @@ model Secret {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, name])
+}
+
+/// A thing to do, optionally pinned to a file or folder on disk.
+///
+/// The path is *reference only*. Nothing in the app ever writes, moves or
+/// deletes what it points at — the same constraint the harvester keeps, and
+/// the reason a task list can be trusted with a folder full of work.
+///
+/// `path` is the canonical form from `lib/harvest/paths.ts` (lowercased on
+/// Windows, separators normalised), so the same file is recognised however it
+/// was spelled; `displayPath` keeps the original casing for the screen.
+model Task {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title String
+  /// The context you'd otherwise have to remember — what "why" is to a goal.
+  note  String?
+  /// open | done — a String because SQLite has no enums.
+  status String @default("open")
+
+  /// Null for a task that isn't about anything on disk.
+  path        String?
+  displayPath String?
+  /// file | folder — what the path points at, so a row can pick its icon
+  /// without asking the disk again.
+  pathKind    String?
+
+  /// Optional: work done for a goal. Deleting the goal unlinks, never deletes.
+  goalId String?
+  goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  @@index([userId, status])
+  @@index([userId, path])
+  @@index([goalId])
 }

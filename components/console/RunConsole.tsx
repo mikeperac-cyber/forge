@@ -101,7 +101,7 @@ export function RunConsole({
               onChange={(e) => setFilter(e.target.value)}
               className="border-line bg-canvas rounded border px-1.5 py-0.5 text-[11.5px] outline-none"
             >
-              <option value="all">All nodes</option>
+              <option value="all">All steps</option>
               {nodes.map((node) => (
                 <option key={node.id} value={node.id}>
                   {node.data.label ?? node.kind}

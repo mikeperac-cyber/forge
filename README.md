@@ -8,11 +8,35 @@ It also keeps track of where your time went: goals, planned blocks, a timer,
 and an **activity ledger** that reads your AI tools' own histories so most of
 the tracking happens without you doing anything.
 
-Single-user, local-first. Next.js 16 · React 19 · TypeScript · Prisma 7 · SQLite.
+Single-user, local-first, **desktop-only**. Tauri (Rust) shell · Next.js 16 ·
+React 19 · TypeScript · Prisma 7 · SQLite.
+
+Forge is desktop-only because it has to be: the harvester reads your AI tools'
+histories out of this machine's home directory. Host it on a server and there
+is nothing there to read — the ledger stays empty forever. There is no LAN
+bind, no tailnet story, no phone access; the server the app runs on is a
+private loopback process inside the desktop window.
 
 ---
 
-## Running it
+## Building the app
+
+```bash
+npm install
+npm run build:desktop
+```
+
+Needs a Windows rust toolchain and a manually extracted Node 22 win-x64 zip in
+`.node22/` (the sidecar bundles that exact `node.exe`; isolated-vm prebuilds
+target its ABI). The script builds the standalone server, seeds a template
+database, stages everything under `src-tauri/sidecar/`, and produces the NSIS
+installer at `src-tauri\target\release\bundle\nsis\`.
+
+First launch creates the account at `/setup` and seeds a demo workflow. Your
+data — `forge.db`, `auth.secret`, `server.log` — lives under
+`%APPDATA%\local.forge.desktop` (the Tauri app-data directory) and nothing else.
+
+## Running it for development
 
 ```bash
 npm run dev
@@ -42,50 +66,44 @@ npm test
 npx prisma studio
 ```
 
-## Running it for real, and from your phone
+## Tasks, on files and folders
 
-Forge is local-first because it has to be: the harvester reads your AI tools'
-histories out of this machine's home directory. Host it on a server and there
-is nothing there to read — the ledger stays empty forever. So it runs here, and
-you reach it privately.
+**Tasks** is what to do next, optionally pinned to a file or folder on disk.
+The picker in the task form browses your drives read-only — `lib/fs-browse.ts`
+is the only filesystem read outside the harvesters, and it only ever lists a
+directory. A task stores the path it points at as a _reference_; nothing in the
+app writes, moves or deletes what it points at.
 
-```bash
-npm run build && npm start
-```
+Paths are stored twice, exactly as projects are: `path` is the canonical key
+(lowercased on Windows, separators normalised — see `lib/harvest/paths.ts`) and
+`displayPath` keeps the original casing. Two spellings of the same folder
+therefore collapse to one key without mangling what the screen shows.
 
-`next start` binds to `0.0.0.0`, so it is already reachable on the LAN. To get
-it from a phone anywhere, put the machine on a [Tailscale](https://tailscale.com)
-tailnet and serve it with a real certificate:
+Tasks appear in the sidebar (open count), on **Today** (the next five), and on
+`/tasks` (open list, plus a collapsed Done section). Pinning a task to a goal is
+optional; deleting the goal unlinks the task rather than deleting it.
 
-```bash
-tailscale serve --bg 3000
-```
+The packaged app upgrades an existing database in place: `lib/db-bootstrap.ts`
+runs idempotent DDL for tables added after the first release before the server
+accepts requests. It covers new tables and indexes only — a column added to an
+existing table still needs a real migration strategy.
 
-That publishes `https://<machine>.<tailnet>.ts.net` to your devices only —
-nothing is exposed to the internet, and because it is genuine HTTPS the session
-cookie keeps its `Secure` flag.
+## How the desktop app runs
 
-**If you serve plain `http://` instead** — the raw tailnet IP, or a LAN address —
-set `FORGE_ALLOW_INSECURE_COOKIE=1`. A `Secure` cookie is not sent over HTTP, so
-without it every login silently bounces back to the login page with no error
-anywhere. Only ever do this on a private network.
+The window is a Tauri webview pointed at a Next.js standalone server the shell
+starts as a private child process — `node.exe server.js` on an ephemeral
+**127.0.0.1 port**, killed when the window closes. Nothing binds to any other
+interface, so the hand-rolled session cookie (see _Known limitations_) only
+ever has to survive a loopback address, and the app has no public surface to
+prepare for.
 
-To keep both the server and the harvest running without a terminal open:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\windows-tasks.ps1
-```
-
-Two scheduled tasks under your own account — no elevation, nothing
-system-wide — starting the server at logon and harvesting every 30 minutes.
-`-Uninstall` removes them.
-
-### Before putting it anywhere public
-
-One thing in here is fine for a single trusted user on a private network and
-is not fine on the internet, called out under _Known limitations_: the
-hand-rolled session cookie.
-Tailscale sidesteps both by never exposing the app in the first place.
+The same sidecar process runs the background jobs — the schedule ticker
+(every minute) and the harvester (every 30 minutes) — via
+`instrumentation.ts register()` gated on `FORGE_DESKTOP=1`, which the shell
+sets when it spawns the server. There is no external poller to install: jobs
+run while the app is open, schedules that came due while it was closed fire on
+the next tick, and `npm run schedules` / `npm run harvest` remain for manual
+use.
 
 ---
 
@@ -296,9 +314,13 @@ override.
 ## Architecture
 
 ```
+src-tauri/      the desktop shell: spawns the sidecar, owns the window, kills the process
 lib/engine/     types · registry · scheduler · bus · run-manager · validate · schema-form
 lib/executors/  start · shell · ai · http · transform · branch · end
 lib/harvest/    types · paths · jsonl · idle · registry · claude-code · codex · gemini · run
+lib/jobs.ts     the in-process tickers: schedule fire-loop, harvest loop
+lib/fs-browse.ts  the only filesystem read outside the harvesters (path picker)
+lib/db-bootstrap.ts  idempotent DDL for in-place upgrades of a packaged database
 data/           the authorization boundary
 actions/        Server Actions: authenticate → parse → delegate → revalidate
 app/(app)/      the IDE shell and its pages
@@ -388,15 +410,12 @@ versioning is a snapshot. `Run.version` pins which graph a run belongs to.
   it came from. `/secrets` is write-only: there is no function anywhere in
   the app that returns a saved value in plaintext except right before a run
   starts.
-- **Schedules** (interval / daily / weekly recurring runs) are real —
-  `lib/schedule.ts` for the recurrence math, `data/schedules.ts` for the
-  storage, `/schedules` for the UI. They don't fire themselves, though:
-  there's no long-running process inside `next dev`/`next start` that could
-  hold a timer alive across restarts and dev-reloads, so `scripts/run-schedules.ts`
-  polls for due schedules and needs an external trigger — the Windows Task
-  Scheduler entry in `windows-tasks.ps1` (`npm run schedules`, every minute)
-  is that trigger. Without it running, schedules sit in the database and
-  never fire.
+- **Schedules** (interval / daily / weekly recurring runs) are real and fire
+  themselves — `lib/schedule.ts` for the recurrence math, `data/schedules.ts`
+  for the storage, `/schedules` for the UI, `lib/jobs.ts` for the in-process
+  ticker that runs while the desktop app is open. During `npm run dev` the
+  ticker is off (the flag lives with the packaged shell), so use
+  `npm run schedules` to fire due schedules by hand.
 
 ## Environment notes
 

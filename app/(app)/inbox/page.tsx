@@ -5,7 +5,7 @@ import { PageHeader, Icon } from "@/components/shell";
 import { formatRelative } from "@/lib/status";
 
 /**
- * Everything waiting on the teacher, and nothing else.
+ * Everything waiting on you, and nothing else.
  *
  * Built from real state — automations whose last run failed. When it's empty
  * it says so plainly rather than filling the space.

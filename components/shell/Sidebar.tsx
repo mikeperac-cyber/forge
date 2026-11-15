@@ -14,7 +14,7 @@ import type { ExplorerWorkflow } from "./AppShell";
  * The single left column.
  *
  * This replaces an icon rail plus a tree — two columns of chrome for a person
- * whose whole problem is too many places to look. Seven destinations, three
+ * whose whole problem is too many places to look. Six destinations, two
  * groups, one thing that tells you whether anything needs you.
  *
  * Kept deliberately short. Everything else the app can reach — Inbox, Runs,
@@ -44,6 +44,7 @@ export function Sidebar({
   userEmail,
   workflows,
   activeGoals,
+  openTasks,
   runningSession,
   collapsed,
   onToggle,
@@ -53,6 +54,7 @@ export function Sidebar({
   userEmail: string;
   workflows: ExplorerWorkflow[];
   activeGoals: number;
+  openTasks: number;
   runningSession: RunningSession | null;
   collapsed: boolean;
   onToggle: () => void;
@@ -71,12 +73,17 @@ export function Sidebar({
         { href: "/time", label: "Time", icon: "Clock" },
         // Where the hours actually went, as opposed to where you logged them.
         { href: "/projects", label: "Projects", icon: "Activity" },
+        // What to do next, with the file or folder it's about attached.
+        {
+          href: "/tasks",
+          label: "Tasks",
+          icon: "ListTodo",
+          count: openTasks || undefined,
+        },
       ],
     },
     {
-      label: "Declutter",
       items: [
-        { href: "/files", label: "Files", icon: "FolderOpen" },
         {
           href: "/workflows",
           label: "Automations",
@@ -84,9 +91,6 @@ export function Sidebar({
           count: needsYou || undefined,
         },
       ],
-    },
-    {
-      items: [{ href: "/notes", label: "Notes", icon: "NotebookPen" }],
     },
   ];
 
@@ -154,7 +158,7 @@ export function Sidebar({
             <>
               <span className="flex-1 text-left text-[13px]">Search</span>
               <kbd className="border-line rounded border px-1 text-[10px] tabular-nums">
-                ⌘K
+                Ctrl K
               </kbd>
             </>
           )}
@@ -253,7 +257,7 @@ export function Sidebar({
 /**
  * The signature: one strip, one segment per automation, coloured by how its
  * last run ended. It answers "is anything waiting for me?" before you click
- * anything — the question a teacher opens the app with.
+ * anything — the question you open the app with.
  *
  * This is the only saturated colour in the sidebar, and it is a fill, never
  * text.

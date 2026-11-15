@@ -1,6 +1,5 @@
 export * from "./AppShell";
 export * from "./CommandPalette";
-export * from "./EmptySection";
 export * from "./Icon";
 export * from "./InlineRename";
 export * from "./PageHeader";

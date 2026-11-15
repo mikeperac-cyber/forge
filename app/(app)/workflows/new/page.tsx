@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/shell";
 export default function NewWorkflowPage() {
   return (
     <div className="flex h-full flex-col">
-      <PageHeader icon="Plus" title="New workflow" />
+      <PageHeader icon="Plus" title="New automation" />
 
       <div className="flex-1 overflow-y-auto p-6">
         <form action={createWorkflowAction} className="max-w-md space-y-3">
@@ -37,7 +37,7 @@ export default function NewWorkflowPage() {
             type="submit"
             className="bg-accent rounded px-3 py-1.5 text-[12.5px] font-medium text-white"
           >
-            Create workflow
+            Create automation
           </button>
         </form>
       </div>

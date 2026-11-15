@@ -61,10 +61,10 @@ export default async function RunsPage({
         {runs.length === 0 ? (
           <p className="text-ink-faint p-6 text-center text-[12.5px]">
             {filtered && !workflow
-              ? "That workflow doesn't exist."
+              ? "That automation doesn't exist."
               : filtered
-                ? "No runs for this workflow yet."
-                : "No runs yet. Open a workflow and press Run."}
+                ? "No runs for this automation yet."
+                : "No runs yet. Open an automation and press Run."}
           </p>
         ) : (
           <table className="w-full text-[12.5px]">

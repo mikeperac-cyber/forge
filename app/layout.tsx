@@ -9,9 +9,9 @@ import { NO_FLASH_SCRIPT } from "@/lib/theme";
 
 /**
  * Atkinson Hyperlegible was drawn by the Braille Institute to make similar
- * letterforms unmistakable — I / l / 1, O / 0, rn / m. For a product used by
- * language teachers and their learners that is a functional choice, not a
- * stylistic one, and it holds up at the 12–13px an interface actually uses.
+ * letterforms unmistakable — I / l / 1, O / 0, rn / m. In a workspace read at
+ * a glance, mostly in 12–13px interface type and terminal output, that is a
+ * functional choice, not a stylistic one, and it holds up at those sizes.
  */
 const atkinson = Atkinson_Hyperlegible({
   variable: "--font-atkinson",
@@ -34,7 +34,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Forge",
-  description: "A quiet workspace for teaching.",
+  description: "A local-first workflow orchestrator and time ledger.",
 };
 
 export default function RootLayout({

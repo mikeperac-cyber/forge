@@ -44,6 +44,9 @@ import {
   Workflow,
   X,
   Zap,
+  File,
+  Folder,
+  ListTodo,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
@@ -96,6 +99,9 @@ const ICONS: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   Workflow,
   X,
   Zap,
+  File,
+  Folder,
+  ListTodo,
 };
 
 export function Icon({

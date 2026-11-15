@@ -59,13 +59,13 @@ function materializeExternalAliases(serverDir) {
 console.log("== next build (standalone) ==");
 run(node22, ["node_modules/next/dist/bin/next", "build"]);
 
-console.log("== clean template db ==");
+// The template is schema-only on purpose: first launch copies it into app data
+// and /setup creates the account (and the demo workflow). Seeding here would
+// ship every install with the dev account and its known password.
+console.log("== empty template db ==");
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "forge-template-"));
 const dbUrl = "file:" + path.join(tmp, "forge.db").replaceAll("\\", "/");
 run(node22, ["node_modules/prisma/build/index.js", "db", "push"], {
-  DATABASE_URL: dbUrl,
-});
-run(node22, ["node_modules/tsx/dist/cli.mjs", "prisma/seed.ts"], {
   DATABASE_URL: dbUrl,
 });
 

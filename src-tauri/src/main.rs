@@ -70,9 +70,10 @@ fn main() {
                     format!("file:{}", db.to_string_lossy().replace('\\', "/")),
                 )
                 .env("AUTH_SECRET", auth_secret(&data))
-                // The sidecar is plain HTTP on loopback; a Secure cookie would be
-                // silently dropped and every login would bounce back to /login.
-                .env("FORGE_ALLOW_INSECURE_COOKIE", "1");
+                // Tells the sidecar it is the desktop process, not `next dev`:
+                // only then does instrumentation.ts start the background
+                // schedule ticker and harvester in-process (see lib/jobs.ts).
+                .env("FORGE_DESKTOP", "1");
             if let Ok(log) = fs::File::create(data.join("server.log")) {
                 if let Ok(err) = log.try_clone() {
                     cmd.stdout(Stdio::from(log)).stderr(Stdio::from(err));

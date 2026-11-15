@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { getSessionUserId } from "@/lib/session";
-import { listWorkflows } from "@/data/workflows";
+import { listShellWorkflows } from "@/data/workflows";
 import { countActiveGoals } from "@/data/goals";
+import { countOpenTasks } from "@/data/tasks";
 import { getRunningSession } from "@/data/time";
 import { listRuns } from "@/data/runs";
 import { prisma } from "@/lib/db";
@@ -27,18 +28,21 @@ export default async function AppLayout({
   // A valid signature over a deleted user — treat as signed out.
   if (!user) redirect("/login");
 
-  const [workflows, recentRuns, activeGoals, running] = await Promise.all([
-    listWorkflows(userId),
-    listRuns(userId, { limit: 6 }),
-    countActiveGoals(userId),
-    getRunningSession(userId),
-  ]);
+  const [workflows, recentRuns, activeGoals, openTasks, running] =
+    await Promise.all([
+      listShellWorkflows(userId),
+      listRuns(userId, { limit: 6 }),
+      countActiveGoals(userId),
+      countOpenTasks(userId),
+      getRunningSession(userId),
+    ]);
 
   return (
     <AppShell
       userEmail={user.email}
       userName={user.name}
       activeGoals={activeGoals}
+      openTasks={openTasks}
       runningSession={
         running
           ? {
@@ -51,13 +55,7 @@ export default async function AppLayout({
             }
           : null
       }
-      workflows={workflows.map((w) => ({
-        id: w.id,
-        name: w.name,
-        slug: w.slug,
-        nodeCount: w.nodeCount,
-        lastRunStatus: w.lastRun?.status ?? null,
-      }))}
+      workflows={workflows}
       recentRuns={recentRuns.map((r) => ({
         id: r.id,
         status: r.status,

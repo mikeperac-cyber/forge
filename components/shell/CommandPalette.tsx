@@ -79,8 +79,8 @@ export function CommandPalette({
             onValueChange={setQuery}
             placeholder={
               workflowsOnly
-                ? "Go to workflow…"
-                : "Search workflows, runs and commands…"
+                ? "Go to automation…"
+                : "Search automations, runs and commands…"
             }
             className="placeholder:text-ink-faint h-11 flex-1 bg-transparent text-[13px] outline-none"
           />
@@ -94,13 +94,13 @@ export function CommandPalette({
             Nothing matches “{query}”.
           </Command.Empty>
 
-          <Group heading="Workflows">
+          <Group heading="Automations">
             {workflows.map((workflow) => (
               <Item
                 key={workflow.id}
                 icon="Workflow"
                 label={workflow.name}
-                hint={`${workflow.nodeCount} nodes`}
+                hint={`${workflow.nodeCount} steps`}
                 onSelect={() => go(`/w/${workflow.slug}`)}
               />
             ))}
@@ -148,7 +148,7 @@ export function CommandPalette({
               <Group heading="Actions">
                 <Item
                   icon="Plus"
-                  label="New workflow"
+                  label="New automation"
                   onSelect={() => go("/workflows/new")}
                 />
                 <Item
